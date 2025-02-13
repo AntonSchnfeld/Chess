@@ -2,35 +2,38 @@ package org.example;
 
 import org.example.pieces.ChessPiece;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ChessBoard implements ChessBoardView {
-    private final ChessBoardDimensions dimensions;
+    private final ChessBoardBounds dimensions;
     private final Map<Position, ChessPiece> board;
 
-    public ChessBoard(Map<Position, ChessPiece> board, ChessBoardDimensions dimensions) {
-        this.board = new HashMap<>(board);
+    public ChessBoard(ChessBoardBounds dimensions) {
+        this.board = new HashMap<>();
         this.dimensions = dimensions;
     }
 
-    public boolean movePiece(Position start, Position target) {
-        ChessPiece piece = board.get(start);
-        if (!piece.getValidMoves(this, start).contains(target))
+    public boolean movePiece(Position startPos, Position targetPos) {
+        ChessPiece piece = board.get(startPos);
+        if (!piece.getValidMoves(this, startPos).contains(targetPos))
             return false;
-        board.remove(start);
-        board.put(target, piece);
+        board.put(targetPos, piece);
+        board.remove(startPos);
         return true;
     }
 
     @Override
-    public Map<Position, ChessPiece> getPiecePositions() {
-        return Collections.unmodifiableMap(board);
+    public ChessPiece getPieceAt(Position position) {
+        return board.get(position);
+    }
+
+    public void putChessPiece(Position position, ChessPiece piece) {
+        board.put(position, piece);
     }
 
     @Override
-    public ChessBoardDimensions getChessBoardDimensions() {
+    public ChessBoardBounds getChessBoardDimensions() {
         return dimensions;
     }
 }

@@ -27,7 +27,6 @@ public class Knight extends ChessPiece {
     @Override
     public List<Position> getValidMoves(ChessBoardView view, Position curPos) {
         List<Position> validMoves = new LinkedList<>();
-        Map<Position, ChessPiece> piecePositions = view.getPiecePositions();
 
         for (int[] offsets : moveOffsets) {
             // Calculate position to investigate
@@ -38,7 +37,8 @@ public class Knight extends ChessPiece {
             // Don't add out of bounds moves
             if (!view.getChessBoardDimensions().contains(testPosition)) continue;
             // Don't add moves which would capture friendly pieces
-            if (piecePositions.get(testPosition).colour == colour) continue;
+            ChessPiece testPositionPiece = view.getPieceAt(testPosition);
+            if (testPositionPiece != null && testPositionPiece.getColour() == colour) continue;
 
             validMoves.add(testPosition);
         }
