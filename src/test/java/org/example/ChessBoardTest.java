@@ -1,8 +1,6 @@
-package org.example.pieces;
+package org.example;
 
-import org.example.Position;
-import org.example.ChessBoard;
-import org.example.ChessBoardBounds;
+import org.example.pieces.ChessPiece;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -77,7 +75,7 @@ class ChessBoardTest {
     }
 
     @Test
-    void givenChessBoard_whenGetChessBoardDimensions_thenReturnCorrectDimensions() {
+    void givenChessBoard_whenGetChessBoardDimensions_thenReturnCorrectBounds() {
         // Arrange: Mock dependencies
         ChessBoardBounds mockDimensions = mock(ChessBoardBounds.class);
         ChessPiece mockPiece = mock(ChessPiece.class);
@@ -88,7 +86,7 @@ class ChessBoardTest {
         chessBoard.putChessPiece(startPosition, mockPiece);
 
         // Act: Retrieve the chess board dimensions
-        ChessBoardBounds dimensions = chessBoard.getChessBoardDimensions();
+        ChessBoardBounds dimensions = chessBoard.getChessBoardBounds();
 
         // Assert: The dimensions should match the mock dimensions
         assertEquals(mockDimensions, dimensions);

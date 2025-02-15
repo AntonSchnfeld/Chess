@@ -32,8 +32,11 @@ public class ChessBoard implements ChessBoardView {
         board.put(position, piece);
     }
 
+    public void executeMove(Move move) {
+    }
+
     @Override
-    public ChessBoardBounds getChessBoardDimensions() {
+    public ChessBoardBounds getChessBoardBounds() {
         return dimensions;
     }
 }

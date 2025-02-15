@@ -5,7 +5,6 @@ import org.example.Position;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public class Knight extends ChessPiece {
 
@@ -35,7 +34,7 @@ public class Knight extends ChessPiece {
             Position testPosition = new Position(testPosRow, testPosCol);
 
             // Don't add out of bounds moves
-            if (!view.getChessBoardDimensions().contains(testPosition)) continue;
+            if (!view.getChessBoardBounds().contains(testPosition)) continue;
             // Don't add moves which would capture friendly pieces
             ChessPiece testPositionPiece = view.getPieceAt(testPosition);
             if (testPositionPiece != null && testPositionPiece.getColour() == colour) continue;

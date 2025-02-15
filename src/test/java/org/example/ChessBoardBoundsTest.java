@@ -1,7 +1,5 @@
-package org.example.pieces;
+package org.example;
 
-import org.example.ChessBoardBounds;
-import org.example.Position;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -20,7 +20,7 @@ public class KnightTest {
 
         // Mock board size (8x8)
         ChessBoardBounds bounds = new ChessBoardBounds(8, 8);
-        when(mockView.getChessBoardDimensions()).thenReturn(bounds);
+        when(mockView.getChessBoardBounds()).thenReturn(bounds);
         when(mockView.getPieceAt(any())).thenReturn(null); // No pieces on board
 
         List<Position> moves = knight.getValidMoves(mockView, knightPos);
@@ -43,7 +43,7 @@ public class KnightTest {
         Position knightPos = new Position(3, 3);
 
         ChessBoardBounds bounds = new ChessBoardBounds(8, 8);
-        when(mockView.getChessBoardDimensions()).thenReturn(bounds);
+        when(mockView.getChessBoardBounds()).thenReturn(bounds);
         when(mockView.getPieceAt(any())).thenReturn(null);
 
         // Block position (4,5) with a friendly piece
@@ -64,7 +64,7 @@ public class KnightTest {
         Position knightPos = new Position(3, 3);
 
         ChessBoardBounds bounds = new ChessBoardBounds(8, 8);
-        when(mockView.getChessBoardDimensions()).thenReturn(bounds);
+        when(mockView.getChessBoardBounds()).thenReturn(bounds);
         when(mockView.getPieceAt(any())).thenReturn(null);
 
         // Enemy piece at (4,5)
@@ -85,7 +85,7 @@ public class KnightTest {
         Position knightPos = new Position(0, 0); // Top-left corner
 
         ChessBoardBounds bounds = new ChessBoardBounds(8, 8);
-        when(mockView.getChessBoardDimensions()).thenReturn(bounds);
+        when(mockView.getChessBoardBounds()).thenReturn(bounds);
         when(mockView.getPieceAt(any())).thenReturn(null);
 
         List<Position> moves = knight.getValidMoves(mockView, knightPos);

@@ -5,5 +5,5 @@ import org.example.pieces.ChessPiece;
 public interface ChessBoardView {
     ChessPiece getPieceAt(Position position);
 
-    ChessBoardBounds getChessBoardDimensions();
+    ChessBoardBounds getChessBoardBounds();
 }
