@@ -28,9 +28,14 @@ public class Bishop extends ChessPiece {
 
             while (view.getChessBoardBounds().contains(nextPos)) {
                 ChessPiece piece = view.getPieceAt(nextPos);
-                if (piece == null || piece.getColour() != colour) validMoves.add(nextPos);
+                if (piece != null && piece.getColour() != colour) {
+                    validMoves.add(nextPos);
+                    break;
+                }
+                else if (piece == null)
+                    validMoves.add(nextPos);
                 else break;
-                nextPos.offset(direction[0], direction[1]);
+                nextPos = nextPos.offset(direction[0], direction[1]);
             }
         }
 
