@@ -55,7 +55,7 @@ public class PawnTest {
         assertEquals(mockHostile, moves.getMoveTo(leftHostilePosition).capturedPiece());
         assertEquals(mockHostile, moves.getMoveTo(rightHostilePosition).capturedPiece());
         assertTrue(moves.containsMoveTo(new Position(1, 3)));
-        assertTrue(moves.containsMoveTo(new Position(1, 4)));
+        assertTrue(moves.containsMoveTo(new Position(1, 2)));
     }
 
     @Test
