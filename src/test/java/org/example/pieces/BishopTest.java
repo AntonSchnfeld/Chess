@@ -1,8 +1,6 @@
 package org.example.pieces;
 
-import org.example.ChessBoardBounds;
-import org.example.ChessBoardView;
-import org.example.Position;
+import org.example.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -22,24 +20,19 @@ public class BishopTest {
         when(mockEmptyView.getPieceAt(any())).thenReturn(null);
         when(mockEmptyView.getPieceAt(bishopPosition)).thenReturn(bishop);
 
-        List<Position> moves = bishop.getValidMoves(mockEmptyView, bishopPosition);
+        MoveCollection moves = bishop.getValidMoves(mockEmptyView, bishopPosition);
 
-        Assertions.assertTrue(moves.contains(new Position(4, 4)));
-        Assertions.assertTrue(moves.contains(new Position(5, 5)));
-        Assertions.assertTrue(moves.contains(new Position(6, 6)));
-        Assertions.assertTrue(moves.contains(new Position(7, 7)));
-        Assertions.assertTrue(moves.contains(new Position(0, 0)));
-        Assertions.assertTrue(moves.contains(new Position(1, 1)));
-        Assertions.assertTrue(moves.contains(new Position(2, 2)));
+        for (int x = 4, y = 4; x < 8; x++, y++)
+            Assertions.assertTrue(moves.containsMoveTo(new Position(x, y)));
+        for (int x = 0, y = 0; x < 3; x++, y++)
+            Assertions.assertTrue(moves.containsMoveTo(new Position(x, y)));
 
-        Assertions.assertTrue(moves.contains(new Position(2, 4)));
-        Assertions.assertTrue(moves.contains(new Position(1, 5)));
-        Assertions.assertTrue(moves.contains(new Position(0, 6)));
-        Assertions.assertTrue(moves.contains(new Position(4, 2)));
-        Assertions.assertTrue(moves.contains(new Position(5, 1)));
-        Assertions.assertTrue(moves.contains(new Position(6, 0)));
+        for (int x = 2, y = 4; -1 < x; x--, y++)
+            Assertions.assertTrue(moves.containsMoveTo(new Position(x, y)));
+        for (int x = 4, y = 2; -1 < y; x++, y--)
+            Assertions.assertTrue(moves.containsMoveTo(new Position(x, y)));
 
-        Assertions.assertFalse(moves.contains(new Position(3, 3)));
+        Assertions.assertFalse(moves.containsMoveTo(new Position(3, 3)));
 
         Assertions.assertEquals(13, moves.size());
     }
@@ -57,7 +50,7 @@ public class BishopTest {
         when(mockFullView.getChessBoardBounds()).thenReturn(bounds);
         when(mockFriendlyPiece.getColour()).thenReturn(true);
 
-        List<Position> moves = bishop.getValidMoves(mockFullView, bishopPosition);
+        MoveCollection moves = bishop.getValidMoves(mockFullView, bishopPosition);
 
         Assertions.assertTrue(moves.isEmpty());
     }
@@ -72,7 +65,7 @@ public class BishopTest {
         when(mockTinyView.getChessBoardBounds()).thenReturn(bounds);
         when(mockTinyView.getPieceAt(bishopPosition)).thenReturn(bishop);
 
-        List<Position> moves = bishop.getValidMoves(mockTinyView, bishopPosition);
+        MoveCollection moves = bishop.getValidMoves(mockTinyView, bishopPosition);
 
         Assertions.assertTrue(moves.isEmpty());
     }
@@ -91,7 +84,7 @@ public class BishopTest {
         when(mockView.getPieceAt(friendlyPosition)).thenReturn(mockFriendly);
         when(mockView.getPieceAt(bishopPosition)).thenReturn(bishop);
 
-        List<Position> moves = bishop.getValidMoves(mockView, bishopPosition);
+        MoveCollection moves = bishop.getValidMoves(mockView, bishopPosition);
 
         Assertions.assertTrue(moves.isEmpty());
     }
@@ -110,10 +103,10 @@ public class BishopTest {
         when(mockView.getPieceAt(hostilePosition)).thenReturn(mockHostile);
         when(mockView.getPieceAt(bishopPosition)).thenReturn(bishop);
 
-        List<Position> moves = bishop.getValidMoves(mockView, bishopPosition);
+        MoveCollection moves = bishop.getValidMoves(mockView, bishopPosition);
 
         Assertions.assertEquals(1, moves.size());
-        Assertions.assertTrue(moves.contains(hostilePosition));
+        Assertions.assertTrue(moves.contains(Move.of(bishopPosition, hostilePosition, bishop, mockHostile, false)));
     }
 
     @Test
@@ -142,29 +135,29 @@ public class BishopTest {
         when(mockView.getPieceAt(new Position(2, 4))).thenReturn(hostilePiece);
 
         // Get the valid moves for the bishop
-        List<Position> moves = bishop.getValidMoves(mockView, bishopPosition);
+        MoveCollection moves = bishop.getValidMoves(mockView, bishopPosition);
 
         // The bishop's own position should not be in the valid moves.
-        Assertions.assertFalse(moves.contains(bishopPosition));
+        Assertions.assertFalse(moves.contains(Move.normal(bishopPosition, bishopPosition, bishop)));
 
         // Top-left diagonal: blocked by a friendly piece at (2,2), so no moves are allowed.
-        Assertions.assertFalse(moves.contains(new Position(2, 2)));
+        Assertions.assertFalse(moves.containsMoveTo(new Position(2, 2)));
 
         // Top-right diagonal: the hostile piece at (2,4) should be capturable,
         // and no moves beyond it should be allowed.
-        Assertions.assertTrue(moves.contains(new Position(2, 4)));
-        Assertions.assertFalse(moves.contains(new Position(1, 5)));
+        Assertions.assertTrue(moves.containsMoveTo(new Position(2, 4)));
+        Assertions.assertFalse(moves.containsMoveTo(new Position(1, 5)));
 
         // Bottom-left diagonal: free path, so moves should include (4,2), (5,1), (6,0)
-        Assertions.assertTrue(moves.contains(new Position(4, 2)));
-        Assertions.assertTrue(moves.contains(new Position(5, 1)));
-        Assertions.assertTrue(moves.contains(new Position(6, 0)));
+        Assertions.assertTrue(moves.containsMoveTo(new Position(4, 2)));
+        Assertions.assertTrue(moves.containsMoveTo(new Position(5, 1)));
+        Assertions.assertTrue(moves.containsMoveTo(new Position(6, 0)));
 
         // Bottom-right diagonal: free path, so moves should include (4,4), (5,5), (6,6), (7,7)
-        Assertions.assertTrue(moves.contains(new Position(4, 4)));
-        Assertions.assertTrue(moves.contains(new Position(5, 5)));
-        Assertions.assertTrue(moves.contains(new Position(6, 6)));
-        Assertions.assertTrue(moves.contains(new Position(7, 7)));
+        Assertions.assertTrue(moves.containsMoveTo(new Position(4, 4)));
+        Assertions.assertTrue(moves.containsMoveTo(new Position(5, 5)));
+        Assertions.assertTrue(moves.containsMoveTo(new Position(6, 6)));
+        Assertions.assertTrue(moves.containsMoveTo(new Position(7, 7)));
 
         // Total expected moves:
         // Top-right: 1 capture move
@@ -173,5 +166,4 @@ public class BishopTest {
         // => 1 + 3 + 4 = 8 moves
         Assertions.assertEquals(8, moves.size());
     }
-
 }

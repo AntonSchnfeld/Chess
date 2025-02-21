@@ -1,12 +1,8 @@
 package org.example.pieces;
 
-import org.example.ChessBoardBounds;
-import org.example.ChessBoardView;
-import org.example.Position;
+import org.example.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -23,17 +19,17 @@ public class KnightTest {
         when(mockView.getChessBoardBounds()).thenReturn(bounds);
         when(mockView.getPieceAt(any())).thenReturn(null); // No pieces on board
 
-        List<Position> moves = knight.getValidMoves(mockView, knightPos);
+        MoveCollection moves = knight.getValidMoves(mockView, knightPos);
 
         Assertions.assertEquals(8, moves.size()); // All 8 moves should be valid
-        Assertions.assertTrue(moves.contains(new Position(4, 5)));
-        Assertions.assertTrue(moves.contains(new Position(5, 4)));
-        Assertions.assertTrue(moves.contains(new Position(2, 5)));
-        Assertions.assertTrue(moves.contains(new Position(5, 2)));
-        Assertions.assertTrue(moves.contains(new Position(4, 1)));
-        Assertions.assertTrue(moves.contains(new Position(1, 4)));
-        Assertions.assertTrue(moves.contains(new Position(2, 1)));
-        Assertions.assertTrue(moves.contains(new Position(1, 2)));
+        Assertions.assertTrue(moves.contains(Move.of(knightPos, new Position(4, 5), knight, null, false)));
+        Assertions.assertTrue(moves.contains(Move.of(knightPos, new Position(5, 4), knight, null, false)));
+        Assertions.assertTrue(moves.contains(Move.of(knightPos, new Position(2, 5), knight, null, false)));
+        Assertions.assertTrue(moves.contains(Move.of(knightPos, new Position(5, 2), knight, null, false)));
+        Assertions.assertTrue(moves.contains(Move.of(knightPos, new Position(4, 1), knight, null, false)));
+        Assertions.assertTrue(moves.contains(Move.of(knightPos, new Position(1, 4), knight, null, false)));
+        Assertions.assertTrue(moves.contains(Move.of(knightPos, new Position(2, 1), knight, null, false)));
+        Assertions.assertTrue(moves.contains(Move.of(knightPos, new Position(1, 2), knight, null, false)));
     }
 
     @Test
@@ -51,9 +47,9 @@ public class KnightTest {
         when(friendlyPiece.getColour()).thenReturn(true);
         when(mockView.getPieceAt(new Position(4, 5))).thenReturn(friendlyPiece);
 
-        List<Position> moves = knight.getValidMoves(mockView, knightPos);
+        MoveCollection moves = knight.getValidMoves(mockView, knightPos);
 
-        Assertions.assertFalse(moves.contains(new Position(4, 5))); // Blocked by friendly piece
+        Assertions.assertFalse(moves.contains(Move.of(knightPos, new Position(4, 5), knight, null, false)));
         Assertions.assertEquals(7, moves.size()); // Only 7 valid moves now
     }
 
@@ -72,9 +68,9 @@ public class KnightTest {
         when(enemyPiece.getColour()).thenReturn(false);
         when(mockView.getPieceAt(new Position(4, 5))).thenReturn(enemyPiece);
 
-        List<Position> moves = knight.getValidMoves(mockView, knightPos);
+        MoveCollection moves = knight.getValidMoves(mockView, knightPos);
 
-        Assertions.assertTrue(moves.contains(new Position(4, 5))); // Should be able to capture enemy piece
+        Assertions.assertTrue(moves.contains(Move.of(knightPos, new Position(4, 5), knight, enemyPiece, false))); // Should be able to capture enemy piece
         Assertions.assertEquals(8, moves.size()); // All 8 moves should be available
     }
 
@@ -88,11 +84,11 @@ public class KnightTest {
         when(mockView.getChessBoardBounds()).thenReturn(bounds);
         when(mockView.getPieceAt(any())).thenReturn(null);
 
-        List<Position> moves = knight.getValidMoves(mockView, knightPos);
+        MoveCollection moves = knight.getValidMoves(mockView, knightPos);
 
         Assertions.assertEquals(2, moves.size()); // Only two moves possible
-        Assertions.assertTrue(moves.contains(new Position(1, 2)));
-        Assertions.assertTrue(moves.contains(new Position(2, 1)));
+        Assertions.assertTrue(moves.contains(Move.of(knightPos, new Position(1, 2), knight, null, false)));
+        Assertions.assertTrue(moves.contains(Move.of(knightPos, new Position(2, 1), knight, null, false)));
     }
 
     @Test

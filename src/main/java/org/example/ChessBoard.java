@@ -1,6 +1,7 @@
 package org.example;
 
 import org.example.pieces.ChessPiece;
+import org.example.pieces.King;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,13 +15,9 @@ public class ChessBoard implements ChessBoardView {
         this.dimensions = dimensions;
     }
 
-    public boolean movePiece(Position startPos, Position targetPos) {
-        ChessPiece piece = board.get(startPos);
-        if (!piece.getValidMoves(this, startPos).contains(targetPos))
-            return false;
-        board.put(targetPos, piece);
-        board.remove(startPos);
-        return true;
+    public void makeMove(Move move) {
+        board.remove(move.from());
+        board.put(move.to(), move.movedPiece());
     }
 
     @Override
@@ -30,9 +27,6 @@ public class ChessBoard implements ChessBoardView {
 
     public void putChessPiece(Position position, ChessPiece piece) {
         board.put(position, piece);
-    }
-
-    public void executeMove(Move move) {
     }
 
     @Override

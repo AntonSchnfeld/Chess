@@ -1,9 +1,8 @@
 package org.example.pieces;
 
 import org.example.ChessBoardView;
+import org.example.MoveCollection;
 import org.example.Position;
-
-import java.util.List;
 
 public abstract class ChessPiece {
     protected final boolean colour;
@@ -12,7 +11,7 @@ public abstract class ChessPiece {
         this.colour = colour;
     }
 
-    public abstract List<Position> getValidMoves(ChessBoardView view, Position curPos);
+    public abstract MoveCollection getValidMoves(ChessBoardView view, Position curPos);
 
     public boolean getColour() {
         return colour;

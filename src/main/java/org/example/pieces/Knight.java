@@ -1,6 +1,8 @@
 package org.example.pieces;
 
 import org.example.ChessBoardView;
+import org.example.Move;
+import org.example.MoveCollection;
 import org.example.Position;
 
 import java.util.LinkedList;
@@ -24,8 +26,8 @@ public class Knight extends ChessPiece {
     }
 
     @Override
-    public List<Position> getValidMoves(ChessBoardView view, Position curPos) {
-        List<Position> validMoves = new LinkedList<>();
+    public MoveCollection getValidMoves(ChessBoardView view, Position curPos) {
+        MoveCollection validMoves = new MoveCollection();
 
         for (int[] offsets : moveOffsets) {
             // Calculate position to investigate
@@ -39,7 +41,7 @@ public class Knight extends ChessPiece {
             ChessPiece testPositionPiece = view.getPieceAt(testPosition);
             if (testPositionPiece != null && testPositionPiece.getColour() == colour) continue;
 
-            validMoves.add(testPosition);
+            validMoves.add(Move.of(curPos, testPosition, this, testPositionPiece, false));
         }
 
         return validMoves;
