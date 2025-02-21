@@ -1,22 +1,29 @@
 package org.example;
 
 import org.example.pieces.ChessPiece;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 class ChessBoardTest {
+    private ChessBoard chessBoard;
+    private ChessBoardBounds mockDimensions;
+    private ChessPiece mockPiece;
+    private Position startPosition;
+
+    @BeforeEach
+    void setUp() {
+        mockDimensions = mock(ChessBoardBounds.class);
+        mockPiece = mock(ChessPiece.class);
+        startPosition = mock(Position.class);
+        chessBoard = new ChessBoard(mockDimensions);
+    }
 
     @Test
     void givenPosition_whenGetPieceAt_thenReturnCorrectPiece() {
-        // Arrange: Mock dependencies
-        ChessBoardBounds mockDimensions = mock(ChessBoardBounds.class);
-        ChessPiece mockPiece = mock(ChessPiece.class);
-        Position startPosition = mock(Position.class);
-
-        // Set up the board with the mock piece using putChessPiece()
-        ChessBoard chessBoard = new ChessBoard(mockDimensions);
+        // Arrange: Place the mock piece on the board
         chessBoard.putChessPiece(startPosition, mockPiece);
 
         // Act: Retrieve the piece at the start position
@@ -28,15 +35,6 @@ class ChessBoardTest {
 
     @Test
     void givenChessBoard_whenGetChessBoardDimensions_thenReturnCorrectBounds() {
-        // Arrange: Mock dependencies
-        ChessBoardBounds mockDimensions = mock(ChessBoardBounds.class);
-        ChessPiece mockPiece = mock(ChessPiece.class);
-        Position startPosition = mock(Position.class);
-
-        // Set up the board with the mock piece using putChessPiece()
-        ChessBoard chessBoard = new ChessBoard(mockDimensions);
-        chessBoard.putChessPiece(startPosition, mockPiece);
-
         // Act: Retrieve the chess board dimensions
         ChessBoardBounds dimensions = chessBoard.getChessBoardBounds();
 

@@ -1,26 +1,31 @@
 package org.example;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class ChessBoardBoundsTest {
+    private ChessBoardBounds dimensions;
+
+    @BeforeEach
+    public void setUp() {
+        dimensions = new ChessBoardBounds(8, 8);
+    }
+
     @Test
     public void givenEightByEightDimensionsAndOutOfBoundsPositivePosition_whenContains_thenReturnFalse() {
-        ChessBoardBounds dimensions = new ChessBoardBounds(8, 8);
         Position outOfBoundsPosition = new Position(8, 8);
         Assertions.assertFalse(dimensions.contains(outOfBoundsPosition));
     }
 
     @Test
     public void givenEightByEightDimensionsAndInBoundsPositivePosition_whenContains_thenReturnTrue() {
-        ChessBoardBounds dimensions = new ChessBoardBounds(8, 8);
         Position inBoundsPosition = new Position(3, 3);
         Assertions.assertTrue(dimensions.contains(inBoundsPosition));
     }
 
     @Test
     public void givenNullPosition_whenContains_thenReturnFalse() {
-        ChessBoardBounds dimensions = new ChessBoardBounds(8, 8);
         Assertions.assertFalse(dimensions.contains(null));
     }
 
@@ -50,14 +55,12 @@ public class ChessBoardBoundsTest {
 
     @Test
     public void givenEightByEightDimensionsAndPositionAtUpperBounds_whenContains_thenReturnTrue() {
-        ChessBoardBounds dimensions = new ChessBoardBounds(8, 8);
         Position upperBoundPosition = new Position(7, 7);
         Assertions.assertTrue(dimensions.contains(upperBoundPosition));
     }
 
     @Test
     public void givenEightByEightDimensionsAndPositionJustOutside_whenContains_thenReturnFalse() {
-        ChessBoardBounds dimensions = new ChessBoardBounds(8, 8);
         Position outOfBoundsPosition = new Position(8, 7);
         Assertions.assertFalse(dimensions.contains(outOfBoundsPosition));
     }
