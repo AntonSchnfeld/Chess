@@ -8,15 +8,30 @@ import java.util.Map;
 public class ChessBoard implements ChessBoardView {
     private final ChessBoardBounds dimensions;
     private final Map<Position, ChessPiece> board;
+    private final MoveHistory moveHistory;
+
+    public ChessBoard() {
+        this(new ChessBoardBounds(8, 8));
+    }
 
     public ChessBoard(ChessBoardBounds dimensions) {
+        this(dimensions, new SimpleMoveHistory());
+    }
+
+    public ChessBoard(ChessBoardBounds dimensions, MoveHistory moveHistory) {
         this.board = new HashMap<>();
         this.dimensions = dimensions;
+        this.moveHistory = moveHistory;
     }
 
     public void makeMove(Move move) {
         board.remove(move.from());
         board.put(move.to(), move.movedPiece());
+        moveHistory.recordMove(move);
+    }
+
+    public MoveHistory getMoveHistory() {
+        return moveHistory;
     }
 
     @Override
@@ -31,5 +46,10 @@ public class ChessBoard implements ChessBoardView {
     @Override
     public ChessBoardBounds getChessBoardBounds() {
         return dimensions;
+    }
+
+    @Override
+    public Position getKingPosition(boolean colour) {
+        return null;
     }
 }

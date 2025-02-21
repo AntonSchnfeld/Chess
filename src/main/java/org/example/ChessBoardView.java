@@ -6,4 +6,6 @@ public interface ChessBoardView {
     ChessPiece getPieceAt(Position position);
 
     ChessBoardBounds getChessBoardBounds();
+
+    Position getKingPosition(boolean colour);
 }
