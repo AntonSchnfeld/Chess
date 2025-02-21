@@ -1,7 +1,6 @@
 package org.example;
 
 import org.example.pieces.ChessPiece;
-import org.example.pieces.King;
 
 import java.util.HashMap;
 import java.util.Map;

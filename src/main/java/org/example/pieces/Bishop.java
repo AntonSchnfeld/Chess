@@ -5,9 +5,6 @@ import org.example.Move;
 import org.example.MoveCollection;
 import org.example.Position;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Bishop extends ChessPiece {
 
     public Bishop(boolean colour) {
@@ -33,8 +30,7 @@ public class Bishop extends ChessPiece {
                 if (piece != null && piece.getColour() != colour) {
                     validMoves.add(Move.of(curPos, nextPos, this, piece, false));
                     break;
-                }
-                else if (piece == null)
+                } else if (piece == null)
                     validMoves.add(Move.of(curPos, nextPos, this, null, false));
                 else break;
                 nextPos = nextPos.offset(direction[0], direction[1]);

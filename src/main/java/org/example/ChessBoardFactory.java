@@ -2,9 +2,6 @@ package org.example;
 
 import org.example.pieces.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class ChessBoardFactory {
     private ChessBoardFactory() {
 

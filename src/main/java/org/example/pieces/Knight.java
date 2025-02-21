@@ -5,9 +5,6 @@ import org.example.Move;
 import org.example.MoveCollection;
 import org.example.Position;
 
-import java.util.LinkedList;
-import java.util.List;
-
 public class Knight extends ChessPiece {
 
     private static final int[][] moveOffsets = {

@@ -4,7 +4,7 @@ import org.example.ChessBoardView;
 import org.example.MoveCollection;
 import org.example.Position;
 
-public class Rook extends ChessPiece{
+public class Rook extends ChessPiece {
 
     public Rook(boolean colour) {
         super(colour);
