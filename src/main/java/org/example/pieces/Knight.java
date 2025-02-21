@@ -1,6 +1,9 @@
 package org.example.pieces;
 
-import org.example.*;
+import org.example.ChessBoardView;
+import org.example.Move;
+import org.example.MoveCollection;
+import org.example.Position;
 
 public class Knight extends ChessPiece {
 

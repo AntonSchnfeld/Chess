@@ -37,7 +37,7 @@ public class Pawn extends ChessPiece {
 
         Position rightDiagonal = curPos.offset(1, direction);
         ChessPiece rightDiagonalPiece = view.getPieceAt(rightDiagonal);
-        if (rightDiagonalPiece != null&& rightDiagonalPiece.getColour() != colour)
+        if (rightDiagonalPiece != null && rightDiagonalPiece.getColour() != colour)
             moves.add(Move.of(curPos, rightDiagonal, this, rightDiagonalPiece, false));
 
         return moves;
