@@ -1,7 +1,9 @@
 package de.schoenfeld.chess;
 
+import de.schoenfeld.chess.logic.ChessGame;
+
 public class Main {
     public static void main(String[] args) {
-        ChessBoard chessBoard = ChessBoardFactory.createDefaultChessBoard();
+        ChessGame chessGame = new ChessGame();
     }
 }

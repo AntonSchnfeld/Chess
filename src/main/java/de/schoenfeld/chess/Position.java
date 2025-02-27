@@ -10,4 +10,8 @@ public record Position(int x, int y) {
             throw new IllegalArgumentException("position must not be null");
         return new Position(position.x + x, position.y + y);
     }
+
+    public String toAlgebraic() {
+        return String.format("%c%d", 'a' + x, y + 1);
+    }
 }

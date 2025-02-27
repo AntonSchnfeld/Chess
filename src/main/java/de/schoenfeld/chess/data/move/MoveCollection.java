@@ -1,4 +1,6 @@
-package de.schoenfeld.chess;
+package de.schoenfeld.chess.data.move;
+
+import de.schoenfeld.chess.Position;
 
 import java.util.*;
 
