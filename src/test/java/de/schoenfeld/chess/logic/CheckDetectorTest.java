@@ -48,6 +48,14 @@ public class CheckDetectorTest {
 
     @Test
     public void givenOnlyBlackAndWhiteKing_whenIsCheck_thenReturnFalse() {
+        ChessPiece mockBlackKing = mock(ChessPiece.class);
+        Position blackKingPos = new Position(7, 7);
+
+        when(mockBlackKing.getPieceType()).thenReturn(PieceType.KING);
+        when(mockBlackKing.isWhite()).thenReturn(false);
+        when(mockChessBoard.getPiecesOfType(PieceType.KING, false)).thenReturn(List.of(mockBlackKing));
+        when(mockChessBoard.getPiecePosition(mockBlackKing)).thenReturn(blackKingPos);
+
         Move move = Move.of(mockWhiteKing, whiteKingPos, whiteKingPos.offset(1, 1));
         when(mockChessBoard.getPieceAt(move.to())).thenReturn(mockWhiteKing);
 

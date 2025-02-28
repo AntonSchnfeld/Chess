@@ -22,16 +22,12 @@ public class MoveGenerator {
         this(RuleEngine.DEFAULT_ENGINE, new CheckDetector());
     }
 
-    public MoveCollection generateMoves(ReadOnlyGameState gameState, boolean colour) {
+    public MoveCollection generateMoves(ReadOnlyGameState gameState, boolean isWhite) {
         MoveCollection moves = new MoveCollection();
 
         ReadOnlyChessBoard chessBoard = gameState.getChessBoard();
 
-        List<ChessPiece> pieces = chessBoard
-                .getPieces()
-                .stream()
-                .filter(p -> p.isWhite() == colour)
-                .toList();
+        List<ChessPiece> pieces = chessBoard.getPieces(isWhite);
 
         for (ChessPiece piece : pieces)
             moves.addAll(piece.getPieceType().moveStrategy().getPseudoLegalMoves(chessBoard,
@@ -41,6 +37,7 @@ public class MoveGenerator {
 
         for (Move move : moves)
             if (checkDetector.isCheck(gameState, move)) {
+                // TODO: Add check to the move
                 moves.remove(move);
             }
 

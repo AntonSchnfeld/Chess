@@ -12,9 +12,9 @@ public interface ReadOnlyChessBoard {
 
     ChessBoardBounds getBounds();
 
-    List<ChessPiece> getPieces();
+    List<ChessPiece> getPieces(boolean isWhite);
 
-    List<ChessPiece> getPiecesOfType(PieceType pieceType, boolean colour);
+    List<ChessPiece> getPiecesOfType(PieceType pieceType, boolean isWhite);
 
     String toFen();
 }

@@ -39,8 +39,12 @@ public class MapChessBoard implements ChessBoard {
     }
 
     @Override
-    public List<ChessPiece> getPieces() {
-        return positionChessPieceMap.values().stream().toList();
+    public List<ChessPiece> getPieces(boolean isWhite) {
+        return positionChessPieceMap
+                .values()
+                .stream()
+                .filter(ChessPiece::isWhite)
+                .toList();
     }
 
     @Override
