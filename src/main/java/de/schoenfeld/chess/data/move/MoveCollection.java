@@ -60,6 +60,12 @@ public class MoveCollection implements Set<Move> {
         return false;
     }
 
+    public static MoveCollection of(Move... moves) {
+        MoveCollection moveCollection = new MoveCollection();
+        moveCollection.addAll(Arrays.asList(moves));
+        return moveCollection;
+    }
+
     @Override
     public boolean remove(Object o) {
         if (o instanceof Move move) {
