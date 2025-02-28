@@ -1,6 +1,6 @@
 package de.schoenfeld.chess.logic.rule;
 
-import de.schoenfeld.chess.Position;
+import de.schoenfeld.chess.data.Position;
 import de.schoenfeld.chess.data.ReadOnlyGameState;
 import de.schoenfeld.chess.data.move.CaptureComponent;
 import de.schoenfeld.chess.data.move.Move;

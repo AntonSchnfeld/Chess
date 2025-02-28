@@ -1,5 +1,7 @@
 package de.schoenfeld.chess;
 
+import de.schoenfeld.chess.data.ChessBoardBounds;
+import de.schoenfeld.chess.data.Position;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

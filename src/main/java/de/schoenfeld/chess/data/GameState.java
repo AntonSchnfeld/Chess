@@ -1,7 +1,5 @@
 package de.schoenfeld.chess.data;
 
-import de.schoenfeld.chess.ChessBoardBounds;
-
 public class GameState implements ReadOnlyGameState {
     private ChessBoard chessBoard;
     private MoveHistory moveHistory;

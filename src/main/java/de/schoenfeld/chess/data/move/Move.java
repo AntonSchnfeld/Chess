@@ -1,6 +1,6 @@
 package de.schoenfeld.chess.data.move;
 
-import de.schoenfeld.chess.Position;
+import de.schoenfeld.chess.data.Position;
 import de.schoenfeld.chess.logic.piece.ChessPiece;
 
 import java.util.Collections;

@@ -1,4 +1,4 @@
-package de.schoenfeld.chess;
+package de.schoenfeld.chess.data;
 
 import java.util.ArrayList;
 import java.util.List;

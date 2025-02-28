@@ -1,4 +1,4 @@
-package de.schoenfeld.chess;
+package de.schoenfeld.chess.data;
 
 public record Position(int x, int y) {
     public Position offset(int dx, int dy) {

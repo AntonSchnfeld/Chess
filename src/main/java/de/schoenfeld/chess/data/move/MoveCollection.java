@@ -1,6 +1,6 @@
 package de.schoenfeld.chess.data.move;
 
-import de.schoenfeld.chess.Position;
+import de.schoenfeld.chess.data.Position;
 
 import java.util.*;
 

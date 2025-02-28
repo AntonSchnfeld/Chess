@@ -1,7 +1,5 @@
 package de.schoenfeld.chess.data;
 
-import de.schoenfeld.chess.ChessBoardBounds;
-import de.schoenfeld.chess.Position;
 import de.schoenfeld.chess.logic.piece.ChessPiece;
 import de.schoenfeld.chess.logic.piece.PieceType;
 
