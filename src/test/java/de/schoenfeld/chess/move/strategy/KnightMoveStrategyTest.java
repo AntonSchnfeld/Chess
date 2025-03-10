@@ -1,4 +1,4 @@
-package de.schoenfeld.chess.logic.piece.strategy;
+package de.schoenfeld.chess.move.strategy;
 
 import de.schoenfeld.chess.board.ImmutableChessBoard;
 import de.schoenfeld.chess.model.ChessBoardBounds;
@@ -7,7 +7,6 @@ import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.model.Position;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.move.components.CaptureComponent;
-import de.schoenfeld.chess.move.strategy.KnightMoveStrategy;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

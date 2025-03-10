@@ -78,21 +78,21 @@ public record ListChessBoard(
     }
 
     @Override
-    public ImmutableChessBoard withPieceAt(ChessPiece piece, Position position) {
+    public ListChessBoard withPieceAt(ChessPiece piece, Position position) {
         List<ChessPiece> newPieces = new ArrayList<>(pieces);
         newPieces.set(calculateIndex(position), piece);
         return new ListChessBoard(newPieces, bounds);
     }
 
     @Override
-    public ImmutableChessBoard withoutPieceAt(Position position) {
+    public ListChessBoard withoutPieceAt(Position position) {
         List<ChessPiece> newPieces = new ArrayList<>(pieces);
         newPieces.set(calculateIndex(position), null);
         return new ListChessBoard(newPieces, bounds);
     }
 
     @Override
-    public ImmutableChessBoard withPieceMoved(Position from, Position to) {
+    public ListChessBoard withPieceMoved(Position from, Position to) {
         ChessPiece piece = getPieceAt(from);
         List<ChessPiece> newPieces = new ArrayList<>(pieces);
         newPieces.set(calculateIndex(from), null);
@@ -101,7 +101,7 @@ public record ListChessBoard(
     }
 
     @Override
-    public ImmutableChessBoard withAllPieces(Map<Position, ChessPiece> pieces) {
+    public ListChessBoard withAllPieces(Map<Position, ChessPiece> pieces) {
         List<ChessPiece> newPieces = createEmptyList();
         pieces.forEach((pos, piece) ->
                 newPieces.set(calculateIndex(pos), piece)
@@ -110,12 +110,12 @@ public record ListChessBoard(
     }
 
     @Override
-    public ImmutableChessBoard withoutPieces() {
+    public ListChessBoard withoutPieces() {
         return new ListChessBoard(createEmptyList(), bounds);
     }
 
     @Override
-    public ImmutableChessBoard withBounds(ChessBoardBounds newBounds) {
+    public ListChessBoard withBounds(ChessBoardBounds newBounds) {
         List<ChessPiece> newPieces = new ArrayList<>(
                 Collections.nCopies(newBounds.rows() * newBounds.columns(), null)
         );

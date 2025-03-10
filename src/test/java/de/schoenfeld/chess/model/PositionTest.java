@@ -1,6 +1,5 @@
-package de.schoenfeld.chess;
+package de.schoenfeld.chess.model;
 
-import de.schoenfeld.chess.model.Position;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

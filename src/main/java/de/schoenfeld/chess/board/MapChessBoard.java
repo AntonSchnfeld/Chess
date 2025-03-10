@@ -60,32 +60,34 @@ public record MapChessBoard(
                 .toList();
     }
 
-    public ImmutableChessBoard withPieceAt(ChessPiece piece, Position position) {
+    public MapChessBoard withPieceAt(ChessPiece piece, Position position) {
+        if (!bounds.contains(position))
+            throw new IllegalArgumentException("position must be in bounds");
         Map<Position, ChessPiece> newPositions = new HashMap<>(positionMap);
         newPositions.put(position, piece);
         return new MapChessBoard(newPositions, bounds);
     }
 
-    public ImmutableChessBoard withoutPieceAt(Position position) {
+    public MapChessBoard withoutPieceAt(Position position) {
         Map<Position, ChessPiece> newPositions = new HashMap<>(positionMap);
         newPositions.remove(position);
         return new MapChessBoard(newPositions, bounds);
     }
 
-    public ImmutableChessBoard withPieceMoved(Position from, Position to) {
+    public MapChessBoard withPieceMoved(Position from, Position to) {
         ChessPiece piece = getPieceAt(from);
         return withoutPieceAt(from).withPieceAt(piece, to);
     }
 
-    public ImmutableChessBoard withAllPieces(Map<Position, ChessPiece> newPieces) {
+    public MapChessBoard withAllPieces(Map<Position, ChessPiece> newPieces) {
         return new MapChessBoard(newPieces, bounds);
     }
 
-    public ImmutableChessBoard withoutPieces() {
+    public MapChessBoard withoutPieces() {
         return new MapChessBoard(Map.of(), bounds);
     }
 
-    public ImmutableChessBoard withBounds(ChessBoardBounds newBounds) {
+    public MapChessBoard withBounds(ChessBoardBounds newBounds) {
         return new MapChessBoard(positionMap, newBounds);
     }
 

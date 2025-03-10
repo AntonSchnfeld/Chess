@@ -1,14 +1,10 @@
-package de.schoenfeld.chess.logic;
+package de.schoenfeld.chess.rules;
 
 import de.schoenfeld.chess.board.ImmutableChessBoard;
-import de.schoenfeld.chess.model.ChessBoardBounds;
-import de.schoenfeld.chess.model.ChessPiece;
-import de.schoenfeld.chess.model.PieceType;
-import de.schoenfeld.chess.model.Position;
+import de.schoenfeld.chess.model.*;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.move.strategy.MoveStrategy;
-import de.schoenfeld.chess.rules.CheckDetector;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +14,7 @@ import java.util.List;
 import static org.mockito.Mockito.*;
 
 public class CheckDetectorTest {
-    private ReadOnlyGameState mockGameState;
+    private GameState mockGameState;
     private ImmutableChessBoard mockChessBoard;
     private CheckDetector checkDetector;
     private ChessPiece mockWhiteKing;
@@ -27,7 +23,7 @@ public class CheckDetectorTest {
     @BeforeEach
     public void setup() {
         mockChessBoard = mock(ImmutableChessBoard.class);
-        mockGameState = mock(ReadOnlyGameState.class);
+        mockGameState = mock(GameState.class);
         mockWhiteKing = mock(ChessPiece.class);
 
         ChessBoardBounds bounds = new ChessBoardBounds(8, 8);
@@ -37,7 +33,7 @@ public class CheckDetectorTest {
 
         whiteKingPos = new Position(0, 0);
 
-        when(mockGameState.getChessBoard()).thenReturn(mockChessBoard);
+        when(mockGameState.chessBoard()).thenReturn(mockChessBoard);
         when(mockGameState.isWhiteTurn()).thenReturn(true);
         when(mockChessBoard.getPiecesOfType(PieceType.KING, true)).thenReturn(List.of(mockWhiteKing));
         when(mockChessBoard.getPiecePosition(mockWhiteKing)).thenReturn(whiteKingPos);
