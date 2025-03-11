@@ -101,4 +101,26 @@ public class Move implements Serializable {
                 .toList();
         return new Move(newComponents, movedPiece, from, to);
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        Move move = (Move) object;
+        return Objects.equals(components, move.components) && Objects.equals(movedPiece, move.movedPiece) && Objects.equals(from, move.from) && Objects.equals(to, move.to);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(components, movedPiece, from, to);
+    }
+
+    @Override
+    public String toString() {
+        return "Move{" +
+                "components=" + components +
+                ", movedPiece=" + movedPiece +
+                ", from=" + from +
+                ", to=" + to +
+                '}';
+    }
 }

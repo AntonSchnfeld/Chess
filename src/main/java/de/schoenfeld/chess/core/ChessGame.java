@@ -1,8 +1,8 @@
 package de.schoenfeld.chess.core;
 
-import de.schoenfeld.chess.events.EventBus;
-import de.schoenfeld.chess.events.MoveProposedEvent;
+import de.schoenfeld.chess.events.*;
 import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.MoveHistory;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.move.MoveExecutor;
 import de.schoenfeld.chess.move.MoveGenerator;
@@ -35,21 +35,30 @@ public class ChessGame {
         this(new GameState(), new MoveGenerator(), new EventBus());
     }
 
+    public ChessGame(EventBus eventBus) {
+        this(new GameState(), new MoveGenerator(), eventBus);
+    }
+
+    public void start() {
+        eventBus.publish(new GameStartedEvent(gameId));
+        eventBus.publish(new GameStateChangedEvent(gameId, gameState));
+    }
+
     private void handleMoveProposed(MoveProposedEvent event) {
         if (!event.gameId().equals(gameId)) return;
 
         if (event.player().isWhite() != gameState.isWhiteTurn()) {
-            // TODO: Report error
+            eventBus.publish(new ErrorEvent(gameId, event.player(), "Not your turn"));
             return;
         }
         MoveCollection currentValidMoves = moveGenerator.generateMoves(gameState);
         if (!currentValidMoves.contains(event.move())) {
-            // TODO: Report error
+            eventBus.publish(new ErrorEvent(gameId, event.player(), "Invalid move"));
         }
 
         gameState = moveExecutor.executeMove(event.move(), gameState);
 
-        // TODO: Send some kinda event to subscribers trololol
+        eventBus.publish(new GameStateChangedEvent(gameId, gameState));
     }
 
     public GameState getGameState() {

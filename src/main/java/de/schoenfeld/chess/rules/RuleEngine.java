@@ -1,8 +1,7 @@
-package de.schoenfeld.chess.core;
+package de.schoenfeld.chess.rules;
 
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.move.MoveCollection;
-import de.schoenfeld.chess.rules.*;
 
 import java.util.List;
 

@@ -54,7 +54,7 @@ public class CheckDetector {
      * @return true if the square is attacked
      */
     private boolean isSquareAttacked(ImmutableChessBoard board, Position square, boolean isWhite) {
-        return board.getPieces(isWhite)
+        return board.getPiecesOfColour(isWhite)
                 .stream()
                 .flatMap(piece -> piece.getPieceType()
                         .moveStrategy()

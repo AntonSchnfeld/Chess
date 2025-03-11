@@ -1,7 +1,7 @@
 package de.schoenfeld.chess.move;
 
 import de.schoenfeld.chess.board.ImmutableChessBoard;
-import de.schoenfeld.chess.core.RuleEngine;
+import de.schoenfeld.chess.rules.RuleEngine;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
 
@@ -23,7 +23,7 @@ public class MoveGenerator {
 
         ImmutableChessBoard chessBoard = gameState.chessBoard();
 
-        List<ChessPiece> pieces = chessBoard.getPieces(gameState.isWhiteTurn());
+        List<ChessPiece> pieces = chessBoard.getPiecesOfColour(gameState.isWhiteTurn());
 
         for (ChessPiece piece : pieces)
             moves.addAll(piece.getPieceType().moveStrategy().getPseudoLegalMoves(chessBoard,

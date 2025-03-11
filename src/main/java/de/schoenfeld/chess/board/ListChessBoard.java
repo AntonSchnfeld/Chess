@@ -16,11 +16,17 @@ public record ListChessBoard(
     public ListChessBoard {
         Objects.requireNonNull(pieces, "Pieces list cannot be null");
         Objects.requireNonNull(bounds, "Bounds cannot be null");
-        pieces = List.copyOf(pieces);
-        validateBoardSize();
+        ArrayList<ChessPiece> wrapper = new ArrayList<>(pieces);
+        wrapper.ensureCapacity(bounds.rows() * bounds.columns());
+        pieces = Collections.unmodifiableList(wrapper);
+        validateBoardSize(bounds, pieces);
     }
 
-    private void validateBoardSize() {
+    public ListChessBoard(ChessBoardBounds bounds) {
+        this(createEmptyList(bounds), bounds);
+    }
+
+    private void validateBoardSize(ChessBoardBounds bounds, List<ChessPiece> pieces) {
         int expectedSize = bounds.rows() * bounds.columns();
         if (pieces.size() != expectedSize) {
             throw new IllegalArgumentException(
@@ -62,7 +68,7 @@ public record ListChessBoard(
     }
 
     @Override
-    public List<ChessPiece> getPieces(boolean isWhite) {
+    public List<ChessPiece> getPiecesOfColour(boolean isWhite) {
         return pieces.stream()
                 .filter(Objects::nonNull)
                 .filter(p -> p.isWhite() == isWhite)
@@ -102,7 +108,7 @@ public record ListChessBoard(
 
     @Override
     public ListChessBoard withAllPieces(Map<Position, ChessPiece> pieces) {
-        List<ChessPiece> newPieces = createEmptyList();
+        List<ChessPiece> newPieces = createEmptyList(bounds);
         pieces.forEach((pos, piece) ->
                 newPieces.set(calculateIndex(pos), piece)
         );
@@ -110,8 +116,15 @@ public record ListChessBoard(
     }
 
     @Override
+    public List<ChessPiece> getPieces() {
+        return pieces.stream()
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    @Override
     public ListChessBoard withoutPieces() {
-        return new ListChessBoard(createEmptyList(), bounds);
+        return new ListChessBoard(createEmptyList(bounds), bounds);
     }
 
     @Override
@@ -163,7 +176,7 @@ public record ListChessBoard(
         return piece.isWhite() ? base.toUpperCase() : base;
     }
 
-    private List<ChessPiece> createEmptyList() {
+    private static List<ChessPiece> createEmptyList(ChessBoardBounds bounds) {
         return new ArrayList<>(Collections.nCopies(
                 bounds.rows() * bounds.columns(),
                 null

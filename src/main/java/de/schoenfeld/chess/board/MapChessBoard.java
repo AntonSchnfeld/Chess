@@ -47,10 +47,15 @@ public record MapChessBoard(
     }
 
     @Override
-    public List<ChessPiece> getPieces(boolean isWhite) {
+    public List<ChessPiece> getPiecesOfColour(boolean isWhite) {
         return chessPieceMap.keySet().stream()
                 .filter(ChessPiece::isWhite)
                 .toList();
+    }
+
+    @Override
+    public List<ChessPiece> getPieces() {
+        return chessPieceMap.keySet().stream().toList();
     }
 
     @Override

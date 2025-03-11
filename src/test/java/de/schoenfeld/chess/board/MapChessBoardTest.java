@@ -63,18 +63,18 @@ class MapChessBoardTest {
     }
 
     @Test
-    void givenMultiplePieces_whenGetPieces_thenReturnCorrectList() {
+    void givenMultiplePieces_whenGetPieces_OfColour_thenReturnCorrectList() {
         MapChessBoard modifiedBoard = chessBoard
                 .withPieceAt(whitePawn, pawnPosition)
                 .withPieceAt(blackKnight, knightPosition);
 
-        List<ChessPiece> whitePieces = modifiedBoard.getPieces(true);
+        List<ChessPiece> whitePieces = modifiedBoard.getPiecesOfColour(true);
         assertEquals(1, whitePieces.size());
         assertTrue(whitePieces.contains(whitePawn));
     }
 
     @Test
-    void givenMultiplePieces_whenGetPiecesOfType_thenReturnCorrectList() {
+    void givenMultiplePieces_whenGetPiecesOfColourOfType_thenReturnCorrectList() {
         MapChessBoard modifiedBoard = chessBoard
                 .withPieceAt(whitePawn, pawnPosition)
                 .withPieceAt(blackKnight, knightPosition);
@@ -109,6 +109,6 @@ class MapChessBoardTest {
         MapChessBoard smallBoard = chessBoard.withBounds(newBounds);
 
         assertEquals(newBounds, smallBoard.getBounds());
-        assertTrue(smallBoard.getPieces(true).isEmpty());
+        assertTrue(smallBoard.getPiecesOfColour(true).isEmpty());
     }
 }

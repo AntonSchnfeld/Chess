@@ -16,7 +16,9 @@ public interface ImmutableChessBoard extends Serializable {
 
     ChessBoardBounds getBounds();
 
-    List<ChessPiece> getPieces(boolean isWhite);
+    List<ChessPiece> getPiecesOfColour(boolean isWhite);
+
+    List<ChessPiece> getPieces();
 
     List<ChessPiece> getPiecesOfType(PieceType pieceType, boolean isWhite);
 

@@ -93,6 +93,7 @@ public class CheckDetectorTest {
         ChessPiece movedPiece = mock(ChessPiece.class);
         ChessPiece checkingPiece = mock(ChessPiece.class);
         MoveStrategy checkingPieceMoveStrategy = mock(MoveStrategy.class);
+        PieceType mockPieceType = mock(PieceType.class);
 
         Position movedPieceStart = new Position(1, 7);
         Position movedPieceEnd = movedPieceStart.offset(0, 1);
@@ -103,13 +104,14 @@ public class CheckDetectorTest {
 
         // Mock moved piece
         when(movedPiece.isWhite()).thenReturn(false);
+        when(movedPiece.getPieceType()).thenCallRealMethod();
         when(mockChessBoard.getPieceAt(movedPieceStart)).thenReturn(movedPiece);
         when(mockChessBoard.getPiecePosition(movedPiece)).thenReturn(movedPieceStart);
 
         // Mock checking piece
         when(checkingPiece.isWhite()).thenReturn(false);
-        when(checkingPiece.getPieceType()).thenReturn(PieceType.ROOK);  // Example: Rook delivering check
-        when(checkingPiece.getPieceType().moveStrategy()).thenReturn(checkingPieceMoveStrategy);
+        when(checkingPiece.getPieceType()).thenReturn(mockPieceType);  // Example: Rook delivering check
+        when(mockPieceType.moveStrategy()).thenReturn(checkingPieceMoveStrategy);
         when(mockChessBoard.getPieceAt(checkingPiecePos)).thenReturn(checkingPiece);
         when(mockChessBoard.getPiecePosition(checkingPiece)).thenReturn(checkingPiecePos);
 
