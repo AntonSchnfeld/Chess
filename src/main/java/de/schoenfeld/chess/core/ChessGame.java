@@ -2,7 +2,6 @@ package de.schoenfeld.chess.core;
 
 import de.schoenfeld.chess.events.*;
 import de.schoenfeld.chess.model.GameState;
-import de.schoenfeld.chess.model.MoveHistory;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.move.MoveExecutor;
 import de.schoenfeld.chess.move.MoveGenerator;

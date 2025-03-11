@@ -13,8 +13,9 @@ public class CheckDetector {
     /**
      * Checks whether a certain move would result
      * in the King of the opposite colour being in check.
+     *
      * @param gameState The current game state
-     * @param move The move to check
+     * @param move      The move to check
      * @return true if the move would result in the King being in check
      */
     public boolean isCheck(GameState gameState, Move move) {
@@ -48,8 +49,9 @@ public class CheckDetector {
 
     /**
      * Determines if a given square is attacked by any opposing pieces.
-     * @param board The current board state
-     * @param square The square to check
+     *
+     * @param board   The current board state
+     * @param square  The square to check
      * @param isWhite The color of the player being checked
      * @return true if the square is attacked
      */

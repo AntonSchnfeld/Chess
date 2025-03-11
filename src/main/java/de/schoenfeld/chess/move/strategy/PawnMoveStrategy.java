@@ -35,7 +35,7 @@ public class PawnMoveStrategy implements MoveStrategy {
         }
 
         // Capture moves
-        for (int xOffset : new int[]{-1, 1}) {
+        for (int xOffset : new int[] {-1, 1}) {
             Position capturePos = pos.offset(xOffset, direction);
             if (!chessBoard.getBounds().contains(capturePos)) continue;
 

@@ -1,7 +1,6 @@
 package de.schoenfeld.chess;
 
 import de.schoenfeld.chess.events.*;
-import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.PlayerData;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.MoveCollection;
@@ -32,7 +31,8 @@ public class RandomMovePlayer extends Player {
 
             if (playerData.isWhite()) try {
                 TimeUnit.SECONDS.sleep(1);
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored) {
+            }
             int randomMoveIdx = random.nextInt(moves.size());
             Move randomMove = null;
             int i = 0;

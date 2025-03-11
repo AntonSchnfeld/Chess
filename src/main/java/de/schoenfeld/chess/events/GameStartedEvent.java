@@ -4,4 +4,5 @@ import java.util.UUID;
 
 public record GameStartedEvent(
         UUID gameId
-) implements GameEvent {}
+) implements GameEvent {
+}

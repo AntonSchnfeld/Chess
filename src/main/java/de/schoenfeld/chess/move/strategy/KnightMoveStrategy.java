@@ -29,7 +29,7 @@ public class KnightMoveStrategy implements MoveStrategy {
 
             ChessPiece targetPiece = chessBoard.getPieceAt(newPos);
             if (targetPiece != null && targetPiece.isWhite() != piece.isWhite())
-                    moves.add(Move.of(piece, pos, newPos, new CaptureComponent(targetPiece)));
+                moves.add(Move.of(piece, pos, newPos, new CaptureComponent(targetPiece)));
             else moves.add(Move.of(piece, pos, newPos));
         }
         return moves;

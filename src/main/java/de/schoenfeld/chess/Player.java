@@ -23,7 +23,10 @@ public abstract class Player {
     protected void onGameStarted(GameStartedEvent event) {
         gameId = event.gameId();
     }
+
     protected abstract void onGameEnded(GameEndedEvent event);
+
     protected abstract void onGameStateChanged(GameStateChangedEvent event);
+
     protected abstract void onError(ErrorEvent event);
 }

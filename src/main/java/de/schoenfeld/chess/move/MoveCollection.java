@@ -13,6 +13,12 @@ public class MoveCollection implements Set<Move> {
         moveMap = new HashMap<>();
     }
 
+    public static MoveCollection of(Move... moves) {
+        MoveCollection moveCollection = new MoveCollection();
+        moveCollection.addAll(Arrays.asList(moves));
+        return moveCollection;
+    }
+
     @Override
     public int size() {
         return moves.size();
@@ -58,12 +64,6 @@ public class MoveCollection implements Set<Move> {
             return true;
         }
         return false;
-    }
-
-    public static MoveCollection of(Move... moves) {
-        MoveCollection moveCollection = new MoveCollection();
-        moveCollection.addAll(Arrays.asList(moves));
-        return moveCollection;
     }
 
     @Override

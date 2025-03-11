@@ -26,6 +26,13 @@ public record ListChessBoard(
         this(createEmptyList(bounds), bounds);
     }
 
+    private static List<ChessPiece> createEmptyList(ChessBoardBounds bounds) {
+        return new ArrayList<>(Collections.nCopies(
+                bounds.rows() * bounds.columns(),
+                null
+        ));
+    }
+
     private void validateBoardSize(ChessBoardBounds bounds, List<ChessPiece> pieces) {
         int expectedSize = bounds.rows() * bounds.columns();
         if (pieces.size() != expectedSize) {
@@ -174,12 +181,5 @@ public record ListChessBoard(
     private String pieceToFenChar(ChessPiece piece) {
         String base = piece.getPieceType().symbol();
         return piece.isWhite() ? base.toUpperCase() : base;
-    }
-
-    private static List<ChessPiece> createEmptyList(ChessBoardBounds bounds) {
-        return new ArrayList<>(Collections.nCopies(
-                bounds.rows() * bounds.columns(),
-                null
-        ));
     }
 }

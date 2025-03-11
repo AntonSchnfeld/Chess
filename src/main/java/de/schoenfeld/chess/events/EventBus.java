@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class EventBus {
@@ -24,7 +23,7 @@ public class EventBus {
 
     public <T extends GameEvent> void subscribe(Class<T> eventType, Consumer<T> listener) {
         final String eventName = eventType.getName();
-        LOGGER.log(Level.FINE, "Registering {0} for {1} events", new Object[]{listener, eventName});
+        LOGGER.log(Level.FINE, "Registering {0} for {1} events", new Object[] {listener, eventName});
 
         listeners.computeIfAbsent(eventType, k -> {
             LOGGER.log(Level.FINER, "Creating new listener list for {0}", eventName);
@@ -32,14 +31,14 @@ public class EventBus {
         }).add(listener);
 
         LOGGER.log(Level.INFO, "Subscription added: {0} now has {1} listeners",
-                new Object[]{eventName, listeners.get(eventType).size()});
+                new Object[] {eventName, listeners.get(eventType).size()});
     }
 
     @SuppressWarnings("unchecked")
     public <T extends GameEvent> void publish(T event) {
         final String eventType = event.getClass().getName();
         LOGGER.log(Level.FINE, "Publishing {0} event (ID: {1})",
-                new Object[]{eventType, event.hashCode()});
+                new Object[] {eventType, event.hashCode()});
 
         List<Consumer<? extends GameEvent>> eventListeners = listeners.get(event.getClass());
 
@@ -49,13 +48,13 @@ public class EventBus {
         }
 
         LOGGER.log(Level.FINER, "Dispatching to {0} listener(s) for {1}",
-                new Object[]{eventListeners.size(), eventType});
+                new Object[] {eventListeners.size(), eventType});
 
         eventListeners.forEach(listener -> {
             final String listenerName = listener.getClass().getSimpleName();
             try {
                 LOGGER.log(Level.FINEST, "Notifying {0} about {1} event",
-                        new Object[]{listenerName, eventType});
+                        new Object[] {listenerName, eventType});
 
                 ((Consumer<T>) listener).accept(event);
 

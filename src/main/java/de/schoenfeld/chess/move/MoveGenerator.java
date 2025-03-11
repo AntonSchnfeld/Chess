@@ -1,9 +1,9 @@
 package de.schoenfeld.chess.move;
 
 import de.schoenfeld.chess.board.ImmutableChessBoard;
-import de.schoenfeld.chess.rules.RuleEngine;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.rules.RuleEngine;
 
 import java.util.List;
 
