@@ -1,5 +1,6 @@
 package de.schoenfeld.chess.move;
 
+import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.Position;
 
 import java.util.*;
@@ -17,6 +18,18 @@ public class MoveCollection implements Set<Move> {
         MoveCollection moveCollection = new MoveCollection();
         moveCollection.addAll(Arrays.asList(moves));
         return moveCollection;
+    }
+
+    public static MoveCollection of(Collection<Move> moves) {
+        MoveCollection moveCollection = new MoveCollection();
+        moveCollection.addAll(moves);
+        return moveCollection;
+    }
+
+    public MoveCollection getMovesForPiece(ChessPiece chessPiece) {
+        return MoveCollection.of(moves.stream()
+                .filter(m -> m.movedPiece().equals(chessPiece))
+                .toList());
     }
 
     @Override

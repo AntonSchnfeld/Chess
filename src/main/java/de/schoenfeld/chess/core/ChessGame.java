@@ -3,27 +3,25 @@ package de.schoenfeld.chess.core;
 import de.schoenfeld.chess.events.*;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.move.MoveCollection;
-import de.schoenfeld.chess.move.MoveExecutor;
-import de.schoenfeld.chess.move.MoveGenerator;
+import de.schoenfeld.chess.rules.Rules;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class ChessGame {
-    private final MoveGenerator moveGenerator;
     private final EventBus eventBus;
-    private final MoveExecutor moveExecutor;
     private final UUID gameId;
     private GameState gameState;
+    private final Rules rules;
 
-    public ChessGame(GameState gameState, MoveGenerator moveGenerator, EventBus eventBus) {
-        this(UUID.randomUUID(), gameState, moveGenerator, eventBus);
+    public ChessGame(GameState gameState, Rules rules, EventBus eventBus) {
+        this(UUID.randomUUID(), gameState, rules, eventBus);
     }
 
-    public ChessGame(UUID gameId, GameState gameState, MoveGenerator moveGenerator, EventBus eventBus) {
+    public ChessGame(UUID gameId, GameState gameState, Rules rules, EventBus eventBus) {
         this.gameState = gameState;
-        this.moveGenerator = moveGenerator;
+        this.rules = rules;
         this.eventBus = eventBus;
-        this.moveExecutor = new MoveExecutor();
         this.gameId = gameId;
 
         // Register for move proposals
@@ -31,11 +29,11 @@ public class ChessGame {
     }
 
     public ChessGame() {
-        this(new GameState(), new MoveGenerator(), new EventBus());
+        this(new GameState(), Rules.DEFAULT, new EventBus());
     }
 
     public ChessGame(EventBus eventBus) {
-        this(new GameState(), new MoveGenerator(), eventBus);
+        this(new GameState(), Rules.DEFAULT, eventBus);
     }
 
     public void start() {
@@ -50,14 +48,29 @@ public class ChessGame {
             eventBus.publish(new ErrorEvent(gameId, event.player(), "Not your turn"));
             return;
         }
-        MoveCollection currentValidMoves = moveGenerator.generateMoves(gameState);
-        if (!currentValidMoves.contains(event.move())) {
-            eventBus.publish(new ErrorEvent(gameId, event.player(), "Invalid move"));
+
+        if (event.move().movedPiece().isWhite() != event.player().isWhite()) {
+            eventBus.publish(new ErrorEvent(gameId, event.player(), "Not your piece"));
+            return;
         }
 
-        gameState = moveExecutor.executeMove(event.move(), gameState);
+        Optional<GameConclusion> gameEndCause = rules.detectGameEndCause(gameState);
+        if (gameEndCause.isPresent()) {
+            eventBus.publish(new GameEndedEvent(gameId, gameEndCause.get()));
+            return;
+        }
 
-        eventBus.publish(new GameStateChangedEvent(gameId, gameState));
+        MoveCollection currentValidMoves = rules.generateMoves(gameState);
+
+        if (!currentValidMoves.contains(event.move())) {
+            eventBus.publish(new ErrorEvent(gameId, event.player(), "Invalid move"));
+            return;
+        }
+
+        gameState = event.move().executeOn(gameState);
+
+        GameStateChangedEvent gameStateChangedEvent = new GameStateChangedEvent(gameId, gameState);
+        eventBus.publish(gameStateChangedEvent);
     }
 
     public GameState getGameState() {
@@ -68,7 +81,7 @@ public class ChessGame {
         return gameId;
     }
 
-    public MoveGenerator getMoveGenerator() {
-        return moveGenerator;
+    public Rules getRules() {
+        return rules;
     }
 }

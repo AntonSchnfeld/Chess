@@ -1,4 +1,4 @@
-package de.schoenfeld.chess;
+package de.schoenfeld.chess.core;
 
 import de.schoenfeld.chess.events.*;
 import de.schoenfeld.chess.model.PlayerData;

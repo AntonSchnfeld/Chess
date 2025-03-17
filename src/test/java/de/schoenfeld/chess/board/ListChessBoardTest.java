@@ -164,7 +164,7 @@ public class ListChessBoardTest {
         for (int i = 0; i < 8; i++) {
             ChessPiece piece = mock(ChessPiece.class);
             when(piece.isWhite()).thenReturn(false);
-            when(piece.getPieceType()).thenReturn(searchPieceType);
+            when(piece.pieceType()).thenReturn(searchPieceType);
             searchedPieces.add(piece);
             tested = tested.withPieceAt(piece, Position.of(0, i));
         }
@@ -172,7 +172,7 @@ public class ListChessBoardTest {
         for (int i = 0; i < 8; i++) {
             ChessPiece piece = mock(ChessPiece.class);
             when(piece.isWhite()).thenReturn(false);
-            when(piece.getPieceType()).thenReturn(otherPieceType);
+            when(piece.pieceType()).thenReturn(otherPieceType);
             tested = tested.withPieceAt(piece, Position.of(1, i));
         }
 
@@ -236,6 +236,7 @@ public class ListChessBoardTest {
         // When
         tested = tested.withAllPieces(map);
         // Then
+        assertEquals(2, tested.getPieces().size());
         assertSame(piece1, tested.getPieceAt(position1));
         assertSame(piece2, tested.getPieceAt(position2));
     }

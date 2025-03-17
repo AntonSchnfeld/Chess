@@ -1,9 +1,7 @@
 package de.schoenfeld.chess.events;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,9 +10,13 @@ public class EventBus {
     private static final Logger LOGGER = Logger.getLogger(EventBus.class.getName());
 
     private final Map<Class<? extends GameEvent>, List<Consumer<? extends GameEvent>>> listeners;
+    private final Queue<GameEvent> eventQueue;
+    private boolean isProcessing;
 
     public EventBus(Map<Class<? extends GameEvent>, List<Consumer<? extends GameEvent>>> listeners) {
         this.listeners = listeners;
+        eventQueue = new ConcurrentLinkedQueue<>();
+        isProcessing = false;
     }
 
     public EventBus() {
@@ -34,38 +36,52 @@ public class EventBus {
                 new Object[] {eventName, listeners.get(eventType).size()});
     }
 
-    @SuppressWarnings("unchecked")
-    public <T extends GameEvent> void publish(T event) {
+    public void publish(GameEvent event) {
         final String eventType = event.getClass().getName();
-        LOGGER.log(Level.FINE, "Publishing {0} event (ID: {1})",
-                new Object[] {eventType, event.hashCode()});
+        LOGGER.log(Level.FINE, "Adding {0} event (ID: {1}) to event queue",
+                new Object[] {eventType, event});
+        eventQueue.add(event);
+        if (!isProcessing) processEventQueue();
+    }
 
-        List<Consumer<? extends GameEvent>> eventListeners = listeners.get(event.getClass());
+    private void processEventQueue() {
+        while (!eventQueue.isEmpty()) {
+            GameEvent event = eventQueue.poll();
 
-        if (eventListeners == null || eventListeners.isEmpty()) {
-            LOGGER.log(Level.WARNING, "No listeners registered for {0} event", eventType);
-            return;
-        }
+            if (event == null) return;
 
-        LOGGER.log(Level.FINER, "Dispatching to {0} listener(s) for {1}",
-                new Object[] {eventListeners.size(), eventType});
+            final String eventType = event.getClass().getName();
 
-        eventListeners.forEach(listener -> {
-            final String listenerName = listener.getClass().getSimpleName();
-            try {
+            List<Consumer<? extends GameEvent>> eventListeners = listeners.get(event.getClass());
+            if (eventListeners == null || eventListeners.isEmpty()) {
+                LOGGER.log(Level.WARNING, "No listeners registered for {0} event", eventType);
+                continue;
+            }
+
+            LOGGER.log(Level.FINER, "Dispatching to {0} listener(s) for {1}",
+                    new Object[] {eventListeners.size(), eventType});
+
+            for (Consumer<? extends GameEvent> rawListener : eventListeners) {
+                final String listenerName = rawListener.getClass().getName();
                 LOGGER.log(Level.FINEST, "Notifying {0} about {1} event",
                         new Object[] {listenerName, eventType});
 
-                ((Consumer<T>) listener).accept(event);
+                @SuppressWarnings("unchecked")
+                Consumer<GameEvent> listener = (Consumer<GameEvent>) rawListener;
+
+                try {
+                    listener.accept(event);
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE,
+                            String.format("Error in listener %s handling %s event",
+                                    listenerName, eventType), e);
+                }
 
                 LOGGER.log(Level.FINEST, "Successfully notified {0}", listenerName);
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE,
-                        String.format("Error in listener %s handling %s event",
-                                listenerName, eventType), e);
             }
-        });
 
-        LOGGER.log(Level.FINE, "Completed processing of {0} event", eventType);
+            LOGGER.log(Level.FINE, "Completed processing of {0} event", eventType);
+        }
+        isProcessing = false;
     }
 }

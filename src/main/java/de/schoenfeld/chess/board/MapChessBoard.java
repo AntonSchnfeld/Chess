@@ -49,7 +49,7 @@ public record MapChessBoard(
     @Override
     public List<ChessPiece> getPiecesOfColour(boolean isWhite) {
         return chessPieceMap.keySet().stream()
-                .filter(ChessPiece::isWhite)
+                .filter(p -> p.isWhite() == isWhite)
                 .toList();
     }
 
@@ -61,7 +61,7 @@ public record MapChessBoard(
     @Override
     public List<ChessPiece> getPiecesOfType(PieceType pieceType, boolean isWhite) {
         return chessPieceMap.keySet().stream()
-                .filter(p -> p.isWhite() && p.getPieceType().equals(pieceType))
+                .filter(p -> p.isWhite() == isWhite && p.pieceType().equals(pieceType))
                 .toList();
     }
 
@@ -81,7 +81,7 @@ public record MapChessBoard(
 
     public MapChessBoard withPieceMoved(Position from, Position to) {
         ChessPiece piece = getPieceAt(from);
-        return withoutPieceAt(from).withPieceAt(piece, to);
+        return withoutPieceAt(from).withPieceAt(piece.withMoved(true), to);
     }
 
     public MapChessBoard withAllPieces(Map<Position, ChessPiece> newPieces) {

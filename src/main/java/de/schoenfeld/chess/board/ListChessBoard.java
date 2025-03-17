@@ -86,7 +86,7 @@ public record ListChessBoard(
     public List<ChessPiece> getPiecesOfType(PieceType pieceType, boolean colour) {
         return pieces.stream()
                 .filter(Objects::nonNull)
-                .filter(p -> p.getPieceType() == pieceType && p.isWhite() == colour)
+                .filter(p -> p.pieceType().equals(pieceType) && p.isWhite() == colour)
                 .toList();
     }
 
@@ -109,7 +109,7 @@ public record ListChessBoard(
         ChessPiece piece = getPieceAt(from);
         List<ChessPiece> newPieces = new ArrayList<>(pieces);
         newPieces.set(calculateIndex(from), null);
-        newPieces.set(calculateIndex(to), piece);
+        newPieces.set(calculateIndex(to), piece.withMoved(true));
         return new ListChessBoard(newPieces, bounds);
     }
 
@@ -179,7 +179,7 @@ public record ListChessBoard(
     }
 
     private String pieceToFenChar(ChessPiece piece) {
-        String base = piece.getPieceType().symbol();
+        String base = piece.pieceType().symbol();
         return piece.isWhite() ? base.toUpperCase() : base;
     }
 }

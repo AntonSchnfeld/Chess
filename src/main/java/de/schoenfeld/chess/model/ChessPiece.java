@@ -1,50 +1,27 @@
 package de.schoenfeld.chess.model;
 
-import java.io.Serial;
 import java.io.Serializable;
-import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class ChessPiece implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 3459462864331349341L;
-
-    private final PieceType pieceType;
-    private final boolean colour;
-    private boolean moved;
+public record ChessPiece(
+        PieceType pieceType,
+        boolean isWhite,
+        boolean hasMoved,
+        long uniqueId
+) implements Serializable {
+    private static final AtomicInteger ID_GENERATOR = new AtomicInteger(0);
 
     public ChessPiece(PieceType pieceType, boolean isWhite) {
-        this.pieceType = pieceType;
-        this.moved = false;
-        this.colour = isWhite;
+        this(pieceType, isWhite, false, ID_GENERATOR.getAndIncrement());
     }
 
-    public boolean isWhite() {
-        return colour;
+    public ChessPiece withMoved(boolean hasMoved) {
+        if (hasMoved == this.hasMoved) return this;
+        return new ChessPiece(pieceType, isWhite, hasMoved, ID_GENERATOR.getAndIncrement());
     }
 
-    public boolean hasMoved() {
-        return moved;
-    }
-
-    public PieceType getPieceType() {
-        return pieceType;
-    }
-
-    public void setMoved() {
-        this.moved = true;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(pieceType, colour, moved);
-    }
-
-    @Override
-    public String toString() {
-        return "ChessPiece{" +
-                "pieceType=" + pieceType +
-                ", colour=" + colour +
-                ", moved=" + moved +
-                '}';
+    public ChessPiece withIsWhite(boolean isWhite) {
+        if (isWhite == this.isWhite) return this;
+        return new ChessPiece(pieceType, isWhite, hasMoved, ID_GENERATOR.getAndIncrement());
     }
 }

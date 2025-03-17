@@ -1,6 +1,7 @@
 package de.schoenfeld.chess.move;
 
 import de.schoenfeld.chess.model.ChessPiece;
+import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.Position;
 import de.schoenfeld.chess.move.components.CaptureComponent;
 import de.schoenfeld.chess.move.components.CastlingComponent;
@@ -13,7 +14,7 @@ import java.util.*;
 
 public class Move implements Serializable {
     @Serial
-    private static final long serialVersionUID = 4700273571919913977L;
+    private static final long serialVersionUID = 1921632465085309764L;
     private final List<MoveComponent> components;
     private final ChessPiece movedPiece;
     private final Position from, to;
@@ -100,6 +101,18 @@ public class Move implements Serializable {
                 .filter(c -> c.getClass().equals(clazz))
                 .toList();
         return new Move(newComponents, movedPiece, from, to);
+    }
+
+    public GameState executeOn(GameState gameState) {
+        gameState = gameState
+                .withMoveHistory(gameState.moveHistory().withMoveRecorded(this));
+        gameState = gameState
+                .withChessBoard(gameState.chessBoard().withPieceMoved(from, to));
+
+        for (MoveComponent component : components) {
+            gameState = gameState.withChessBoard(component.executeOn(gameState, this));
+        }
+        return gameState.withIsWhiteTurn(!gameState.isWhiteTurn());
     }
 
     @Override
