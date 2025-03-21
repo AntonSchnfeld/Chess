@@ -1,10 +1,10 @@
 package de.schoenfeld.chess.ui;
 
 import de.schoenfeld.chess.model.Square;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 
 public class ChessSquare extends JLabel {
     private final Square position;

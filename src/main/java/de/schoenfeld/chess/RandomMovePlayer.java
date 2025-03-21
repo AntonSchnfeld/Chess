@@ -8,7 +8,6 @@ import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.rules.MoveGenerator;
 
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 public class RandomMovePlayer extends Player {
 

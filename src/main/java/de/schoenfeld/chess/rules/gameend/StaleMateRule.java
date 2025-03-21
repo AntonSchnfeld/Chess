@@ -10,7 +10,6 @@ import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.rules.MoveGenerator;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class StaleMateRule implements GameConclusionRule {

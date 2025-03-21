@@ -9,10 +9,6 @@ import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.MoveHistory;
 import de.schoenfeld.chess.model.PlayerData;
 import de.schoenfeld.chess.rules.Rules;
-import de.schoenfeld.chess.rules.SimpleMoveGenerator;
-import de.schoenfeld.chess.rules.gameend.CheckMateRule;
-import de.schoenfeld.chess.rules.generative.KingMoveRule;
-import de.schoenfeld.chess.rules.generative.sliding.RookMoveRule;
 import de.schoenfeld.chess.ui.ChessUIClient;
 import de.schoenfeld.chess.ui.DefaultTheme;
 import de.schoenfeld.chess.ui.PieceRenderer;
@@ -22,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 import java.util.logging.*;
 
@@ -59,7 +54,7 @@ public class Main {
 
         GameStateEvaluator advancedEvaluator = new PieceValueEvaluator();
         GameStateEvaluator otherEvaluator = new SimpleEvaluationFunctionWithMobility(rules);
-        MoveSearchStrategy whiteStrategy = new AlphaBetaNegamax(3   , Runtime.getRuntime().availableProcessors(), rules, advancedEvaluator);
+        MoveSearchStrategy whiteStrategy = new AlphaBetaNegamax(3, Runtime.getRuntime().availableProcessors(), rules, advancedEvaluator);
         MoveSearchStrategy blackStrategy = new AlphaBetaNegamax(3, Runtime.getRuntime().availableProcessors(), rules, otherEvaluator);
 
         EventBus eventBus = new EventBus();

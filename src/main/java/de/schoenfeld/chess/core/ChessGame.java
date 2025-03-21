@@ -11,8 +11,8 @@ import java.util.UUID;
 public class ChessGame {
     private final EventBus eventBus;
     private final UUID gameId;
-    private GameState gameState;
     private final Rules rules;
+    private GameState gameState;
 
     public ChessGame(GameState gameState, Rules rules, EventBus eventBus) {
         this(UUID.randomUUID(), gameState, rules, eventBus);

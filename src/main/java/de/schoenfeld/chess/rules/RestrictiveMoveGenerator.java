@@ -12,7 +12,7 @@ public class RestrictiveMoveGenerator implements MoveGenerator {
     private final List<GenerativeMoveRule> generativeMoveRules;
 
     public RestrictiveMoveGenerator(List<RestrictiveMoveRule> restrictiveMoveRules,
-                               List<GenerativeMoveRule> generativeMoveRules) {
+                                    List<GenerativeMoveRule> generativeMoveRules) {
         this.restrictiveMoveRules = List.copyOf(restrictiveMoveRules);
         this.generativeMoveRules = List.copyOf(generativeMoveRules);
     }

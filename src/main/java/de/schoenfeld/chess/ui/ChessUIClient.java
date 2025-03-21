@@ -3,12 +3,11 @@ package de.schoenfeld.chess.ui;
 import de.schoenfeld.chess.events.EventBus;
 import de.schoenfeld.chess.events.GameStateChangedEvent;
 import de.schoenfeld.chess.model.ChessPiece;
-import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.Square;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
+import java.awt.geom.*;
 import java.util.HashMap;
 import java.util.Map;
 

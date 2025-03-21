@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class AlphaBetaNegamax implements MoveSearchStrategy {
+    private static final int INF = Integer.MAX_VALUE;
+    private static final int MATE_SCORE = INF - 100;
     private final int maxDepth;
     private final int parallelDepth;
     private final Rules rules;
@@ -22,10 +24,6 @@ public class AlphaBetaNegamax implements MoveSearchStrategy {
     private final ForkJoinPool branchPool;
     private final Map<Long, TranspositionEntry> transpositionTable = new ConcurrentHashMap<>();
     private GameState lastState;
-
-
-    private static final int INF = Integer.MAX_VALUE;
-    private static final int MATE_SCORE = INF - 100;
 
     public AlphaBetaNegamax(int maxDepth, int parallelDepth, Rules rules, GameStateEvaluator evaluator) {
         this.maxDepth = maxDepth;
@@ -96,6 +94,9 @@ public class AlphaBetaNegamax implements MoveSearchStrategy {
         return score;
     }
 
+    private record TranspositionEntry(int score, int depth) {
+    }
+
     private class NegamaxTask extends RecursiveTask<Integer> {
         @Serial
         private static final long serialVersionUID = 1L;
@@ -161,8 +162,5 @@ public class AlphaBetaNegamax implements MoveSearchStrategy {
             transpositionTable.put(hash, new TranspositionEntry(bestValue, depth));
             return bestValue;
         }
-    }
-
-    private record TranspositionEntry(int score, int depth) {
     }
 }

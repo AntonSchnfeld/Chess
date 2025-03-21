@@ -2,12 +2,13 @@ package de.schoenfeld.chess.core.ai;
 
 import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.events.GameConclusion;
-import de.schoenfeld.chess.model.*;
+import de.schoenfeld.chess.model.ChessPiece;
+import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.PieceType;
+import de.schoenfeld.chess.model.Square;
 import de.schoenfeld.chess.rules.Rules;
 
-import javax.swing.text.*;
 import java.util.List;
-import java.util.Set;
 
 public class AdvancedEvaluator implements GameStateEvaluator {
     private static final int CHECKMATE_SCORE = 1_000_000; // Large value for checkmate
@@ -34,14 +35,16 @@ public class AdvancedEvaluator implements GameStateEvaluator {
         int enemyMobilityPenalty = evaluateEnemyMobility(gameState);
         int pawnStructureScore = evaluatePawnStructure(gameState);
 
-        return materialScore 
-             + (mobilityScore * MOBILITY_WEIGHT) 
-             - (enemyMobilityPenalty * MOBILITY_WEIGHT) 
-             + (kingSafetyScore * KING_SAFETY_WEIGHT) 
-             + (pawnStructureScore * PAWN_STRUCTURE_WEIGHT);
+        return materialScore
+                + (mobilityScore * MOBILITY_WEIGHT)
+                - (enemyMobilityPenalty * MOBILITY_WEIGHT)
+                + (kingSafetyScore * KING_SAFETY_WEIGHT)
+                + (pawnStructureScore * PAWN_STRUCTURE_WEIGHT);
     }
 
-    /** Evaluates material balance: total piece values of White - total piece values of Black */
+    /**
+     * Evaluates material balance: total piece values of White - total piece values of Black
+     */
     private int evaluateMaterial(GameState gameState) {
         int whiteValue = gameState.chessBoard().getPiecesOfColour(true)
                 .stream()
@@ -56,7 +59,9 @@ public class AdvancedEvaluator implements GameStateEvaluator {
         return whiteValue - blackValue;
     }
 
-    /** Evaluates king safety by considering king exposure and castling */
+    /**
+     * Evaluates king safety by considering king exposure and castling
+     */
     private int evaluateKingSafety(GameState gameState) {
         ChessBoard board = gameState.chessBoard();
         Square whiteKingPos = findKingPosition(board, true);
@@ -95,7 +100,7 @@ public class AdvancedEvaluator implements GameStateEvaluator {
                 Square adjacent = Square.of(pos.x() + dx, pos.y() + dy);
                 ChessPiece adjacentPiece = board.getPieceAt(adjacent);
                 if (board.getBounds().contains(adjacent) &&
-                    adjacentPiece != null && adjacentPiece.isWhite() == isWhite) {
+                        adjacentPiece != null && adjacentPiece.isWhite() == isWhite) {
                     count++;
                 }
             }
@@ -103,18 +108,24 @@ public class AdvancedEvaluator implements GameStateEvaluator {
         return count;
     }
 
-    /** Evaluates mobility: more legal moves = better position */
+    /**
+     * Evaluates mobility: more legal moves = better position
+     */
     private int evaluateMobility(GameState gameState) {
         return rules.generateMoves(gameState).size();
     }
 
-    /** Penalizes opponent's mobility: restricting opponent's moves is beneficial */
+    /**
+     * Penalizes opponent's mobility: restricting opponent's moves is beneficial
+     */
     private int evaluateEnemyMobility(GameState gameState) {
         GameState enemyState = gameState.withTurnSwitched();
         return rules.generateMoves(gameState).size();
     }
 
-    /** Evaluates pawn structure, penalizing weaknesses like isolated or doubled pawns */
+    /**
+     * Evaluates pawn structure, penalizing weaknesses like isolated or doubled pawns
+     */
     private int evaluatePawnStructure(GameState gameState) {
         ChessBoard board = gameState.chessBoard();
         int whitePenalty = assessPawnWeaknesses(board, true);
@@ -137,7 +148,7 @@ public class AdvancedEvaluator implements GameStateEvaluator {
             hasPawnOnFile[file] = true;
 
             boolean isolated = (file == 0 || !hasPawnOnFile[file - 1]) &&
-                               (file == 7 || !hasPawnOnFile[file + 1]);
+                    (file == 7 || !hasPawnOnFile[file + 1]);
             if (isolated) {
                 penalty += 15; // Isolated pawn penalty
             }
@@ -145,7 +156,9 @@ public class AdvancedEvaluator implements GameStateEvaluator {
         return penalty;
     }
 
-    /** Handles checkmate and draw cases */
+    /**
+     * Handles checkmate and draw cases
+     */
     private int evaluateGameConclusion(GameState gameState) {
         GameConclusion conclusion = rules.detectGameEndCause(gameState).orElseThrow();
         if (conclusion.isDraw()) {

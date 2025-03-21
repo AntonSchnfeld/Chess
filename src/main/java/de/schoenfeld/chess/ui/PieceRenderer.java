@@ -4,7 +4,6 @@ import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.PieceType;
 
 import java.awt.*;
-import java.util.Queue;
 
 import static de.schoenfeld.chess.model.PieceType.*;
 

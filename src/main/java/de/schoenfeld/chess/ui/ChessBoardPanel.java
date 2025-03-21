@@ -1,7 +1,8 @@
 package de.schoenfeld.chess.ui;
 
-import de.schoenfeld.chess.model.Square;
 import de.schoenfeld.chess.model.ChessPiece;
+import de.schoenfeld.chess.model.Square;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;

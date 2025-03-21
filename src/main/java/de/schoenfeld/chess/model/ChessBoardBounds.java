@@ -36,6 +36,7 @@ public record ChessBoardBounds(int rows, int columns) implements Serializable {
     /**
      * Returns all positions on the chess board.
      * The positions are returned in row-major order.
+     *
      * @return The list of all positions
      */
     public List<Square> allPositions() {
@@ -51,6 +52,7 @@ public record ChessBoardBounds(int rows, int columns) implements Serializable {
 
     /**
      * Returns whether the given position is contained in the bounds.
+     *
      * @param square The position to check
      * @return Whether the position is contained in the bounds
      */

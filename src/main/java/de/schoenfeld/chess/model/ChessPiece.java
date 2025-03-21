@@ -1,10 +1,7 @@
 package de.schoenfeld.chess.model;
 
-import de.schoenfeld.chess.board.ChessBoard;
-
 import java.io.Serializable;
 import java.util.WeakHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public record ChessPiece(
