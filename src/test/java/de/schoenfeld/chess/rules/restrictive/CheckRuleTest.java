@@ -1,10 +1,7 @@
 package de.schoenfeld.chess.rules.restrictive;
 
 import de.schoenfeld.chess.board.ChessBoard;
-import de.schoenfeld.chess.model.ChessPiece;
-import de.schoenfeld.chess.model.GameState;
-import de.schoenfeld.chess.model.PieceType;
-import de.schoenfeld.chess.model.Square;
+import de.schoenfeld.chess.model.*;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.rules.MoveGenerator;
@@ -12,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Stack;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -19,8 +17,8 @@ import static org.mockito.Mockito.when;
 
 public class CheckRuleTest {
     private CheckRule checkRule;
-    private MoveGenerator moveGenerator;
-    private GameState gameState;
+    private MoveGenerator<StandardPieceType> moveGenerator;
+    private GameState<StandardPieceType> gameState;
     private MoveCollection moves;
 
     @BeforeEach
@@ -49,11 +47,11 @@ public class CheckRuleTest {
         // Given
         ChessPiece piece = mock(ChessPiece.class);
         Move legalMove = mock(Move.class);
-        GameState futureState = mock(GameState.class);
+        GameState<StandardPieceType> futureState = mock(GameState.class);
 
         when(legalMove.executeOn(gameState)).thenReturn(futureState);
         when(futureState.chessBoard()).thenReturn(mock(ChessBoard.class));
-        when(futureState.chessBoard().getPiecesOfTypeAndColour(PieceType.KING, gameState.isWhiteTurn()))
+        when(futureState.chessBoard().getPiecesOfTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                 .thenReturn(List.of(mock(ChessPiece.class)));
         when(moveGenerator.generateMoves(futureState)).thenReturn(new MoveCollection()); // No attacks on king
 
@@ -72,13 +70,13 @@ public class CheckRuleTest {
         // Given
         ChessPiece piece = mock(ChessPiece.class);
         Move illegalMove = mock(Move.class);
-        GameState futureState = mock(GameState.class);
-        ChessBoard futureBoard = mock(ChessBoard.class);
+        GameState<StandardPieceType> futureState = mock(GameState.class);
+        ChessBoard<StandardPieceType> futureBoard = mock(ChessBoard.class);
         ChessPiece king = mock(ChessPiece.class);
 
         when(illegalMove.executeOn(gameState)).thenReturn(futureState);
         when(futureState.chessBoard()).thenReturn(futureBoard);
-        when(futureBoard.getPiecesOfTypeAndColour(PieceType.KING, gameState.isWhiteTurn()))
+        when(futureBoard.getPiecesOfTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                 .thenReturn(List.of(king));
         when(futureBoard.getPiecePosition(king)).thenReturn(Square.of(4, 4)); // King at (4,4)
 
@@ -100,23 +98,23 @@ public class CheckRuleTest {
         // Given
         Move legalMove = mock(Move.class);
         Move illegalMove = mock(Move.class);
-        GameState futureStateLegal = mock(GameState.class);
-        GameState futureStateIllegal = mock(GameState.class);
-        ChessBoard futureBoardLegal = mock(ChessBoard.class);
-        ChessBoard futureBoardIllegal = mock(ChessBoard.class);
+        GameState<StandardPieceType> futureStateLegal = mock(GameState.class);
+        GameState<StandardPieceType> futureStateIllegal = mock(GameState.class);
+        ChessBoard<StandardPieceType> futureBoardLegal = mock(ChessBoard.class);
+        ChessBoard<StandardPieceType> futureBoardIllegal = mock(ChessBoard.class);
         ChessPiece king = mock(ChessPiece.class);
 
         // Set up legal move scenario
         when(legalMove.executeOn(gameState)).thenReturn(futureStateLegal);
         when(futureStateLegal.chessBoard()).thenReturn(futureBoardLegal);
-        when(futureBoardLegal.getPiecesOfTypeAndColour(PieceType.KING, gameState.isWhiteTurn()))
+        when(futureBoardLegal.getPiecesOfTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                 .thenReturn(List.of(mock(ChessPiece.class)));
         when(moveGenerator.generateMoves(futureStateLegal)).thenReturn(new MoveCollection()); // No attack on king
 
         // Set up illegal move scenario
         when(illegalMove.executeOn(gameState)).thenReturn(futureStateIllegal);
         when(futureStateIllegal.chessBoard()).thenReturn(futureBoardIllegal);
-        when(futureBoardIllegal.getPiecesOfTypeAndColour(PieceType.KING, gameState.isWhiteTurn()))
+        when(futureBoardIllegal.getPiecesOfTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                 .thenReturn(List.of(king));
         when(futureBoardIllegal.getPiecePosition(king)).thenReturn(Square.of(4, 4));
 

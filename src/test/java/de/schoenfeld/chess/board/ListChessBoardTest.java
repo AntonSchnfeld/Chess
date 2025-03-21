@@ -1,9 +1,6 @@
 package de.schoenfeld.chess.board;
 
-import de.schoenfeld.chess.model.ChessBoardBounds;
-import de.schoenfeld.chess.model.ChessPiece;
-import de.schoenfeld.chess.model.PieceType;
-import de.schoenfeld.chess.model.Square;
+import de.schoenfeld.chess.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,13 +14,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ListChessBoardTest {
-    private ListChessBoard tested;
+    private ListChessBoard<PieceType> tested;
     private ChessBoardBounds bounds;
 
     @BeforeEach
     public void setUp() {
         bounds = new ChessBoardBounds(8, 8);
-        tested = new ListChessBoard(bounds);
+        tested = new ListChessBoard<>(bounds);
     }
 
     @Test
@@ -146,9 +143,10 @@ public class ListChessBoardTest {
         // Given
         ChessPiece piece = mock(ChessPiece.class);
         when(piece.isWhite()).thenReturn(false);
+        when(piece.pieceType()).thenReturn(StandardPieceType.KING);
         tested = tested.withPieceAt(piece, Square.of(0, 0));
         // When
-        var result = tested.getPiecesOfTypeAndColour(null, false);
+        var result = tested.getPiecesOfTypeAndColour(StandardPieceType.KING, false);
         // Then
         assertEquals(1, result.size());
         assertSame(piece, result.getFirst());
@@ -219,7 +217,7 @@ public class ListChessBoardTest {
         tested = tested.withPieceMoved(from, to);
         // Then
         assertNull(tested.getPieceAt(from));
-        assertSame(piece, tested.getPieceAt(to));
+        assertEquals(piece, tested.getPieceAt(to));
     }
 
     @Test

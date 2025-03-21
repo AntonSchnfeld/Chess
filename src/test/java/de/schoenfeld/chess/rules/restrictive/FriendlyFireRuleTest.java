@@ -1,10 +1,7 @@
 package de.schoenfeld.chess.rules.restrictive;
 
 import de.schoenfeld.chess.board.ChessBoard;
-import de.schoenfeld.chess.model.ChessPiece;
-import de.schoenfeld.chess.model.GameState;
-import de.schoenfeld.chess.model.PieceType;
-import de.schoenfeld.chess.model.Square;
+import de.schoenfeld.chess.model.*;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.MoveCollection;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,14 +13,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class FriendlyFireRuleTest {
-    private FriendlyFireRule tested;
+    private FriendlyFireRule<StandardPieceType> tested;
     private MoveCollection moves;
-    private GameState state;
-    private ChessBoard board;
+    private GameState<StandardPieceType> state;
+    private ChessBoard<StandardPieceType> board;
 
     @BeforeEach
     public void setup() {
-        tested = new FriendlyFireRule();
+        tested = new FriendlyFireRule<>();
         moves = new MoveCollection();
 
         state = mock(GameState.class);
@@ -45,8 +42,8 @@ public class FriendlyFireRuleTest {
     @Test
     public void givenMovesWithoutFriendlyFire_whenFilterMoves_thenDontRemoveAnything() {
         // Given
-        ChessPiece whitePawn = new ChessPiece(PieceType.PAWN, true);
-        ChessPiece blackKnight = new ChessPiece(PieceType.KNIGHT, false);
+        ChessPiece whitePawn = new ChessPiece(StandardPieceType.PAWN, true);
+        ChessPiece blackKnight = new ChessPiece(StandardPieceType.KNIGHT, false);
 
         Square from = Square.of(2, 2);
         Square to = Square.of(3, 3);
@@ -66,8 +63,8 @@ public class FriendlyFireRuleTest {
     @Test
     public void givenMovesWithFriendlyFire_whenFilterMoves_thenRemoveFriendlyMoves() {
         // Given
-        ChessPiece whitePawn = new ChessPiece(PieceType.PAWN, true);
-        ChessPiece whiteKnight = new ChessPiece(PieceType.KNIGHT, true);
+        ChessPiece whitePawn = new ChessPiece(StandardPieceType.PAWN, true);
+        ChessPiece whiteKnight = new ChessPiece(StandardPieceType.KNIGHT, true);
 
         Square from = Square.of(2, 2);
         Square to = Square.of(3, 3);

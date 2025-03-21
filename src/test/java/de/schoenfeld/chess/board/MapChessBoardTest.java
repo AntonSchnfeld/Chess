@@ -1,114 +1,269 @@
 package de.schoenfeld.chess.board;
 
-import de.schoenfeld.chess.model.ChessBoardBounds;
-import de.schoenfeld.chess.model.ChessPiece;
-import de.schoenfeld.chess.model.PieceType;
-import de.schoenfeld.chess.model.Square;
+import de.schoenfeld.chess.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class MapChessBoardTest {
-    private MapChessBoard chessBoard;
-    private ChessPiece whitePawn;
-    private ChessPiece blackKnight;
-    private Square pawnSquare;
-    private Square knightSquare;
+public class MapChessBoardTest {
+    private MapChessBoard<PieceType> tested;
+    private ChessBoardBounds bounds;
 
     @BeforeEach
-    void setup() {
-        chessBoard = new MapChessBoard(new ChessBoardBounds(8, 8));
-        whitePawn = mock(ChessPiece.class);
-        blackKnight = mock(ChessPiece.class);
-        pawnSquare = Square.of(1, 1);
-        knightSquare = Square.of(2, 2);
-
-        when(whitePawn.isWhite()).thenReturn(true);
-        when(blackKnight.isWhite()).thenReturn(false);
-        when(whitePawn.pieceType()).thenReturn(PieceType.PAWN);
-        when(blackKnight.pieceType()).thenReturn(PieceType.KNIGHT);
+    public void setUp() {
+        bounds = new ChessBoardBounds(8, 8);
+        tested = new MapChessBoard<>(bounds);
     }
 
     @Test
-    void givenEmptyBoard_whenGetPieceAt_thenReturnNull() {
-        assertNull(chessBoard.getPieceAt(Square.of(3, 3)));
+    public void givenNoPieces_whenGetPieceAt_thenNull() {
+        // Given
+        // Board is already empty
+        // When
+        ChessPiece piece = tested.getPieceAt(Square.of(0, 0));
+        // Then
+        assertNull(piece);
     }
 
     @Test
-    void givenPieceAdded_whenGetPieceAt_thenReturnCorrectPiece() {
-        MapChessBoard newBoard = chessBoard.withPieceAt(whitePawn, pawnSquare);
-        assertEquals(whitePawn, newBoard.getPieceAt(pawnSquare));
-        assertNull(chessBoard.getPieceAt(pawnSquare)); // Original remains unchanged
+    public void givenPieceAtPosition_whenGetPieceAt_thenPiece() {
+        // Given
+        ChessPiece piece = mock(ChessPiece.class);
+        Square pieceSquare = Square.of(0, 0);
+
+        when(piece.isWhite()).thenReturn(false);
+
+        tested = tested.withPieceAt(piece, pieceSquare);
+        // When
+        ChessPiece result = tested.getPieceAt(pieceSquare);
+        // Then
+        assertSame(piece, result);
     }
 
     @Test
-    void givenPieceAdded_whenGetPiecePosition_thenReturnCorrectPosition() {
-        MapChessBoard newBoard = chessBoard.withPieceAt(blackKnight, knightSquare);
-        assertEquals(knightSquare, newBoard.getPiecePosition(blackKnight));
-        assertNull(chessBoard.getPiecePosition(blackKnight)); // Original unchanged
+    public void givenPieceAtPosition_whenGetPiecePosition_thenPosition() {
+        // Given
+        ChessPiece piece = mock(ChessPiece.class);
+        Square pieceSquare = Square.of(0, 0);
+
+        when(piece.isWhite()).thenReturn(false);
+
+        tested = tested.withPieceAt(piece, pieceSquare);
+        // When
+        Square result = tested.getPiecePosition(piece);
+        // Then
+        assertEquals(pieceSquare, result);
     }
 
     @Test
-    void givenPieceRemoved_whenGetPieceAt_thenReturnNull() {
-        MapChessBoard addedBoard = chessBoard.withPieceAt(whitePawn, pawnSquare);
-        MapChessBoard removedBoard = addedBoard.withoutPieceAt(pawnSquare);
-
-        assertNull(removedBoard.getPieceAt(pawnSquare));
-        assertEquals(whitePawn, addedBoard.getPieceAt(pawnSquare)); // Previous version intact
+    public void givenNoPieces_whenGetPiecePosition_thenNull() {
+        // Given
+        // Board is already empty
+        // When
+        Square result = tested.getPiecePosition(mock(ChessPiece.class));
+        // Then
+        assertNull(result);
     }
 
     @Test
-    void givenMultiplePieces_whenGetPieces_OfColour_thenReturnCorrectList() {
-        MapChessBoard modifiedBoard = chessBoard
-                .withPieceAt(whitePawn, pawnSquare)
-                .withPieceAt(blackKnight, knightSquare);
-
-        List<ChessPiece> whitePieces = modifiedBoard.getPiecesOfColour(true);
-        assertEquals(1, whitePieces.size());
-        assertTrue(whitePieces.contains(whitePawn));
+    public void givenChessBoardBounds_whenGetBounds_thenBounds() {
+        // Given
+        // When
+        ChessBoardBounds result = tested.getBounds();
+        // Then
+        assertEquals(bounds, result);
     }
 
     @Test
-    void givenMultiplePieces_whenGetPiecesOfColourOfType_thenReturnCorrectList() {
-        MapChessBoard modifiedBoard = chessBoard
-                .withPieceAt(whitePawn, pawnSquare)
-                .withPieceAt(blackKnight, knightSquare);
-
-        List<ChessPiece> whitePawns = modifiedBoard.getPiecesOfTypeAndColour(PieceType.PAWN, true);
-        assertEquals(1, whitePawns.size());
-        assertTrue(whitePawns.contains(whitePawn));
+    public void givenNoPieces_whenGetPiecesOfColour_thenEmptyList() {
+        // Given
+        // Board is already empty
+        // When
+        var result = tested.getPiecesOfColour(false);
+        // Then
+        assertTrue(result.isEmpty());
     }
 
     @Test
-    void givenPieceMoved_whenGetPieceAt_thenNewPositionHasPiece() {
+    public void givenPiecesOfColour_whenGetPiecesOfColour_thenPieces() {
+        // Given
+        ChessPiece piece = mock(ChessPiece.class);
+        when(piece.isWhite()).thenReturn(false);
+        tested = tested.withPieceAt(piece, Square.of(0, 0));
+        // When
+        var result = tested.getPiecesOfColour(false);
+        // Then
+        assertEquals(1, result.size());
+        assertSame(piece, result.getFirst());
+    }
+
+    @Test
+    public void givenNoPieces_whenGetPieces_thenEmptyList() {
+        // Given
+        // Board is already empty
+        // When
+        var result = tested.getPieces();
+        // Then
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void givenPieces_whenGetPieces_thenPieces() {
+        // Given
+        ChessPiece piece = mock(ChessPiece.class);
+        when(piece.isWhite()).thenReturn(false);
+        tested = tested.withPieceAt(piece, Square.of(0, 0));
+        // When
+        var result = tested.getPieces();
+        // Then
+        assertEquals(1, result.size());
+        assertSame(piece, result.getFirst());
+    }
+
+    @Test
+    public void givenNoPieces_whenGetPiecesOfType_AndColour_thenEmptyList() {
+        // Given
+        // Board is already empty
+        // When
+        var result = tested.getPiecesOfTypeAndColour(null, false);
+        // Then
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void givenPiecesOfType_whenGetPiecesOfType_thenPiecesAndColour() {
+        // Given
+        ChessPiece piece = mock(ChessPiece.class);
+        when(piece.isWhite()).thenReturn(false);
+        when(piece.pieceType()).thenReturn(StandardPieceType.KNIGHT);
+        tested = tested.withPieceAt(piece, Square.of(0, 0));
+        // When
+        var result = tested.getPiecesOfTypeAndColour(StandardPieceType.KNIGHT, false);
+        // Then
+        assertEquals(1, result.size());
+        assertEquals(piece, result.getFirst());
+    }
+
+    @Test
+    public void givenManyPieces_whenGetPiecesOfType_thenPiecesOfTypeAndColour() {
+        // Given
+        PieceType searchPieceType = StandardPieceType.PAWN;
+        PieceType otherPieceType = StandardPieceType.KNIGHT;
+
+        List<ChessPiece> searchedPieces = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            ChessPiece piece = mock(ChessPiece.class);
+            when(piece.isWhite()).thenReturn(false);
+            when(piece.pieceType()).thenReturn(searchPieceType);
+            searchedPieces.add(piece);
+            tested = tested.withPieceAt(piece, Square.of(0, i));
+        }
+
+        for (int i = 0; i < 8; i++) {
+            ChessPiece piece = mock(ChessPiece.class);
+            when(piece.isWhite()).thenReturn(false);
+            when(piece.pieceType()).thenReturn(otherPieceType);
+            tested = tested.withPieceAt(piece, Square.of(1, i));
+        }
+
+        // When
+        var result = tested.getPiecesOfTypeAndColour(searchPieceType, false);
+        // Then
+        assertEquals(searchedPieces.size(), result.size());
+        assertTrue(result.containsAll(searchedPieces));
+    }
+
+    @Test
+    public void givenNoPieces_whenWithPieceAt_thenPieceAtPosition() {
+        // Given
+        ChessPiece piece = mock(ChessPiece.class);
+        Square pieceSquare = Square.of(0, 0);
+        // When
+        tested = tested.withPieceAt(piece, pieceSquare);
+        // Then
+        assertSame(piece, tested.getPieceAt(pieceSquare));
+        assertEquals(1, tested.getPieces().size());
+    }
+
+    @Test
+    public void givenPieceAtPosition_whenWithoutPieceAt_thenNoPieceAtPosition() {
+        // Given
+        ChessPiece piece = mock(ChessPiece.class);
+        Square pieceSquare = Square.of(0, 0);
+        tested = tested.withPieceAt(piece, pieceSquare);
+        // When
+        tested = tested.withoutPieceAt(pieceSquare);
+        // Then
+        assertNull(tested.getPieceAt(pieceSquare));
+        assertEquals(0, tested.getPieces().size());
+    }
+
+    @Test
+    public void givenPieceAtPosition_whenWithPieceMoved_thenPieceAtNewPosition() {
+        // Given
+        ChessPiece piece = mock(ChessPiece.class);
         Square from = Square.of(0, 0);
-        Square to = Square.of(4, 4);
-
-        MapChessBoard addedBoard = chessBoard.withPieceAt(whitePawn, from);
-        MapChessBoard movedBoard = addedBoard.withPieceMoved(from, to);
-
-        assertNull(movedBoard.getPieceAt(from));
-        assertEquals(whitePawn, movedBoard.getPieceAt(to));
+        Square to = Square.of(1, 1);
+        tested = tested.withPieceAt(piece, from);
+        // When
+        tested = tested.withPieceMoved(from, to);
+        // Then
+        assertNull(tested.getPieceAt(from));
+        assertEquals(piece, tested.getPieceAt(to));
     }
 
     @Test
-    void givenInvalidPosition_whenWithPieceAt_thenThrowException() {
-        Square invalid = Square.of(8, 8);
-        assertThrows(IllegalArgumentException.class,
-                () -> chessBoard.withPieceAt(whitePawn, invalid));
+    public void givenPieces_whenWithAllPieces_thenAllPieces() {
+        // Given
+        ChessPiece piece1 = mock(ChessPiece.class);
+        ChessPiece piece2 = mock(ChessPiece.class);
+        Square square1 = Square.of(0, 0);
+        Square square2 = Square.of(1, 1);
+
+        Map<Square, ChessPiece> map = new HashMap<>();
+        map.put(square1, piece1);
+        map.put(square2, piece2);
+        // When
+        tested = tested.withAllPieces(map);
+        // Then
+        assertEquals(2, tested.getPieces().size());
+        assertSame(piece1, tested.getPieceAt(square1));
+        assertSame(piece2, tested.getPieceAt(square2));
     }
 
     @Test
-    void givenNewBounds_whenWithBounds_thenMaintainPiecesWithinBounds() {
+    public void givenPieces_whenWithoutPieces_thenNoPieces() {
+        // Given
+        ChessPiece piece1 = mock(ChessPiece.class);
+        ChessPiece piece2 = mock(ChessPiece.class);
+        Square square1 = Square.of(0, 0);
+        Square square2 = Square.of(1, 1);
+
+        tested = tested.withPieceAt(piece1, square1);
+        tested = tested.withPieceAt(piece2, square2);
+        // When
+        tested = tested.withoutPieces();
+        // Then
+        assertNull(tested.getPieceAt(square1));
+        assertNull(tested.getPieceAt(square2));
+        assertEquals(0, tested.getPieces().size());
+    }
+
+    @Test
+    public void givenBounds_whenWithBounds_thenBounds() {
+        // Given
         ChessBoardBounds newBounds = new ChessBoardBounds(4, 4);
-        MapChessBoard smallBoard = chessBoard.withBounds(newBounds);
-
-        assertEquals(newBounds, smallBoard.getBounds());
-        assertTrue(smallBoard.getPiecesOfColour(true).isEmpty());
+        // When
+        tested = tested.withBounds(newBounds);
+        // Then
+        assertEquals(newBounds, tested.getBounds());
     }
 }

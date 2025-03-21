@@ -89,7 +89,7 @@ public record MapChessBoard<T extends PieceType>(
         if (!bounds.contains(square))
             throw new IllegalArgumentException("position must be in bounds");
 
-        if (square.equals(chessPieceMap.get(piece))) return this;
+        if (piece.equals(positionMap.get(square))) return this;
 
         Map<Square, ChessPiece> newPositions = new HashMap<>(positionMap);
         newPositions.put(square, piece);
@@ -110,7 +110,7 @@ public record MapChessBoard<T extends PieceType>(
         if (from.equals(to)) return this;
         ChessPiece piece = getPieceAt(from);
         if (piece == null) return this;
-        return withoutPieceAt(from).withPieceAt(piece.withMoved(true), to);
+        return withoutPieceAt(from).withPieceAt(piece, to);
     }
 
     public MapChessBoard<T> withAllPieces(Map<Square, ChessPiece> newPieces) {

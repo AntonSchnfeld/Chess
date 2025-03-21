@@ -18,9 +18,9 @@ import static org.mockito.Mockito.*;
 
 public class CheckMateRuleTest {
     private CheckMateRule tested;
-    private MoveGenerator moveGenerator;
-    private GameState gameState;
-    private ChessBoard board;
+    private MoveGenerator<StandardPieceType> moveGenerator;
+    private GameState<StandardPieceType> gameState;
+    private ChessBoard<StandardPieceType> board;
     private ChessPiece king;
     private ChessPiece secondKing;
 
@@ -29,10 +29,10 @@ public class CheckMateRuleTest {
         moveGenerator = mock(MoveGenerator.class);
         tested = new CheckMateRule(moveGenerator);
 
-        board = new MapChessBoard(new ChessBoardBounds(8, 8));
-        gameState = new GameState(board);
-        king = new ChessPiece(PieceType.KING, true);
-        secondKing = new ChessPiece(PieceType.KING, true);
+        board = new MapChessBoard<>(new ChessBoardBounds(8, 8));
+        gameState = new GameState<>(board);
+        king = new ChessPiece(StandardPieceType.KING, true);
+        secondKing = new ChessPiece(StandardPieceType.KING, true);
     }
 
     @Test
@@ -56,7 +56,7 @@ public class CheckMateRuleTest {
         when(moveGenerator.generateMoves(gameState)).thenReturn(new MoveCollection());
         gameState = gameState.withPieceAt(king, Square.h5);
 
-        GameState enemyState = gameState.withIsWhiteTurn(!gameState.isWhiteTurn());
+        GameState<StandardPieceType> enemyState = gameState.withIsWhiteTurn(!gameState.isWhiteTurn());
         when(moveGenerator.generateMoves(enemyState)).thenReturn(new MoveCollection());
 
         Optional<GameConclusion> result = tested.detectGameEndCause(gameState);
@@ -87,7 +87,7 @@ public class CheckMateRuleTest {
     public void givenMultipleKingsOneInCheckAndNoLegalMoves_whenDetectGameEndCause_thenReturnCheckmate() {
         gameState = gameState.withPieceAt(king, Square.h5).withPieceAt(secondKing, Square.h7);
 
-        GameState enemyState = gameState.withIsWhiteTurn(!gameState.isWhiteTurn());
+        GameState<StandardPieceType> enemyState = gameState.withIsWhiteTurn(!gameState.isWhiteTurn());
         when(moveGenerator.generateMoves(enemyState))
                 .thenReturn(MoveCollection.of(
                         Move.of(mock(ChessPiece.class), Square.of(3, 1), Square.of(4, 0)),
@@ -134,7 +134,7 @@ public class CheckMateRuleTest {
 
     @Test
     public void givenWhiteKingOnA8AndMated_whenDetectGameEndCause_thenReturnCheckmate() {
-        ChessPiece checkingPiece = new ChessPiece(PieceType.ROOK, false);
+        ChessPiece checkingPiece = new ChessPiece(StandardPieceType.ROOK, false);
 
         gameState = gameState.withPieceAt(king, Square.a8).withPieceAt(checkingPiece, Square.a1);
 
@@ -144,7 +144,7 @@ public class CheckMateRuleTest {
         );
         Move kingMove = Move.of(king, Square.a8, Square.a7);
 
-        GameState stateAfterKingMove = kingMove.executeOn(gameState);
+        GameState<StandardPieceType> stateAfterKingMove = kingMove.executeOn(gameState);
         when(moveGenerator.generateMoves(gameState)).thenReturn(MoveCollection.of(kingMove));
         when(moveGenerator.generateMoves(gameState.withTurnSwitched())).thenReturn(enemyMoves);
 

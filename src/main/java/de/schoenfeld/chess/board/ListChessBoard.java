@@ -116,7 +116,7 @@ public record ListChessBoard<T extends PieceType>(
         ChessPiece piece = getPieceAt(from);
         List<ChessPiece> newPieces = new ArrayList<>(pieces);
         newPieces.set(calculateIndex(from), null);
-        newPieces.set(calculateIndex(to), piece.withMoved(true));
+        newPieces.set(calculateIndex(to), piece);
         return new ListChessBoard<>(newPieces, bounds);
     }
 

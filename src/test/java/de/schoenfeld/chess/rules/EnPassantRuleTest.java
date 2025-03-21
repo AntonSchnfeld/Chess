@@ -3,6 +3,7 @@ package de.schoenfeld.chess.rules;
 import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.MoveHistory;
+import de.schoenfeld.chess.model.StandardPieceType;
 import de.schoenfeld.chess.rules.generative.EnPassantRule;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -12,14 +13,14 @@ import static org.mockito.Mockito.when;
 
 public class EnPassantRuleTest {
     private EnPassantRule tested;
-    private GameState gameState;
+    private GameState<StandardPieceType> gameState;
 
     @BeforeEach
     public void setup() {
         tested = new EnPassantRule();
         gameState = mock(GameState.class);
         MoveHistory moveHistory = mock(MoveHistory.class);
-        ChessBoard chessBoard = mock(ChessBoard.class);
+        ChessBoard<StandardPieceType> chessBoard = mock(ChessBoard.class);
 
         when(gameState.chessBoard()).thenReturn(chessBoard);
         when(gameState.moveHistory()).thenReturn(moveHistory);

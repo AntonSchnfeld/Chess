@@ -4,6 +4,7 @@ import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.events.GameConclusion;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.StandardPieceType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,13 +17,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class NoPiecesRuleTest {
-    private NoPiecesRule tested;
-    private GameState gameState;
-    private ChessBoard chessBoard;
+    private NoPiecesRule<StandardPieceType> tested;
+    private GameState<StandardPieceType> gameState;
+    private ChessBoard<StandardPieceType> chessBoard;
 
     @BeforeEach
     public void setup() {
-        tested = new NoPiecesRule();
+        tested = new NoPiecesRule<>();
         gameState = mock(GameState.class);
         chessBoard = mock(ChessBoard.class);
 

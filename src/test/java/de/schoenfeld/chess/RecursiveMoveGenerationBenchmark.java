@@ -2,6 +2,7 @@ package de.schoenfeld.chess;
 
 import de.schoenfeld.chess.board.BoardUtility;
 import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.StandardPieceType;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.rules.MoveGenerator;
 import de.schoenfeld.chess.rules.Rules;
@@ -18,13 +19,13 @@ import java.util.concurrent.TimeUnit;
 @Fork(1)  // Run in the same JVM
 public class RecursiveMoveGenerationBenchmark {
 
-    private MoveGenerator moveGenerator;
-    private GameState initialGameState;
+    private MoveGenerator<StandardPieceType> moveGenerator;
+    private GameState<StandardPieceType> initialGameState;
 
     @Setup(Level.Trial)  // Setup only once per benchmark trial
     public void setup() {
         moveGenerator = Rules.DEFAULT;
-        initialGameState = new GameState(BoardUtility.getDefaultBoard());
+        initialGameState = new GameState<>(BoardUtility.getDefaultBoard());
     }
 
     @Benchmark
@@ -32,7 +33,7 @@ public class RecursiveMoveGenerationBenchmark {
         return generateMovesRecursively(initialGameState, 3);
     }
 
-    private long generateMovesRecursively(GameState state, int depth) {
+    private long generateMovesRecursively(GameState<StandardPieceType> state, int depth) {
         if (depth == 0) {
             return 1; // Leaf node
         }
@@ -41,7 +42,7 @@ public class RecursiveMoveGenerationBenchmark {
         long totalNodes = 0;
 
         for (Move move : moves) {
-            GameState newState = move.executeOn(state);
+            GameState<StandardPieceType> newState = move.executeOn(state);
             totalNodes += generateMovesRecursively(newState, depth - 1);
         }
 
