@@ -14,7 +14,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ListChessBoardTest {
-    private ListChessBoard<PieceType> tested;
+    private ListChessBoard<StandardPieceType> tested;
     private ChessBoardBounds bounds;
 
     @BeforeEach
@@ -28,7 +28,7 @@ public class ListChessBoardTest {
         // Given
         // Board is already empty
         // When
-        ChessPiece piece = tested.getPieceAt(Square.of(0, 0));
+        ChessPiece<StandardPieceType> piece = tested.getPieceAt(Square.of(0, 0));
         // Then
         assertNull(piece);
     }
@@ -36,14 +36,14 @@ public class ListChessBoardTest {
     @Test
     public void givenPieceAtPosition_whenGetPieceAt_thenPiece() {
         // Given
-        ChessPiece piece = mock(ChessPiece.class);
+        ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
         Square pieceSquare = Square.of(0, 0);
 
         when(piece.isWhite()).thenReturn(false);
 
         tested = tested.withPieceAt(piece, pieceSquare);
         // When
-        ChessPiece result = tested.getPieceAt(pieceSquare);
+        ChessPiece<StandardPieceType> result = tested.getPieceAt(pieceSquare);
         // Then
         assertSame(piece, result);
     }
@@ -51,7 +51,7 @@ public class ListChessBoardTest {
     @Test
     public void givenPieceAtPosition_whenGetPiecePosition_thenPosition() {
         // Given
-        ChessPiece piece = mock(ChessPiece.class);
+        ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
         Square pieceSquare = Square.of(0, 0);
 
         when(piece.isWhite()).thenReturn(false);
@@ -95,7 +95,7 @@ public class ListChessBoardTest {
     @Test
     public void givenPiecesOfColour_whenGetPiecesOfColour_thenPieces() {
         // Given
-        ChessPiece piece = mock(ChessPiece.class);
+        ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
         when(piece.isWhite()).thenReturn(false);
         tested = tested.withPieceAt(piece, Square.of(0, 0));
         // When
@@ -118,7 +118,7 @@ public class ListChessBoardTest {
     @Test
     public void givenPieces_whenGetPieces_thenPieces() {
         // Given
-        ChessPiece piece = mock(ChessPiece.class);
+        ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
         when(piece.isWhite()).thenReturn(false);
         tested = tested.withPieceAt(piece, Square.of(0, 0));
         // When
@@ -141,7 +141,7 @@ public class ListChessBoardTest {
     @Test
     public void givenPiecesOfType_whenGetPiecesOfType_thenPiecesAndColour() {
         // Given
-        ChessPiece piece = mock(ChessPiece.class);
+        ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
         when(piece.isWhite()).thenReturn(false);
         when(piece.pieceType()).thenReturn(StandardPieceType.KING);
         tested = tested.withPieceAt(piece, Square.of(0, 0));
@@ -155,12 +155,12 @@ public class ListChessBoardTest {
     @Test
     public void givenManyPieces_whenGetPiecesOfType_thenPiecesOfTypeAndColour() {
         // Given
-        PieceType searchPieceType = mock(PieceType.class);
-        PieceType otherPieceType = mock(PieceType.class);
+        StandardPieceType searchPieceType = StandardPieceType.KING;
+        StandardPieceType otherPieceType = StandardPieceType.PAWN;
 
-        List<ChessPiece> searchedPieces = new ArrayList<>();
+        List<ChessPiece<StandardPieceType>> searchedPieces = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
-            ChessPiece piece = mock(ChessPiece.class);
+            ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
             when(piece.isWhite()).thenReturn(false);
             when(piece.pieceType()).thenReturn(searchPieceType);
             searchedPieces.add(piece);
@@ -168,7 +168,7 @@ public class ListChessBoardTest {
         }
 
         for (int i = 0; i < 8; i++) {
-            ChessPiece piece = mock(ChessPiece.class);
+            ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
             when(piece.isWhite()).thenReturn(false);
             when(piece.pieceType()).thenReturn(otherPieceType);
             tested = tested.withPieceAt(piece, Square.of(1, i));
@@ -184,7 +184,7 @@ public class ListChessBoardTest {
     @Test
     public void givenNoPieces_whenWithPieceAt_thenPieceAtPosition() {
         // Given
-        ChessPiece piece = mock(ChessPiece.class);
+        ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
         Square pieceSquare = Square.of(0, 0);
         // When
         tested = tested.withPieceAt(piece, pieceSquare);
@@ -196,7 +196,7 @@ public class ListChessBoardTest {
     @Test
     public void givenPieceAtPosition_whenWithoutPieceAt_thenNoPieceAtPosition() {
         // Given
-        ChessPiece piece = mock(ChessPiece.class);
+        ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
         Square pieceSquare = Square.of(0, 0);
         tested = tested.withPieceAt(piece, pieceSquare);
         // When
@@ -209,7 +209,7 @@ public class ListChessBoardTest {
     @Test
     public void givenPieceAtPosition_whenWithPieceMoved_thenPieceAtNewPosition() {
         // Given
-        ChessPiece piece = mock(ChessPiece.class);
+        ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
         Square from = Square.of(0, 0);
         Square to = Square.of(1, 1);
         tested = tested.withPieceAt(piece, from);
@@ -223,12 +223,12 @@ public class ListChessBoardTest {
     @Test
     public void givenPieces_whenWithAllPieces_thenAllPieces() {
         // Given
-        ChessPiece piece1 = mock(ChessPiece.class);
-        ChessPiece piece2 = mock(ChessPiece.class);
+        ChessPiece<StandardPieceType> piece1 = mock(ChessPiece.class);
+        ChessPiece<StandardPieceType> piece2 = mock(ChessPiece.class);
         Square square1 = Square.of(0, 0);
         Square square2 = Square.of(1, 1);
 
-        Map<Square, ChessPiece> map = new HashMap<>();
+        Map<Square, ChessPiece<StandardPieceType>> map = new HashMap<>();
         map.put(square1, piece1);
         map.put(square2, piece2);
         // When
@@ -242,8 +242,8 @@ public class ListChessBoardTest {
     @Test
     public void givenPieces_whenWithoutPieces_thenNoPieces() {
         // Given
-        ChessPiece piece1 = mock(ChessPiece.class);
-        ChessPiece piece2 = mock(ChessPiece.class);
+        ChessPiece<StandardPieceType> piece1 = mock(ChessPiece.class);
+        ChessPiece<StandardPieceType> piece2 = mock(ChessPiece.class);
         Square square1 = Square.of(0, 0);
         Square square2 = Square.of(1, 1);
 

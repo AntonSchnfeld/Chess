@@ -19,7 +19,7 @@ public class EnPassantRuleTest {
     public void setup() {
         tested = new EnPassantRule();
         gameState = mock(GameState.class);
-        MoveHistory moveHistory = mock(MoveHistory.class);
+        MoveHistory<StandardPieceType> moveHistory = mock(MoveHistory.class);
         ChessBoard<StandardPieceType> chessBoard = mock(ChessBoard.class);
 
         when(gameState.chessBoard()).thenReturn(chessBoard);

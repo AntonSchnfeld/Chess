@@ -45,6 +45,7 @@ public class EventBus {
     }
 
     private void processEventQueue() {
+        isProcessing = true;
         while (!eventQueue.isEmpty()) {
             GameEvent event = eventQueue.poll();
 

@@ -73,8 +73,8 @@ public record Rules<T extends PieceType>(List<GenerativeMoveRule<T>> generativeM
         return Optional.empty();
     }
 
-    public MoveCollection generateMoves(GameState<T> gameState) {
-        var moves = new MoveCollection();
+    public MoveCollection<T> generateMoves(GameState<T> gameState) {
+        MoveCollection<T> moves = new MoveCollection<>();
         // Check if the game has ended
         if (detectGameEndCause(gameState).isPresent()) return moves;
 

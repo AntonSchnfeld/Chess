@@ -18,8 +18,8 @@ public class KnightMoveRule implements GenerativeMoveRule<StandardPieceType> {
     );
 
     private static void generateKnightMoves(ChessBoard<StandardPieceType> board,
-                                            ChessPiece knight,
-                                            MoveCollection moves) {
+                                            ChessPiece<StandardPieceType> knight,
+                                            MoveCollection<StandardPieceType> moves) {
         var from = board.getPiecePosition(knight);
 
         for (var offset : KNIGHT_MOVES) {
@@ -31,15 +31,15 @@ public class KnightMoveRule implements GenerativeMoveRule<StandardPieceType> {
                 // Allow the move if the destination is empty or occupied by an opponent's piece
                 if (targetPiece == null) moves.add(Move.of(knight, from, to));
                 else if (targetPiece.isWhite() != knight.isWhite())
-                    moves.add(Move.of(knight, from, to, new CaptureComponent(targetPiece)));
+                    moves.add(Move.of(knight, from, to, new CaptureComponent<>(targetPiece)));
             }
         }
     }
 
     @Override
-    public MoveCollection generateMoves(GameState<StandardPieceType> gameState) {
-        var moves = new MoveCollection();
-        var board = gameState.chessBoard();
+    public MoveCollection<StandardPieceType> generateMoves(GameState<StandardPieceType> gameState) {
+        MoveCollection<StandardPieceType> moves = new MoveCollection<>();
+        ChessBoard<StandardPieceType> board = gameState.chessBoard();
 
         // Retrieve all knights belonging to the current player
         var knights = board.getPiecesOfTypeAndColour(StandardPieceType.KNIGHT, gameState.isWhiteTurn());

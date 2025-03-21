@@ -6,10 +6,10 @@ import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.move.Move;
 
-public record CaptureComponent(ChessPiece capturedPiece) implements MoveComponent {
+public record CaptureComponent<T extends PieceType>(ChessPiece<T> capturedPiece)
+        implements MoveComponent<T> {
     @Override
-    public <T extends PieceType> ChessBoard<T> executeOn(GameState<T> gameState,
-                                                         Move move) {
+    public ChessBoard<T> executeOn(GameState<T> gameState, Move<T> move) {
         return gameState.chessBoard();
     }
 }

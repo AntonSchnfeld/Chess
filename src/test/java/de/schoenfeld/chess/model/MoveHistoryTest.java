@@ -8,11 +8,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 public class MoveHistoryTest {
-    private MoveHistory tested;
+    private MoveHistory<StandardPieceType> tested;
 
     @BeforeEach
     public void setup() {
-        tested = new MoveHistory();
+        tested = new MoveHistory<>();
     }
 
     @Test
@@ -24,8 +24,8 @@ public class MoveHistoryTest {
 
     @Test
     public void givenMoveHistory_whenMoveRecorded_thenNewHistoryHasMove() {
-        Move move = mock(Move.class);
-        MoveHistory newHistory = tested.withMoveRecorded(move);
+        Move<StandardPieceType> move = mock(Move.class);
+        MoveHistory<StandardPieceType> newHistory = tested.withMoveRecorded(move);
 
         assertNotSame(tested, newHistory);
         assertEquals(1, newHistory.getMoveCount());
@@ -40,10 +40,11 @@ public class MoveHistoryTest {
 
     @Test
     public void givenMoveHistoryWithMoves_whenLastMoveRemoved_thenNewHistoryHasOneLessMove() {
-        Move move1 = mock(Move.class);
-        Move move2 = mock(Move.class);
-        MoveHistory history = new MoveHistory().withMoveRecorded(move1).withMoveRecorded(move2);
-        MoveHistory reducedHistory = history.withoutLastMove();
+        Move<StandardPieceType> move1 = mock(Move.class);
+        Move<StandardPieceType> move2 = mock(Move.class);
+        MoveHistory<StandardPieceType> history = new MoveHistory<>();
+        history = history.withMoveRecorded(move1).withMoveRecorded(move2);
+        MoveHistory<StandardPieceType> reducedHistory = history.withoutLastMove();
 
         assertNotSame(history, reducedHistory);
         assertEquals(1, reducedHistory.getMoveCount());

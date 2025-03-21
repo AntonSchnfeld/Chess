@@ -19,8 +19,8 @@ public class RestrictiveMoveGenerator<T extends PieceType> implements MoveGenera
     }
 
     @Override
-    public MoveCollection generateMoves(GameState<T> gameState) {
-        MoveCollection moves = new MoveCollection();
+    public MoveCollection<T> generateMoves(GameState<T> gameState) {
+        MoveCollection<T> moves = new MoveCollection<>();
 
         for (GenerativeMoveRule<T> rule : generativeMoveRules)
             moves.addAll(rule.generateMoves(gameState));

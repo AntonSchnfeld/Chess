@@ -1,6 +1,7 @@
 package de.schoenfeld.chess.ui;
 
 import de.schoenfeld.chess.model.ChessPiece;
+import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.model.Square;
 
 import javax.swing.*;
@@ -32,12 +33,12 @@ public class ChessBoardPanel extends JPanel {
         }
     }
 
-    public void updateBoard(Map<Square, ChessPiece> positions) {
+    public <T extends PieceType> void updateBoard(Map<Square, ChessPiece<T>> positions) {
         // Debugging: Print positions being updated
 
         // Update only the squares that have pieces
         squares.forEach((pos, square) -> {
-            ChessPiece piece = positions.get(pos);
+            ChessPiece<T> piece = positions.get(pos);
             if (piece != null) {
                 // Debugging: Print piece details
                 square.setForeground(pieceRenderer.getPieceColor(piece));

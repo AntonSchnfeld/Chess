@@ -50,14 +50,28 @@ public class Main {
 
     public static void main(String[] args) {
         Rules<StandardPieceType> rules = Rules.DEFAULT;
-        GameState<StandardPieceType> gameState = new GameState<StandardPieceType>(
+        GameState<StandardPieceType> gameState = new GameState<>(
                 BoardUtility.getDefaultBoard(),
-                new MoveHistory(), true);
+                new MoveHistory<>(), true);
 
-        GameStateEvaluator advancedEvaluator = new PieceValueEvaluator();
-        GameStateEvaluator otherEvaluator = new SimpleEvaluationFunctionWithMobility(rules);
-        MoveSearchStrategy whiteStrategy = new AlphaBetaNegamax(3, Runtime.getRuntime().availableProcessors(), rules, advancedEvaluator);
-        MoveSearchStrategy blackStrategy = new AlphaBetaNegamax(3, Runtime.getRuntime().availableProcessors(), rules, otherEvaluator);
+        MoveOrderingHeuristic<StandardPieceType> heuristic = new AggressiveMoveOrdering();
+        GameStateEvaluator<StandardPieceType> advancedEvaluator = new PieceValueEvaluator<>();
+        GameStateEvaluator<StandardPieceType> otherEvaluator =
+                new SimpleEvaluationFunctionWithMobility(rules);
+        MoveSearchStrategy<StandardPieceType> whiteStrategy = AlphaBetaNegamax.<StandardPieceType>builder()
+                .maxDepth(1)
+                .parallelDepth(Runtime.getRuntime().availableProcessors())
+                .rules(rules)
+                .evaluator(advancedEvaluator)
+                .heuristic(heuristic)
+                .build();
+        MoveSearchStrategy<StandardPieceType> blackStrategy = AlphaBetaNegamax.<StandardPieceType>builder()
+                .maxDepth(1)
+                .parallelDepth(Runtime.getRuntime().availableProcessors())
+                .rules(rules)
+                .evaluator(otherEvaluator)
+                .heuristic(heuristic)
+                .build();
 
         EventBus eventBus = new EventBus();
         PlayerData black = new PlayerData(UUID.randomUUID(), "Schwarz", false);
@@ -65,9 +79,9 @@ public class Main {
 
         Theme theme = new DefaultTheme();
         ChessUIClient client = new ChessUIClient(eventBus, new PieceRenderer(theme), theme);
-        Player whitePlayer = new AIPlayer(white, eventBus, whiteStrategy);
-        Player blackPlayer = new AIPlayer(black, eventBus, blackStrategy);
-        ChessGame chessGame = new ChessGame(gameState, rules, eventBus);
+        Player<StandardPieceType> whitePlayer = new AIPlayer<>(white, eventBus, whiteStrategy);
+        Player<StandardPieceType> blackPlayer = new AIPlayer<>(black, eventBus, blackStrategy);
+        ChessGame<StandardPieceType> chessGame = new ChessGame<>(gameState, rules, eventBus);
         client.show();
         chessGame.start();
     }

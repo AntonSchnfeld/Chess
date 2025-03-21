@@ -19,7 +19,7 @@ public class CheckRuleTest {
     private CheckRule checkRule;
     private MoveGenerator<StandardPieceType> moveGenerator;
     private GameState<StandardPieceType> gameState;
-    private MoveCollection moves;
+    private MoveCollection<StandardPieceType> moves;
 
     @BeforeEach
     public void setup() {
@@ -27,7 +27,7 @@ public class CheckRuleTest {
         checkRule = new CheckRule(moveGenerator);
 
         gameState = mock(GameState.class);
-        moves = new MoveCollection();
+        moves = new MoveCollection<>();
     }
 
     @Test
@@ -45,15 +45,15 @@ public class CheckRuleTest {
     @Test
     public void givenLegalMove_whenFilterMoves_thenMoveRemains() {
         // Given
-        ChessPiece piece = mock(ChessPiece.class);
-        Move legalMove = mock(Move.class);
+        ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
+        Move<StandardPieceType> legalMove = mock(Move.class);
         GameState<StandardPieceType> futureState = mock(GameState.class);
 
         when(legalMove.executeOn(gameState)).thenReturn(futureState);
         when(futureState.chessBoard()).thenReturn(mock(ChessBoard.class));
         when(futureState.chessBoard().getPiecesOfTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                 .thenReturn(List.of(mock(ChessPiece.class)));
-        when(moveGenerator.generateMoves(futureState)).thenReturn(new MoveCollection()); // No attacks on king
+        when(moveGenerator.generateMoves(futureState)).thenReturn(new MoveCollection<>()); // No attacks on king
 
         moves.add(legalMove);
 
@@ -68,11 +68,11 @@ public class CheckRuleTest {
     @Test
     public void givenIllegalMove_whenFilterMoves_thenMoveIsRemoved() {
         // Given
-        ChessPiece piece = mock(ChessPiece.class);
-        Move illegalMove = mock(Move.class);
+        ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
+        Move<StandardPieceType> illegalMove = mock(Move.class);
         GameState<StandardPieceType> futureState = mock(GameState.class);
         ChessBoard<StandardPieceType> futureBoard = mock(ChessBoard.class);
-        ChessPiece king = mock(ChessPiece.class);
+        ChessPiece<StandardPieceType> king = mock(ChessPiece.class);
 
         when(illegalMove.executeOn(gameState)).thenReturn(futureState);
         when(futureState.chessBoard()).thenReturn(futureBoard);
@@ -80,7 +80,7 @@ public class CheckRuleTest {
                 .thenReturn(List.of(king));
         when(futureBoard.getPiecePosition(king)).thenReturn(Square.of(4, 4)); // King at (4,4)
 
-        MoveCollection futureMoves = new MoveCollection();
+        MoveCollection<StandardPieceType> futureMoves = new MoveCollection<>();
         futureMoves.add(Move.of(mock(ChessPiece.class), Square.of(2, 2), Square.of(4, 4))); // Attack on king
         when(moveGenerator.generateMoves(futureState)).thenReturn(futureMoves);
 
@@ -96,20 +96,20 @@ public class CheckRuleTest {
     @Test
     public void givenMixedMoves_whenFilterMoves_thenOnlyIllegalMovesAreRemoved() {
         // Given
-        Move legalMove = mock(Move.class);
-        Move illegalMove = mock(Move.class);
+        Move<StandardPieceType> legalMove = mock(Move.class);
+        Move<StandardPieceType> illegalMove = mock(Move.class);
         GameState<StandardPieceType> futureStateLegal = mock(GameState.class);
         GameState<StandardPieceType> futureStateIllegal = mock(GameState.class);
         ChessBoard<StandardPieceType> futureBoardLegal = mock(ChessBoard.class);
         ChessBoard<StandardPieceType> futureBoardIllegal = mock(ChessBoard.class);
-        ChessPiece king = mock(ChessPiece.class);
+        ChessPiece<StandardPieceType> king = mock(ChessPiece.class);
 
         // Set up legal move scenario
         when(legalMove.executeOn(gameState)).thenReturn(futureStateLegal);
         when(futureStateLegal.chessBoard()).thenReturn(futureBoardLegal);
         when(futureBoardLegal.getPiecesOfTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                 .thenReturn(List.of(mock(ChessPiece.class)));
-        when(moveGenerator.generateMoves(futureStateLegal)).thenReturn(new MoveCollection()); // No attack on king
+        when(moveGenerator.generateMoves(futureStateLegal)).thenReturn(new MoveCollection<>()); // No attack on king
 
         // Set up illegal move scenario
         when(illegalMove.executeOn(gameState)).thenReturn(futureStateIllegal);
@@ -118,7 +118,7 @@ public class CheckRuleTest {
                 .thenReturn(List.of(king));
         when(futureBoardIllegal.getPiecePosition(king)).thenReturn(Square.of(4, 4));
 
-        MoveCollection futureMoves = new MoveCollection();
+        MoveCollection<StandardPieceType> futureMoves = new MoveCollection<>();
         futureMoves.add(Move.of(mock(ChessPiece.class), Square.of(2, 2), Square.of(4, 4))); // Attack on king
         when(moveGenerator.generateMoves(futureStateIllegal)).thenReturn(futureMoves);
 

@@ -38,10 +38,10 @@ public class RecursiveMoveGenerationBenchmark {
             return 1; // Leaf node
         }
 
-        List<Move> moves = moveGenerator.generateMoves(state);
+        List<Move<StandardPieceType>> moves = moveGenerator.generateMoves(state);
         long totalNodes = 0;
 
-        for (Move move : moves) {
+        for (Move<StandardPieceType> move : moves) {
             GameState<StandardPieceType> newState = move.executeOn(state);
             totalNodes += generateMovesRecursively(newState, depth - 1);
         }

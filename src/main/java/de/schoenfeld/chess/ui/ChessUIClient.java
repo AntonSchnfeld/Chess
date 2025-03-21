@@ -3,6 +3,7 @@ package de.schoenfeld.chess.ui;
 import de.schoenfeld.chess.events.EventBus;
 import de.schoenfeld.chess.events.GameStateChangedEvent;
 import de.schoenfeld.chess.model.ChessPiece;
+import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.model.Square;
 
 import javax.swing.*;
@@ -69,10 +70,10 @@ public class ChessUIClient {
         eventBus.subscribe(GameStateChangedEvent.class, this::handleGameStateChanged);
     }
 
-    private void handleGameStateChanged(GameStateChangedEvent<?> event) {
+    private <T extends PieceType> void handleGameStateChanged(GameStateChangedEvent<T> event) {
         SwingUtilities.invokeLater(() -> {
             try {
-                Map<Square, ChessPiece> positions = new HashMap<>();
+                Map<Square, ChessPiece<T>> positions = new HashMap<>();
                 event.newState().chessBoard().getPieces().forEach(piece -> {
                     Square pos = event.newState().chessBoard().getPiecePosition(piece);
                     positions.put(pos, piece);

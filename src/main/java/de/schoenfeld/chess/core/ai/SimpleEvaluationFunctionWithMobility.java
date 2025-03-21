@@ -49,9 +49,9 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<
 
         // Material evaluation.
         int materialScore = 0;
-        for (ChessPiece chessPiece : board.getPiecesOfColour(gameState.isWhiteTurn()))
+        for (ChessPiece<StandardPieceType> chessPiece : board.getPiecesOfColour(gameState.isWhiteTurn()))
             materialScore += getPieceValue(chessPiece.pieceType());
-        for (ChessPiece chessPiece : board.getPiecesOfColour(!gameState.isWhiteTurn()))
+        for (ChessPiece<StandardPieceType> chessPiece : board.getPiecesOfColour(!gameState.isWhiteTurn()))
             materialScore -= getPieceValue(chessPiece.pieceType());
 
         // Add capture bonus: additional bonus equal to 20% of the material score.
@@ -71,12 +71,12 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<
     }
 
     private int evaluatePawnStructure(ChessBoard<StandardPieceType> board, boolean isWhite) {
-        List<ChessPiece> pawns = board.getPiecesOfTypeAndColour(StandardPieceType.PAWN, isWhite);
+        List<ChessPiece<StandardPieceType>> pawns = board.getPiecesOfTypeAndColour(StandardPieceType.PAWN, isWhite);
         if (pawns.isEmpty()) return 0;
 
         // Map from file (x coordinate) to the count of pawns.
         Map<Integer, Integer> fileCounts = new HashMap<>();
-        for (ChessPiece pawn : pawns) {
+        for (ChessPiece<StandardPieceType> pawn : pawns) {
             int file = board.getPiecePosition(pawn).x();
             fileCounts.put(file, fileCounts.getOrDefault(file, 0) + 1);
         }
@@ -90,7 +90,7 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<
         }
 
         // Penalize isolated pawns: if a pawn's file has no adjacent friendly pawn.
-        for (ChessPiece pawn : pawns) {
+        for (ChessPiece<StandardPieceType> pawn : pawns) {
             int file = board.getPiecePosition(pawn).x();
             boolean hasLeft = fileCounts.containsKey(file - 1);
             boolean hasRight = fileCounts.containsKey(file + 1);

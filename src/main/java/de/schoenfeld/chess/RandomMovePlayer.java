@@ -29,16 +29,16 @@ public class RandomMovePlayer<T extends PieceType> extends Player<T> {
     @Override
     protected void onGameStateChanged(GameStateChangedEvent<T> event) {
         if (event.newState().isWhiteTurn() == playerData.isWhite()) {
-            MoveCollection moves = rules.generateMoves(event.newState());
+            MoveCollection<T> moves = rules.generateMoves(event.newState());
 
             int randomMoveIdx = random.nextInt(moves.size());
-            Move randomMove = null;
+            Move<T> randomMove = null;
             int i = 0;
-            for (Move move : moves) {
+            for (Move<T> move : moves) {
                 if (i == randomMoveIdx) randomMove = move;
                 i++;
             }
-            eventBus.publish(new MoveProposedEvent(gameId, playerData, randomMove));
+            eventBus.publish(new MoveProposedEvent<>(gameId, playerData, randomMove));
         }
     }
 

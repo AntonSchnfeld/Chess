@@ -14,13 +14,13 @@ import java.util.Optional;
 public class CastlingRule implements GenerativeMoveRule<StandardPieceType> {
 
     @Override
-    public MoveCollection generateMoves(GameState<StandardPieceType> gameState) {
-        var moves = new MoveCollection();
-        var board = gameState.chessBoard(); // ImmutableChessBoard
+    public MoveCollection<StandardPieceType> generateMoves(GameState<StandardPieceType> gameState) {
+        MoveCollection<StandardPieceType> moves = new MoveCollection<>();
+        ChessBoard<StandardPieceType> board = gameState.chessBoard(); // ImmutableChessBoard
         boolean isWhite = gameState.isWhiteTurn();
 
         // Get king position
-        Optional<ChessPiece> king = board
+        Optional<ChessPiece<StandardPieceType>> king = board
                 .getPiecesOfTypeAndColour(StandardPieceType.KING, isWhite)
                 .stream()
                 .findFirst();
@@ -44,14 +44,14 @@ public class CastlingRule implements GenerativeMoveRule<StandardPieceType> {
     }
 
     private void checkAndAddCastlingMove(GameState<StandardPieceType> gameState,
-                                         ChessPiece king,
+                                         ChessPiece<StandardPieceType> king,
                                          Square kingPos,
                                          Square rookPos,
                                          Square kingTarget,
                                          Square rookTarget,
-                                         MoveCollection moves) {
+                                         MoveCollection<StandardPieceType> moves) {
         var board = gameState.chessBoard(); // ImmutableChessBoard
-        ChessPiece rook = board.getPieceAt(rookPos);
+        ChessPiece<StandardPieceType> rook = board.getPieceAt(rookPos);
 
         if (rook == null || rook.pieceType() != StandardPieceType.ROOK) return;
         if (king.hasMoved() || rook.hasMoved()) return; // Castling not allowed if either piece has moved

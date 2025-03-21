@@ -1,8 +1,11 @@
 package de.schoenfeld.chess.rules.generative.sliding;
 
+import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.StandardPieceType;
 import de.schoenfeld.chess.move.MoveCollection;
+
+import java.util.List;
 
 public class QueenMoveRule extends SlidingPieceMoveRule<StandardPieceType> {
 
@@ -11,12 +14,12 @@ public class QueenMoveRule extends SlidingPieceMoveRule<StandardPieceType> {
     }
 
     @Override
-    public MoveCollection generateMoves(GameState<StandardPieceType> gameState) {
-        var queens = gameState.chessBoard()
+    public MoveCollection<StandardPieceType> generateMoves(GameState<StandardPieceType> gameState) {
+        List<ChessPiece<StandardPieceType>> queens = gameState.chessBoard()
                 .getPiecesOfTypeAndColour(StandardPieceType.QUEEN, gameState.isWhiteTurn());
-        var moves = new MoveCollection();
+        MoveCollection<StandardPieceType> moves = new MoveCollection<>();
 
-        for (var queen : queens) {
+        for (ChessPiece<StandardPieceType> queen : queens) {
             generateMoves(gameState, queen, moves);
         }
 

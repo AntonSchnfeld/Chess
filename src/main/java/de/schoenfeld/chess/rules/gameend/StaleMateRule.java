@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class StaleMateRule implements GameConclusionRule<StandardPieceType> {
-    private final MoveGenerator moveGenerator;
+    private final MoveGenerator<StandardPieceType> moveGenerator;
 
-    public StaleMateRule(MoveGenerator moveGenerator) {
+    public StaleMateRule(MoveGenerator<StandardPieceType> moveGenerator) {
         this.moveGenerator = moveGenerator;
     }
 
@@ -33,12 +33,14 @@ public class StaleMateRule implements GameConclusionRule<StandardPieceType> {
         ChessBoard<StandardPieceType> board = gameState.chessBoard();
         boolean isWhiteTurn = gameState.isWhiteTurn();
         // Get all kings
-        List<ChessPiece> kings = board.getPiecesOfTypeAndColour(StandardPieceType.KING, isWhiteTurn);
+        List<ChessPiece<StandardPieceType>> kings = board
+                .getPiecesOfTypeAndColour(StandardPieceType.KING, isWhiteTurn);
         if (kings.isEmpty()) return true; // No kings => no check
         // withTurnSwitched to generate moves for the opposite player
-        MoveCollection opponentMoves = moveGenerator.generateMoves(gameState.withTurnSwitched());
+        MoveCollection<StandardPieceType> opponentMoves = moveGenerator
+                .generateMoves(gameState.withTurnSwitched());
 
-        for (ChessPiece king : kings) {
+        for (ChessPiece<StandardPieceType> king : kings) {
             // Get king pos and check if opponent has any move to that square
             Square kingPos = board.getPiecePosition(king);
             if (opponentMoves.containsMoveTo(kingPos)) return false;

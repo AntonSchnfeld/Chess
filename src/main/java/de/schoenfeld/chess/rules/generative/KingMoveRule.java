@@ -1,5 +1,6 @@
 package de.schoenfeld.chess.rules.generative;
 
+import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.Square;
@@ -17,8 +18,8 @@ public class KingMoveRule implements GenerativeMoveRule<StandardPieceType> {
     );
 
     private static void generateKingMoves(GameState<StandardPieceType> gameState,
-                                          ChessPiece king,
-                                          MoveCollection moves) {
+                                          ChessPiece<StandardPieceType> king,
+                                          MoveCollection<StandardPieceType> moves) {
         // Generate moves in all directions
         for (var direction : KING_DIRECTIONS) {
             var from = gameState.chessBoard().getPiecePosition(king);
@@ -30,18 +31,18 @@ public class KingMoveRule implements GenerativeMoveRule<StandardPieceType> {
                 if (targetPiece == null) moves.add(Move.of(king, from, to));
                     // Capture
                 else if (targetPiece.isWhite() != king.isWhite())
-                    moves.add(Move.of(king, from, to, new CaptureComponent(targetPiece)));
+                    moves.add(Move.of(king, from, to, new CaptureComponent<>(targetPiece)));
             }
         }
     }
 
     @Override
-    public MoveCollection generateMoves(GameState<StandardPieceType> gameState) {
-        var moves = new MoveCollection();
-        var board = gameState.chessBoard();
+    public MoveCollection<StandardPieceType> generateMoves(GameState<StandardPieceType> gameState) {
+        MoveCollection<StandardPieceType> moves = new MoveCollection<>();
+        ChessBoard<StandardPieceType> board = gameState.chessBoard();
 
-        var kings = board.getPiecesOfTypeAndColour(StandardPieceType.KING,
-                        gameState.isWhiteTurn())
+        var kings = board
+                .getPiecesOfTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn())
                 .stream()
                 .toList();
 

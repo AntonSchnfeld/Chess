@@ -4,8 +4,6 @@ import de.schoenfeld.chess.events.GameConclusion;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.move.Move;
-import de.schoenfeld.chess.move.components.CaptureComponent;
-import de.schoenfeld.chess.move.components.PromotionComponent;
 import de.schoenfeld.chess.rules.Rules;
 
 import java.io.Serial;
@@ -16,7 +14,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class AlphaBetaNegamax<T extends PieceType> implements MoveSearchStrategy<T> {
     private static final int INF = Integer.MAX_VALUE;
-    private static final int MATE_SCORE = INF - 100;
     private final int maxDepth;
     private final int parallelDepth;
     private final Rules<T> rules;
@@ -25,26 +22,32 @@ public class AlphaBetaNegamax<T extends PieceType> implements MoveSearchStrategy
     private final ForkJoinPool branchPool;
     private final Map<Long, TranspositionEntry> transpositionTable = new ConcurrentHashMap<>();
     private GameState<T> lastState;
+    private final MoveOrderingHeuristic<T> heuristic;
 
     public AlphaBetaNegamax(int maxDepth, int parallelDepth, Rules<T> rules,
-                            GameStateEvaluator<T> evaluator) {
+                            GameStateEvaluator<T> evaluator, MoveOrderingHeuristic<T> heuristic) {
         this.maxDepth = maxDepth;
         this.parallelDepth = parallelDepth;
+        this.heuristic = heuristic;
         this.rules = rules;
         this.evaluator = evaluator;
         this.rootExecutor = Executors.newWorkStealingPool();
         this.branchPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
     }
 
+    public static <T extends PieceType> Builder<T> builder() {
+        return new Builder<>();
+    }
+
     @Override
-    public Move searchMove(GameState<T> gameState) {
+    public Move<T> searchMove(GameState<T> gameState) {
         lastState = gameState;
-        List<Move> legalMoves = rules.generateMoves(gameState);
-        legalMoves.sort(Comparator.comparingInt(this::moveOrderingHeuristic).reversed());
+        List<Move<T>> legalMoves = rules.generateMoves(gameState);
+        legalMoves.sort(Comparator.comparingInt(heuristic).reversed());
 
         AtomicInteger alpha = new AtomicInteger(-INF);
         AtomicInteger beta = new AtomicInteger(INF);
-        AtomicReference<Move> bestMove = new AtomicReference<>();
+        AtomicReference<Move<T>> bestMove = new AtomicReference<>();
 
         List<CompletableFuture<Void>> futures = legalMoves.stream()
                 .map(move -> CompletableFuture.runAsync(() -> {
@@ -64,7 +67,10 @@ public class AlphaBetaNegamax<T extends PieceType> implements MoveSearchStrategy
         return bestMove.get() != null ? bestMove.get() : legalMoves.getFirst();
     }
 
-    private int moveOrderingHeuristic(Move move) {
+    private record TranspositionEntry(int score, int depth) {
+    }
+
+    private int moveOrderingHeuristic(Move<T> move) {
         GameState<T> newState = move.executeOn(lastState);
 
         // Check if the move wins the game
@@ -79,24 +85,64 @@ public class AlphaBetaNegamax<T extends PieceType> implements MoveSearchStrategy
                     Integer.MIN_VALUE;
         }
 
-        int score = 0;
-
-        if (move.hasComponent(PromotionComponent.class)) {
-            score += 1000; // Prioritize promotions
-        }
-
-        if (move.hasComponent(CaptureComponent.class)) {
-            // Capture moves are prioritized based on piece value
-            score += 100 + move.getComponent(CaptureComponent.class)
-                    .capturedPiece()
-                    .pieceType()
-                    .value();
-        }
-
-        return score;
+        return 0;
     }
 
-    private record TranspositionEntry(int score, int depth) {
+    public static class Builder<T extends PieceType> {
+        private int maxDepth = 3;
+        private int parallelDepth = 1;
+        private Rules<T> rules;
+        private GameStateEvaluator<T> evaluator;
+        private MoveOrderingHeuristic<T> heuristic;
+
+        public Builder<T> maxDepth(int maxDepth) {
+            if (maxDepth <= 0)
+                throw new IllegalArgumentException("maxDepth has to be at least 1");
+            this.maxDepth = maxDepth;
+            return this;
+        }
+
+        public Builder<T> parallelDepth(int parallelDepth) {
+            if (parallelDepth <= 0)
+                throw new IllegalArgumentException("parallelDepth has to be at least 1");
+            this.parallelDepth = parallelDepth;
+            return this;
+        }
+
+        public Builder<T> rules(Rules<T> rules) {
+            if (rules == null)
+                throw new NullPointerException("rules");
+            this.rules = rules;
+            return this;
+        }
+
+        public Builder<T> evaluator(GameStateEvaluator<T> evaluator) {
+            if (evaluator == null)
+                throw new NullPointerException("evaluator");
+            this.evaluator = evaluator;
+            return this;
+        }
+
+        public Builder<T> heuristic(MoveOrderingHeuristic<T> heuristic) {
+            if (heuristic == null)
+                throw new NullPointerException("heuristic");
+            this.heuristic = heuristic;
+            return this;
+        }
+
+        public AlphaBetaNegamax<T> build() {
+            if (maxDepth <= 0)
+                throw new IllegalStateException("maxDepth has to be at least 1");
+            if (parallelDepth <= 0)
+                throw new IllegalStateException("parallelDepth has to be at least 1");
+            if (rules == null)
+                throw new NullPointerException("rules");
+            if (evaluator == null)
+                throw new NullPointerException("evaluator");
+            if (heuristic == null)
+                throw new NullPointerException("heuristic");
+            return new AlphaBetaNegamax<>(maxDepth, parallelDepth, rules, evaluator, heuristic);
+        }
     }
 
     private class NegamaxTask extends RecursiveTask<Integer> {
@@ -130,14 +176,14 @@ public class AlphaBetaNegamax<T extends PieceType> implements MoveSearchStrategy
                 return evaluator.evaluate(state);
             }
 
-            List<Move> moves = rules.generateMoves(state);
-            moves.sort(Comparator.comparingInt(AlphaBetaNegamax.this::moveOrderingHeuristic).reversed());
+            List<Move<T>> moves = rules.generateMoves(state);
+            moves.sort(Comparator.comparingInt(heuristic).reversed());
 
             int bestValue = -INF;
             int currentAlpha = alpha;
 
             List<NegamaxTask> tasks = new ArrayList<>();
-            for (Move move : moves) {
+            for (Move<T> move : moves) {
                 GameState<T> newState = move.executeOn(state);
                 if (depth > (maxDepth - currentParallelDepth)) {
                     int value = -new NegamaxTask(newState, depth - 1, -beta, -currentAlpha, currentParallelDepth).compute();

@@ -6,5 +6,5 @@ import de.schoenfeld.chess.move.MoveCollection;
 
 @FunctionalInterface
 public interface RestrictiveMoveRule<T extends PieceType> {
-    void filterMoves(MoveCollection moves, GameState<T> gameState);
+    void filterMoves(MoveCollection<T> moves, GameState<T> gameState);
 }

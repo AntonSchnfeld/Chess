@@ -94,7 +94,7 @@ public class AdvancedEvaluator implements GameStateEvaluator<StandardPieceType> 
             for (int dy = -1; dy <= 1; dy++) {
                 if (dx == 0 && dy == 0) continue;
                 Square adjacent = Square.of(pos.x() + dx, pos.y() + dy);
-                ChessPiece adjacentPiece = board.getPieceAt(adjacent);
+                ChessPiece<StandardPieceType> adjacentPiece = board.getPieceAt(adjacent);
                 if (board.getBounds().contains(adjacent) &&
                         adjacentPiece != null && adjacentPiece.isWhite() == isWhite) {
                     count++;
@@ -122,11 +122,11 @@ public class AdvancedEvaluator implements GameStateEvaluator<StandardPieceType> 
     }
 
     private int assessPawnWeaknesses(ChessBoard<StandardPieceType> board, boolean isWhite) {
-        List<ChessPiece> pawns = board.getPiecesOfTypeAndColour(StandardPieceType.PAWN, isWhite);
+        List<ChessPiece<StandardPieceType>> pawns = board.getPiecesOfTypeAndColour(StandardPieceType.PAWN, isWhite);
         int penalty = 0;
 
         boolean[] hasPawnOnFile = new boolean[8]; // Tracks pawns on each file
-        for (ChessPiece pawn : pawns) {
+        for (ChessPiece<StandardPieceType> pawn : pawns) {
             Square pos = board.getPiecePosition(pawn);
             int file = pos.x();
             if (hasPawnOnFile[file]) {

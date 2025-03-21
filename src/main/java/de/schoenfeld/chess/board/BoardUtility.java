@@ -13,7 +13,7 @@ public final class BoardUtility {
     }
 
     public static ChessBoard<StandardPieceType> fromFen(String fen) {
-        Map<Square, ChessPiece> positions = new HashMap<>();
+        Map<Square, ChessPiece<StandardPieceType>> positions = new HashMap<>();
         String[] fenParts = fen.split("\\s+");
         String[] ranks = fenParts[0].split("/");
 
@@ -46,17 +46,17 @@ public final class BoardUtility {
             );
         }
 
-        return new MapChessBoard(
+        return new MapChessBoard<>(
                 Collections.unmodifiableMap(positions),
                 new ChessBoardBounds(8, 8)
         );
     }
 
-    private static ChessPiece createPieceFromFenChar(char c) {
+    private static ChessPiece<StandardPieceType> createPieceFromFenChar(char c) {
         boolean isWhite = Character.isUpperCase(c);
         char pieceChar = Character.toLowerCase(c);
 
-        PieceType type = switch (pieceChar) {
+        StandardPieceType type = switch (pieceChar) {
             case 'p' -> PAWN;
             case 'n' -> KNIGHT;
             case 'b' -> BISHOP;
@@ -68,7 +68,7 @@ public final class BoardUtility {
             );
         };
 
-        return new ChessPiece(type, isWhite);
+        return new ChessPiece<>(type, isWhite);
     }
 
     public static ChessBoard<StandardPieceType> getDefaultBoard() {

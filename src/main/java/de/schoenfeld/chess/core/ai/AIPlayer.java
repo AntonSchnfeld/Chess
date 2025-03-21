@@ -29,8 +29,8 @@ public class AIPlayer<T extends PieceType> extends Player<T> {
     }
 
     private void processMove(GameState<T> state) {
-        Move move = searchStrategy.searchMove(state);
-        eventBus.publish(new MoveProposedEvent(
+        Move<T> move = searchStrategy.searchMove(state);
+        eventBus.publish(new MoveProposedEvent<>(
                 gameId,
                 playerData,
                 move

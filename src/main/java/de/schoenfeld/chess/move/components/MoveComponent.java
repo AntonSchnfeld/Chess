@@ -7,6 +7,6 @@ import de.schoenfeld.chess.move.Move;
 
 import java.io.Serializable;
 
-public interface MoveComponent extends Serializable {
-    <T extends PieceType> ChessBoard<T> executeOn(GameState<T> gameState, Move move);
+public interface MoveComponent<T extends PieceType> extends Serializable {
+    ChessBoard<T> executeOn(GameState<T> gameState, Move<T> move);
 }

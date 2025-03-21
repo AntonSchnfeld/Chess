@@ -17,9 +17,9 @@ public record SimpleMoveGenerator<T extends PieceType>(List<GenerativeMoveRule<T
     }
 
     @Override
-    public MoveCollection generateMoves(GameState<T> gameState) {
-        var moves = new MoveCollection();
-        for (var rule : rules) {
+    public MoveCollection<T> generateMoves(GameState<T> gameState) {
+        MoveCollection<T> moves = new MoveCollection<>();
+        for (GenerativeMoveRule<T> rule : rules) {
             moves.addAll(rule.generateMoves(gameState));
         }
         return moves;

@@ -8,9 +8,9 @@ import de.schoenfeld.chess.move.components.PromotionComponent;
 import java.util.List;
 
 public class PawnMoveRule implements GenerativeMoveRule<StandardPieceType> {
-    private final List<PieceType> promotionTypes;
+    private final List<StandardPieceType> promotionTypes;
 
-    public PawnMoveRule(List<PieceType> promotionTypes) {
+    public PawnMoveRule(List<StandardPieceType> promotionTypes) {
         if (promotionTypes == null) throw new NullPointerException("promotionTypes");
         this.promotionTypes = List.copyOf(promotionTypes);
     }
@@ -23,9 +23,9 @@ public class PawnMoveRule implements GenerativeMoveRule<StandardPieceType> {
     }
 
     private static void generatePawnMoves(GameState<StandardPieceType> gameState,
-                                          ChessPiece pawn,
-                                          MoveCollection moves,
-                                          List<PieceType> promotionTypes) {
+                                          ChessPiece<StandardPieceType> pawn,
+                                          MoveCollection<StandardPieceType> moves,
+                                          List<StandardPieceType> promotionTypes) {
         int direction = gameState.isWhiteTurn() ? 1 : -1;
         var board = gameState.chessBoard();
 
@@ -73,16 +73,16 @@ public class PawnMoveRule implements GenerativeMoveRule<StandardPieceType> {
         }
     }
 
-    private static void addPromotionMoves(MoveCollection moves,
-                                          ChessPiece pawn,
+    private static void addPromotionMoves(MoveCollection<StandardPieceType> moves,
+                                          ChessPiece<StandardPieceType> pawn,
                                           Square from,
                                           Square to,
-                                          List<PieceType> promotionTypes) {
-        for (PieceType promotionType : promotionTypes)
+                                          List<StandardPieceType> promotionTypes) {
+        for (StandardPieceType promotionType : promotionTypes)
             moves.add(Move.of(pawn, from, to, new PromotionComponent(promotionType)));
     }
 
-    private static boolean isPromotionRank(ChessPiece pawn,
+    private static boolean isPromotionRank(ChessPiece<StandardPieceType> pawn,
                                            int rank,
                                            ChessBoardBounds bounds) {
         int endRank = pawn.isWhite() ? bounds.rows() - 1 : 0;
@@ -90,8 +90,8 @@ public class PawnMoveRule implements GenerativeMoveRule<StandardPieceType> {
     }
 
     @Override
-    public MoveCollection generateMoves(GameState<StandardPieceType> gameState) {
-        var moves = new MoveCollection();
+    public MoveCollection<StandardPieceType> generateMoves(GameState<StandardPieceType> gameState) {
+        MoveCollection<StandardPieceType> moves = new MoveCollection<>();
 
         var pawns = gameState
                 .chessBoard()

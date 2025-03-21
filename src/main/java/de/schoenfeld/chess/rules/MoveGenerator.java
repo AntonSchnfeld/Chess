@@ -4,6 +4,7 @@ import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.move.MoveCollection;
 
+@FunctionalInterface
 public interface MoveGenerator<T extends PieceType> {
-    MoveCollection generateMoves(GameState<T> gameState);
+    MoveCollection<T> generateMoves(GameState<T> gameState);
 }

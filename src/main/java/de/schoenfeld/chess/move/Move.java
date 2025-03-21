@@ -8,36 +8,33 @@ import de.schoenfeld.chess.move.components.MoveComponent;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Objects;
 
-public class Move implements Serializable {
+public class Move<T extends PieceType> implements Serializable {
     @Serial
     private static final long serialVersionUID = 1921632465085309764L;
-    private final List<MoveComponent> components;
-    private final ChessPiece movedPiece;
+
+    // Store components in an array for space efficiency.
+    private final MoveComponent<T>[] components;
+    private final ChessPiece<T> movedPiece;
     private final Square from, to;
 
-    private Move(List<MoveComponent> components,
-                 ChessPiece movedPiece, Square from, Square to) {
-        this.components = components;
+    private Move(ChessPiece<T> movedPiece, Square from, Square to, MoveComponent<T>[] components) {
+        // Defensive copy (if needed) using Arrays.copyOf:
+        this.components = Arrays.copyOf(components, components.length);
         this.movedPiece = movedPiece;
         this.from = from;
         this.to = to;
     }
 
-    public static Move of(ChessPiece movedPiece, Square from, Square to,
-                          List<MoveComponent> components) {
-        return new Move(List.copyOf(components), movedPiece, from, to);
+    @SafeVarargs
+    public static <T extends PieceType> Move<T> of(ChessPiece<T> movedPiece, Square from, Square to,
+                                                   MoveComponent<T>... components) {
+        return new Move<>(movedPiece, from, to, components);
     }
 
-    public static Move of(ChessPiece movedPiece, Square from, Square to,
-                          MoveComponent... components) {
-        return new Move(List.of(components), movedPiece, from, to);
-    }
-
-    public ChessPiece movedPiece() {
+    public ChessPiece<T> movedPiece() {
         return movedPiece;
     }
 
@@ -49,58 +46,31 @@ public class Move implements Serializable {
         return to;
     }
 
-    public <T extends MoveComponent> T getComponent(Class<T> clazz) {
-        return components.stream()
-                .filter(clazz::isInstance)
-                .map(clazz::cast)
-                .findFirst()
-                .orElseThrow();
+    /**
+     * Retrieves the first component that is an instance of the given class.
+     * This method is type safe at the call site.
+     */
+    public <C extends MoveComponent<T>> C getComponent(Class<C> clazz) {
+        for (MoveComponent<T> comp : components) {
+            if (clazz.isInstance(comp)) {
+                // The cast is safe because of the check above.
+                return clazz.cast(comp);
+            }
+        }
+        return null;
     }
 
-    public List<MoveComponent> getComponents() {
-        return components;
+    // Example of a method using the components.
+    public boolean hasComponent(Class<? extends MoveComponent<T>> clazz) {
+        return getComponent(clazz) != null;
     }
 
-    public boolean hasComponent(Class<? extends MoveComponent> clazz) {
-        return components.stream().anyMatch(clazz::isInstance);
-    }
-
-    public <T extends MoveComponent> Move withComponent(T component) {
-        List<MoveComponent> newComponents = new ArrayList<>(this.components);
-        newComponents.add(component);
-        return new Move(newComponents, movedPiece, from, to);
-    }
-
-    public Move withFrom(Square from) {
-        if (this.from.equals(from)) return this;
-        return new Move(components, movedPiece, from, to);
-    }
-
-    public Move withTo(Square to) {
-        if (this.to.equals(to)) return this;
-        return new Move(components, movedPiece, from, to);
-    }
-
-    public Move withMovedPiece(ChessPiece movedPiece) {
-        if (this.movedPiece.equals(movedPiece)) return this;
-        return new Move(components, movedPiece, from, to);
-    }
-
-    public Move withoutComponent(Class<? extends MoveComponent> clazz) {
-        if (!hasComponent(clazz)) return this;
-        List<MoveComponent> newComponents = components.stream()
-                .filter(c -> c.getClass().equals(clazz))
-                .toList();
-        return new Move(newComponents, movedPiece, from, to);
-    }
-
-    public <T extends PieceType> GameState<T> executeOn(GameState<T> gameState) {
-        gameState = gameState
-                .withMoveHistory(gameState.moveHistory().withMoveRecorded(this));
-        gameState = gameState
-                .withChessBoard(gameState.chessBoard().withPieceMoved(from, to));
-
-        for (MoveComponent component : components) {
+    public GameState<T> executeOn(GameState<T> gameState) {
+        // Example execution logic. In a real implementation, you’d iterate over the components
+        // and allow each to update the game state.
+        gameState = gameState.withMoveHistory(gameState.moveHistory().withMoveRecorded(this));
+        gameState = gameState.withChessBoard(gameState.chessBoard().withPieceMoved(from, to));
+        for (MoveComponent<T> component : components) {
             gameState = gameState.withChessBoard(component.executeOn(gameState, this));
         }
         return gameState.withTurnSwitched();
@@ -108,20 +78,26 @@ public class Move implements Serializable {
 
     @Override
     public boolean equals(Object object) {
+        if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
-        Move move = (Move) object;
-        return Objects.equals(components, move.components) && Objects.equals(movedPiece, move.movedPiece) && Objects.equals(from, move.from) && Objects.equals(to, move.to);
+        Move<?> move = (Move<?>) object;
+        return Objects.equals(movedPiece, move.movedPiece) &&
+                Objects.equals(from, move.from) &&
+                Objects.equals(to, move.to) &&
+                Arrays.equals(components, move.components);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(components, movedPiece, from, to);
+        int result = Objects.hash(movedPiece, from, to);
+        result = 31 * result + Arrays.hashCode(components);
+        return result;
     }
 
     @Override
     public String toString() {
         return "Move{" +
-                "components=" + components +
+                "components=" + Arrays.toString(components) +
                 ", movedPiece=" + movedPiece +
                 ", from=" + from +
                 ", to=" + to +

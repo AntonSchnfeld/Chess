@@ -13,26 +13,26 @@ import java.util.Iterator;
 import java.util.List;
 
 public class CheckRule implements RestrictiveMoveRule<StandardPieceType> {
-    private final MoveGenerator moveGenerator;
+    private final MoveGenerator<StandardPieceType> moveGenerator;
 
-    public CheckRule(MoveGenerator moveGenerator) {
+    public CheckRule(MoveGenerator<StandardPieceType> moveGenerator) {
         this.moveGenerator = moveGenerator;
     }
 
     @Override
-    public void filterMoves(MoveCollection moves, GameState<StandardPieceType> gameState) {
-        Iterator<Move> iterator = moves.iterator();
+    public void filterMoves(MoveCollection<StandardPieceType> moves, GameState<StandardPieceType> gameState) {
+        Iterator<Move<StandardPieceType>> iterator = moves.iterator();
 
         while (iterator.hasNext()) {
-            Move move = iterator.next();
+            Move<StandardPieceType> move = iterator.next();
 
             // Simulate move
             GameState<StandardPieceType> future = move.executeOn(gameState);
-            MoveCollection opponentMoves = moveGenerator.generateMoves(future);
+            MoveCollection<StandardPieceType> opponentMoves = moveGenerator.generateMoves(future);
 
             // Get the current player's king in the simulated future state
             ChessBoard<StandardPieceType> futureBoard = future.chessBoard();
-            List<ChessPiece> kings = futureBoard.getPiecesOfTypeAndColour(StandardPieceType.KING,
+            List<ChessPiece<StandardPieceType>> kings = futureBoard.getPiecesOfTypeAndColour(StandardPieceType.KING,
                     gameState.isWhiteTurn());
 
             if (kings.isEmpty()) {
@@ -40,7 +40,7 @@ public class CheckRule implements RestrictiveMoveRule<StandardPieceType> {
                 continue;
             }
 
-            ChessPiece king = kings.getFirst(); // There should be only one king per player
+            ChessPiece<StandardPieceType> king = kings.getFirst(); // There should be only one king per player
             Square kingSquare = futureBoard.getPiecePosition(king);
 
             // If any opponent move targets the king's position, the move is illegal

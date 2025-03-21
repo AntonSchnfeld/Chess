@@ -6,8 +6,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public record MoveHistory(
-        List<Move> moves // Immutable list
+public record MoveHistory<T extends PieceType>(
+        List<Move<T>> moves // Immutable list
 ) implements Serializable {
 
     public MoveHistory {
@@ -18,19 +18,19 @@ public record MoveHistory(
         this(List.of());
     }
 
-    public MoveHistory withMoveRecorded(Move move) {
-        List<Move> newMoves = new ArrayList<>(moves);
+    public MoveHistory<T> withMoveRecorded(Move<T> move) {
+        List<Move<T>> newMoves = new ArrayList<>(moves);
         newMoves.add(move);
-        return new MoveHistory(newMoves);
+        return new MoveHistory<>(newMoves);
     }
 
-    public MoveHistory withoutLastMove() {
+    public MoveHistory<T> withoutLastMove() {
         if (moves.isEmpty()) return this;
-        return new MoveHistory(moves.subList(0, moves.size() - 1));
+        return new MoveHistory<>(moves.subList(0, moves.size() - 1));
     }
 
-    public Move getLastMove() {
-        return moves.isEmpty() ? null : moves.get(moves.size() - 1);
+    public Move<T> getLastMove() {
+        return moves.isEmpty() ? null : moves.getLast();
     }
 
     public int getMoveCount() {

@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class CheckMateRule implements GameConclusionRule<StandardPieceType> {
-    private final MoveGenerator moveGenerator;
+    private final MoveGenerator<StandardPieceType> moveGenerator;
 
-    public CheckMateRule(MoveGenerator moveGenerator) {
+    public CheckMateRule(MoveGenerator<StandardPieceType> moveGenerator) {
         this.moveGenerator = moveGenerator;
     }
 
@@ -25,10 +25,10 @@ public class CheckMateRule implements GameConclusionRule<StandardPieceType> {
         // No need for further computation if no king is in check
         if (allKingsSafe(gameState)) return Optional.empty();
         // Detect all possible moves for the checked player
-        MoveCollection moves = moveGenerator.generateMoves(gameState);
+        MoveCollection<StandardPieceType> moves = moveGenerator.generateMoves(gameState);
         // Could perhaps be faster to sort moves according to which ones are most likely to
         // prevent check since checking fewer moves is faster
-        for (Move move : moves) {
+        for (Move<StandardPieceType> move : moves) {
             // Simulate move
             GameState<StandardPieceType> newState = move.executeOn(gameState);
             // Use withTurnSwitched to reverse turn change in move.executeOn(GameState)
@@ -48,12 +48,14 @@ public class CheckMateRule implements GameConclusionRule<StandardPieceType> {
         ChessBoard<StandardPieceType> board = gameState.chessBoard();
         boolean isWhiteTurn = gameState.isWhiteTurn();
         // Get all kings
-        List<ChessPiece> kings = board.getPiecesOfTypeAndColour(StandardPieceType.KING, isWhiteTurn);
+        List<ChessPiece<StandardPieceType>> kings = board
+                .getPiecesOfTypeAndColour(StandardPieceType.KING, isWhiteTurn);
         if (kings.isEmpty()) return true; // No kings => no check
         // withTurnSwitched to generate moves for the opposite player
-        MoveCollection opponentMoves = moveGenerator.generateMoves(gameState.withTurnSwitched());
+        MoveCollection<StandardPieceType> opponentMoves = moveGenerator
+                .generateMoves(gameState.withTurnSwitched());
 
-        for (ChessPiece king : kings) {
+        for (ChessPiece<StandardPieceType> king : kings) {
             // Get king pos and check if opponent has any move to that square
             Square kingPos = board.getPiecePosition(king);
             if (opponentMoves.containsMoveTo(kingPos)) return false;

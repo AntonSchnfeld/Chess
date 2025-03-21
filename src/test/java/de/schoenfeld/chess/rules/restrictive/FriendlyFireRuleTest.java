@@ -14,14 +14,14 @@ import static org.mockito.Mockito.when;
 
 public class FriendlyFireRuleTest {
     private FriendlyFireRule<StandardPieceType> tested;
-    private MoveCollection moves;
+    private MoveCollection<StandardPieceType> moves;
     private GameState<StandardPieceType> state;
     private ChessBoard<StandardPieceType> board;
 
     @BeforeEach
     public void setup() {
         tested = new FriendlyFireRule<>();
-        moves = new MoveCollection();
+        moves = new MoveCollection<>();
 
         state = mock(GameState.class);
         board = mock(ChessBoard.class);
@@ -42,13 +42,13 @@ public class FriendlyFireRuleTest {
     @Test
     public void givenMovesWithoutFriendlyFire_whenFilterMoves_thenDontRemoveAnything() {
         // Given
-        ChessPiece whitePawn = new ChessPiece(StandardPieceType.PAWN, true);
-        ChessPiece blackKnight = new ChessPiece(StandardPieceType.KNIGHT, false);
+        ChessPiece<StandardPieceType> whitePawn = new ChessPiece<>(StandardPieceType.PAWN, true);
+        ChessPiece<StandardPieceType> blackKnight = new ChessPiece<>(StandardPieceType.KNIGHT, false);
 
         Square from = Square.of(2, 2);
         Square to = Square.of(3, 3);
 
-        Move validMove = Move.of(whitePawn, from, to);
+        Move<StandardPieceType> validMove = Move.of(whitePawn, from, to);
 
         moves.add(validMove);
         when(board.getPieceAt(to)).thenReturn(blackKnight); // Opponent piece at destination
@@ -63,13 +63,13 @@ public class FriendlyFireRuleTest {
     @Test
     public void givenMovesWithFriendlyFire_whenFilterMoves_thenRemoveFriendlyMoves() {
         // Given
-        ChessPiece whitePawn = new ChessPiece(StandardPieceType.PAWN, true);
-        ChessPiece whiteKnight = new ChessPiece(StandardPieceType.KNIGHT, true);
+        ChessPiece<StandardPieceType> whitePawn = new ChessPiece<>(StandardPieceType.PAWN, true);
+        ChessPiece<StandardPieceType> whiteKnight = new ChessPiece<>(StandardPieceType.KNIGHT, true);
 
         Square from = Square.of(2, 2);
         Square to = Square.of(3, 3);
 
-        Move invalidMove = Move.of(whitePawn, from, to);
+        Move<StandardPieceType> invalidMove = Move.of(whitePawn, from, to);
 
         moves.add(invalidMove);
         when(board.getPieceAt(to)).thenReturn(whiteKnight); // Friendly piece at destination

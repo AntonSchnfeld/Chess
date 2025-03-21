@@ -1,14 +1,15 @@
 package de.schoenfeld.chess.move;
 
 import de.schoenfeld.chess.model.ChessPiece;
+import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.model.Square;
 
 import java.util.*;
 
-public class MoveCollection implements List<Move> {
-    private final List<Move> moves;
-    private final Map<Square, List<Move>> moveMap;
-    private final Map<ChessPiece, List<Move>> pieceMap;
+public class MoveCollection<T extends PieceType> implements List<Move<T>> {
+    private final List<Move<T>> moves;
+    private final Map<Square, List<Move<T>>> moveMap;
+    private final Map<ChessPiece<T>, List<Move<T>>> pieceMap;
 
     public MoveCollection() {
         moves = new ArrayList<>();
@@ -16,25 +17,26 @@ public class MoveCollection implements List<Move> {
         pieceMap = new HashMap<>();
     }
 
-    public static MoveCollection of(Move... moves) {
-        MoveCollection mc = new MoveCollection();
+    @SafeVarargs
+    public static <T extends PieceType> MoveCollection<T> of(Move<T>... moves) {
+        MoveCollection<T> mc = new MoveCollection<>();
         mc.addAll(Arrays.asList(moves));
         return mc;
     }
 
-    public static MoveCollection of(Collection<Move> moves) {
-        MoveCollection mc = new MoveCollection();
+    public static <T extends PieceType> MoveCollection<T> of(Collection<Move<T>> moves) {
+        MoveCollection<T> mc = new MoveCollection<>();
         mc.addAll(moves);
         return mc;
     }
 
-    public List<Move> getMovesTo(Square square) {
+    public List<Move<T>> getMovesTo(Square square) {
         return Collections.unmodifiableList(
                 moveMap.getOrDefault(square, Collections.emptyList())
         );
     }
 
-    public MoveCollection getMovesForPiece(ChessPiece piece) {
+    public MoveCollection<T> getMovesForPiece(ChessPiece<T> piece) {
         return MoveCollection.of(
                 pieceMap.getOrDefault(piece, Collections.emptyList())
         );
@@ -56,7 +58,7 @@ public class MoveCollection implements List<Move> {
     }
 
     @Override
-    public Iterator<Move> iterator() {
+    public Iterator<Move<T>> iterator() {
         return new MoveIterator(moves.iterator());
     }
 
@@ -66,21 +68,22 @@ public class MoveCollection implements List<Move> {
     }
 
     @Override
-    public <T> T[] toArray(T[] a) {
+    public <A> A[] toArray(A[] a) {
         return moves.toArray(a);
     }
 
     @Override
-    public boolean add(Move move) {
+    public boolean add(Move<T> move) {
         moves.add(move);
         addToMaps(move);
         return true;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean remove(Object o) {
         if (moves.remove(o)) {
-            removeFromMaps((Move) o);
+            removeFromMaps((Move<T>) o);
             return true;
         }
         return false;
@@ -92,9 +95,9 @@ public class MoveCollection implements List<Move> {
     }
 
     @Override
-    public boolean addAll(Collection<? extends Move> c) {
+    public boolean addAll(Collection<? extends Move<T>> c) {
         boolean modified = false;
-        for (Move move : c) {
+        for (Move<T> move : c) {
             add(move);
             modified = true;
         }
@@ -102,9 +105,9 @@ public class MoveCollection implements List<Move> {
     }
 
     @Override
-    public boolean addAll(int index, Collection<? extends Move> c) {
+    public boolean addAll(int index, Collection<? extends Move<T>> c) {
         boolean modified = false;
-        for (Move move : c) {
+        for (Move<T> move : c) {
             add(index++, move);
             modified = true;
         }
@@ -129,27 +132,27 @@ public class MoveCollection implements List<Move> {
     }
 
     @Override
-    public Move get(int index) {
+    public Move<T> get(int index) {
         return moves.get(index);
     }
 
     @Override
-    public Move set(int index, Move element) {
-        Move removed = moves.set(index, element);
+    public Move<T> set(int index, Move<T> element) {
+        Move<T> removed = moves.set(index, element);
         removeFromMaps(removed);
         addToMaps(element);
         return removed;
     }
 
     @Override
-    public void add(int index, Move element) {
+    public void add(int index, Move<T> element) {
         moves.add(index, element);
         addToMaps(element);
     }
 
     @Override
-    public Move remove(int index) {
-        Move removed = moves.remove(index);
+    public Move<T> remove(int index) {
+        Move<T> removed = moves.remove(index);
         removeFromMaps(removed);
         return removed;
     }
@@ -165,17 +168,17 @@ public class MoveCollection implements List<Move> {
     }
 
     @Override
-    public ListIterator<Move> listIterator() {
+    public ListIterator<Move<T>> listIterator() {
         return new MoveListIterator(moves.listIterator());
     }
 
     @Override
-    public ListIterator<Move> listIterator(int index) {
+    public ListIterator<Move<T>> listIterator(int index) {
         return new MoveListIterator(moves.listIterator(index));
     }
 
     @Override
-    public List<Move> subList(int fromIndex, int toIndex) {
+    public List<Move<T>> subList(int fromIndex, int toIndex) {
         return moves.subList(fromIndex, toIndex);
     }
 
@@ -183,12 +186,12 @@ public class MoveCollection implements List<Move> {
         return moveMap.containsKey(pieceSquare);
     }
 
-    private void addToMaps(Move move) {
+    private void addToMaps(Move<T> move) {
         moveMap.computeIfAbsent(move.to(), k -> new ArrayList<>()).add(move);
         pieceMap.computeIfAbsent(move.movedPiece(), k -> new ArrayList<>()).add(move);
     }
 
-    private void removeFromMaps(Move move) {
+    private void removeFromMaps(Move<T> move) {
         if (move == null) return;
 
         synchronized (this) {
@@ -209,10 +212,10 @@ public class MoveCollection implements List<Move> {
     private boolean bulkModify(Collection<?> c, boolean remove) {
         Set<?> operationSet = new HashSet<>(c);
         boolean modified = false;
-        Iterator<Move> it = iterator();
+        Iterator<Move<T>> it = iterator();
 
         while (it.hasNext()) {
-            Move move = it.next();
+            Move<T> move = it.next();
             if (operationSet.contains(move) == remove) {
                 it.remove();
                 modified = true;
@@ -221,11 +224,11 @@ public class MoveCollection implements List<Move> {
         return modified;
     }
 
-    private class MoveIterator implements Iterator<Move> {
-        private final Iterator<Move> iterator;
-        private Move current;
+    private class MoveIterator implements Iterator<Move<T>> {
+        private final Iterator<Move<T>> iterator;
+        private Move<T> current;
 
-        MoveIterator(Iterator<Move> iterator) {
+        MoveIterator(Iterator<Move<T>> iterator) {
             this.iterator = iterator;
         }
 
@@ -235,7 +238,7 @@ public class MoveCollection implements List<Move> {
         }
 
         @Override
-        public Move next() {
+        public Move<T> next() {
             current = iterator.next();
             return current;
         }
@@ -247,29 +250,29 @@ public class MoveCollection implements List<Move> {
         }
     }
 
-    private class MoveListIterator extends MoveIterator implements ListIterator<Move> {
-        private final ListIterator<Move> listIterator;
-        private Move lastReturned = null;
+    private class MoveListIterator extends MoveIterator implements ListIterator<Move<T>> {
+        private final ListIterator<Move<T>> listIterator;
+        private Move<T> lastReturned = null;
 
-        MoveListIterator(ListIterator<Move> listIterator) {
+        MoveListIterator(ListIterator<Move<T>> listIterator) {
             super(listIterator);
             this.listIterator = listIterator;
         }
 
         @Override
-        public Move next() {
+        public Move<T> next() {
             lastReturned = super.next();
             return lastReturned;
         }
 
         @Override
-        public Move previous() {
+        public Move<T> previous() {
             lastReturned = listIterator.previous();
             return lastReturned;
         }
 
         @Override
-        public void set(Move e) {
+        public void set(Move<T> e) {
             if (lastReturned == null) {
                 throw new IllegalStateException();
             }
@@ -295,7 +298,7 @@ public class MoveCollection implements List<Move> {
         }
 
         @Override
-        public void add(Move e) {
+        public void add(Move<T> e) {
             listIterator.add(e);
             addToMaps(e);
         }

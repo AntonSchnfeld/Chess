@@ -24,8 +24,8 @@ class InsufficientMaterialRuleTest {
         GameState<StandardPieceType> gameState = mock(GameState.class);
         when(gameState.chessBoard()).thenReturn(board);
 
-        ChessPiece whiteKing = new ChessPiece(StandardPieceType.KING, true);
-        ChessPiece blackKing = new ChessPiece(StandardPieceType.KING, false);
+        ChessPiece<StandardPieceType> whiteKing = new ChessPiece<>(StandardPieceType.KING, true);
+        ChessPiece<StandardPieceType> blackKing = new ChessPiece<>(StandardPieceType.KING, false);
         when(board.getPiecesOfType(StandardPieceType.KING)).thenReturn(List.of(whiteKing, blackKing));
 
         // Act: Check for game end cause
@@ -45,11 +45,11 @@ class InsufficientMaterialRuleTest {
         GameState<StandardPieceType> gameState = mock(GameState.class);
         when(gameState.chessBoard()).thenReturn(board);
 
-        ChessPiece whiteKing = new ChessPiece(StandardPieceType.KING, true);
-        ChessPiece whiteBishop = new ChessPiece(StandardPieceType.BISHOP, true);
-        ChessPiece blackKing = new ChessPiece(StandardPieceType.KING, false);
+        ChessPiece<StandardPieceType> whiteKing = new ChessPiece<>(StandardPieceType.KING, true);
+        ChessPiece<StandardPieceType> whiteBishop = new ChessPiece<>(StandardPieceType.BISHOP, true);
+        ChessPiece<StandardPieceType> blackKing = new ChessPiece<>(StandardPieceType.KING, false);
         when(board.getPiecesOfType(StandardPieceType.KING)).thenReturn(List.of(whiteKing, blackKing));
-        when(board.getPiecesOfType(StandardPieceType.BISHOP.BISHOP)).thenReturn(List.of(whiteBishop));
+        when(board.getPiecesOfType(StandardPieceType.BISHOP)).thenReturn(List.of(whiteBishop));
 
         // Act: Check for game end cause
         InsufficientMaterialRule rule = new InsufficientMaterialRule();
@@ -68,9 +68,9 @@ class InsufficientMaterialRuleTest {
         GameState<StandardPieceType> gameState = mock(GameState.class);
         when(gameState.chessBoard()).thenReturn(board);
 
-        ChessPiece whiteKing = new ChessPiece(StandardPieceType.KING, true);
-        ChessPiece whiteKnight = new ChessPiece(StandardPieceType.KNIGHT, true);
-        ChessPiece blackKing = new ChessPiece(StandardPieceType.KING, false);
+        ChessPiece<StandardPieceType> whiteKing = new ChessPiece<>(StandardPieceType.KING, true);
+        ChessPiece<StandardPieceType> whiteKnight = new ChessPiece<>(StandardPieceType.KNIGHT, true);
+        ChessPiece<StandardPieceType> blackKing = new ChessPiece<>(StandardPieceType.KING, false);
         when(board.getPiecesOfType(StandardPieceType.KING)).thenReturn(List.of(whiteKing, blackKing));
         when(board.getPiecesOfType(StandardPieceType.KNIGHT)).thenReturn(List.of(whiteKnight));
 
@@ -91,9 +91,9 @@ class InsufficientMaterialRuleTest {
         GameState<StandardPieceType> gameState = mock(GameState.class);
         when(gameState.chessBoard()).thenReturn(board);
 
-        ChessPiece whiteKing = new ChessPiece(StandardPieceType.KING, true);
-        ChessPiece whiteQueen = new ChessPiece(StandardPieceType.QUEEN, true);
-        ChessPiece blackKing = new ChessPiece(StandardPieceType.KING, false);
+        ChessPiece<StandardPieceType> whiteKing = new ChessPiece<>(StandardPieceType.KING, true);
+        ChessPiece<StandardPieceType> whiteQueen = new ChessPiece<>(StandardPieceType.QUEEN, true);
+        ChessPiece<StandardPieceType> blackKing = new ChessPiece<>(StandardPieceType.KING, false);
         when(board.getPiecesOfType(StandardPieceType.KING)).thenReturn(List.of(whiteKing, blackKing));
         when(board.getPiecesOfType(StandardPieceType.QUEEN)).thenReturn(List.of(whiteQueen));
 
@@ -112,9 +112,9 @@ class InsufficientMaterialRuleTest {
         GameState<StandardPieceType> gameState = mock(GameState.class);
         when(gameState.chessBoard()).thenReturn(board);
 
-        ChessPiece whiteKing = new ChessPiece(StandardPieceType.KING, true);
-        ChessPiece whiteRook = new ChessPiece(StandardPieceType.ROOK, true);
-        ChessPiece blackKing = new ChessPiece(StandardPieceType.KING, false);
+        ChessPiece<StandardPieceType> whiteKing = new ChessPiece<>(StandardPieceType.KING, true);
+        ChessPiece<StandardPieceType> whiteRook = new ChessPiece<>(StandardPieceType.ROOK, true);
+        ChessPiece<StandardPieceType> blackKing = new ChessPiece<>(StandardPieceType.KING, false);
         when(board.getPiecesOfType(StandardPieceType.KING)).thenReturn(List.of(whiteKing, blackKing));
         when(board.getPiecesOfType(StandardPieceType.ROOK)).thenReturn(List.of(whiteRook));
 
@@ -133,10 +133,10 @@ class InsufficientMaterialRuleTest {
         GameState<StandardPieceType> gameState = mock(GameState.class);
         when(gameState.chessBoard()).thenReturn(board);
 
-        ChessPiece whiteKing = new ChessPiece(StandardPieceType.KING, true);
-        ChessPiece whiteBishop1 = new ChessPiece(StandardPieceType.BISHOP, true);
-        ChessPiece whiteBishop2 = new ChessPiece(StandardPieceType.BISHOP, true);
-        ChessPiece blackKing = new ChessPiece(StandardPieceType.KING, false);
+        ChessPiece<StandardPieceType> whiteKing = new ChessPiece<>(StandardPieceType.KING, true);
+        ChessPiece<StandardPieceType> whiteBishop1 = new ChessPiece<>(StandardPieceType.BISHOP, true);
+        ChessPiece<StandardPieceType> whiteBishop2 = new ChessPiece<>(StandardPieceType.BISHOP, true);
+        ChessPiece<StandardPieceType> blackKing = new ChessPiece<>(StandardPieceType.KING, false);
         when(board.getPiecesOfType(StandardPieceType.KING)).thenReturn(List.of(whiteKing, blackKing));
         when(board.getPiecesOfType(StandardPieceType.BISHOP)).thenReturn(List.of(whiteBishop1, whiteBishop2));
 
@@ -155,10 +155,10 @@ class InsufficientMaterialRuleTest {
         GameState<StandardPieceType> gameState = mock(GameState.class);
         when(gameState.chessBoard()).thenReturn(board);
 
-        ChessPiece whiteKing = new ChessPiece(StandardPieceType.KING, true);
-        ChessPiece whiteKnight1 = new ChessPiece(StandardPieceType.KNIGHT, true);
-        ChessPiece whiteKnight2 = new ChessPiece(StandardPieceType.KNIGHT, true);
-        ChessPiece blackKing = new ChessPiece(StandardPieceType.KING, false);
+        ChessPiece<StandardPieceType> whiteKing = new ChessPiece<>(StandardPieceType.KING, true);
+        ChessPiece<StandardPieceType> whiteKnight1 = new ChessPiece<>(StandardPieceType.KNIGHT, true);
+        ChessPiece<StandardPieceType> whiteKnight2 = new ChessPiece<>(StandardPieceType.KNIGHT, true);
+        ChessPiece<StandardPieceType> blackKing = new ChessPiece<>(StandardPieceType.KING, false);
         when(board.getPiecesOfType(StandardPieceType.KING)).thenReturn(List.of(whiteKing, blackKing));
         when(board.getPiecesOfType(StandardPieceType.KNIGHT)).thenReturn(List.of(whiteKnight1, whiteKnight2));
 

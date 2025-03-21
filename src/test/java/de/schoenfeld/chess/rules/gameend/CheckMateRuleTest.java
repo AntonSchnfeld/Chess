@@ -21,8 +21,8 @@ public class CheckMateRuleTest {
     private MoveGenerator<StandardPieceType> moveGenerator;
     private GameState<StandardPieceType> gameState;
     private ChessBoard<StandardPieceType> board;
-    private ChessPiece king;
-    private ChessPiece secondKing;
+    private ChessPiece<StandardPieceType> king;
+    private ChessPiece<StandardPieceType> secondKing;
 
     @BeforeEach
     public void setup() {
@@ -31,13 +31,13 @@ public class CheckMateRuleTest {
 
         board = new MapChessBoard<>(new ChessBoardBounds(8, 8));
         gameState = new GameState<>(board);
-        king = new ChessPiece(StandardPieceType.KING, true);
-        secondKing = new ChessPiece(StandardPieceType.KING, true);
+        king = new ChessPiece<>(StandardPieceType.KING, true);
+        secondKing = new ChessPiece<>(StandardPieceType.KING, true);
     }
 
     @Test
     public void givenNoLegalMovesAndKingAttacked_whenDetectGameEndCause_thenReturnCheckmate() {
-        when(moveGenerator.generateMoves(gameState)).thenReturn(new MoveCollection());
+        when(moveGenerator.generateMoves(gameState)).thenReturn(new MoveCollection<>());
         gameState = gameState.withPieceAt(king, Square.h5);
 
         when(moveGenerator.generateMoves(gameState.withTurnSwitched()))
@@ -53,11 +53,11 @@ public class CheckMateRuleTest {
 
     @Test
     public void givenNoLegalMovesAndKingNotAttacked_whenDetectGameEndCause_thenReturnEmpty() {
-        when(moveGenerator.generateMoves(gameState)).thenReturn(new MoveCollection());
+        when(moveGenerator.generateMoves(gameState)).thenReturn(new MoveCollection<>());
         gameState = gameState.withPieceAt(king, Square.h5);
 
         GameState<StandardPieceType> enemyState = gameState.withIsWhiteTurn(!gameState.isWhiteTurn());
-        when(moveGenerator.generateMoves(enemyState)).thenReturn(new MoveCollection());
+        when(moveGenerator.generateMoves(enemyState)).thenReturn(new MoveCollection<>());
 
         Optional<GameConclusion> result = tested.detectGameEndCause(gameState);
 
@@ -76,7 +76,7 @@ public class CheckMateRuleTest {
 
     @Test
     public void givenKingMissing_whenDetectGameEndCause_thenReturnEmpty() {
-        when(moveGenerator.generateMoves(gameState)).thenReturn(new MoveCollection());
+        when(moveGenerator.generateMoves(gameState)).thenReturn(new MoveCollection<>());
 
         Optional<GameConclusion> result = tested.detectGameEndCause(gameState);
 
@@ -103,7 +103,7 @@ public class CheckMateRuleTest {
 
     @Test
     public void givenMultipleKingsAndLegalMove_whenDetectGameEndCause_thenReturnEmpty() {
-        when(moveGenerator.generateMoves(any())).thenReturn(new MoveCollection());
+        when(moveGenerator.generateMoves(any())).thenReturn(new MoveCollection<>());
         when(moveGenerator.generateMoves(gameState))
                 .thenReturn(MoveCollection.of(Move.of(king, Square.h5, Square.g5)));
 
@@ -116,7 +116,7 @@ public class CheckMateRuleTest {
 
     @Test
     public void givenBothKingsInCheckAndNoLegalMoves_whenDetectGameEndCause_thenReturnCheckmate() {
-        when(moveGenerator.generateMoves(gameState)).thenReturn(new MoveCollection());
+        when(moveGenerator.generateMoves(gameState)).thenReturn(new MoveCollection<>());
         gameState = gameState.withPieceAt(king, Square.h5).withPieceAt(secondKing, Square.h7);
 
         when(moveGenerator.generateMoves(gameState.withTurnSwitched()))
@@ -134,15 +134,15 @@ public class CheckMateRuleTest {
 
     @Test
     public void givenWhiteKingOnA8AndMated_whenDetectGameEndCause_thenReturnCheckmate() {
-        ChessPiece checkingPiece = new ChessPiece(StandardPieceType.ROOK, false);
+        ChessPiece<StandardPieceType> checkingPiece = new ChessPiece<>(StandardPieceType.ROOK, false);
 
         gameState = gameState.withPieceAt(king, Square.a8).withPieceAt(checkingPiece, Square.a1);
 
-        MoveCollection enemyMoves = MoveCollection.of(
+        MoveCollection<StandardPieceType> enemyMoves = MoveCollection.of(
                 Move.of(checkingPiece, Square.a1, Square.a8),
                 Move.of(checkingPiece, Square.a1, Square.a7)
         );
-        Move kingMove = Move.of(king, Square.a8, Square.a7);
+        Move<StandardPieceType> kingMove = Move.of(king, Square.a8, Square.a7);
 
         GameState<StandardPieceType> stateAfterKingMove = kingMove.executeOn(gameState);
         when(moveGenerator.generateMoves(gameState)).thenReturn(MoveCollection.of(kingMove));

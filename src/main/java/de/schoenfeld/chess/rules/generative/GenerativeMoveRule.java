@@ -6,5 +6,5 @@ import de.schoenfeld.chess.move.MoveCollection;
 
 @FunctionalInterface
 public interface GenerativeMoveRule<T extends PieceType> {
-    MoveCollection generateMoves(GameState<T> gameState);
+    MoveCollection<T> generateMoves(GameState<T> gameState);
 }

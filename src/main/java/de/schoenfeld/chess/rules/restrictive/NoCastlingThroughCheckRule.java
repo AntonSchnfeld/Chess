@@ -12,18 +12,18 @@ import java.util.Iterator;
 import java.util.List;
 
 public class NoCastlingThroughCheckRule implements RestrictiveMoveRule<StandardPieceType> {
-    private final MoveGenerator moveGenerator;
+    private final MoveGenerator<StandardPieceType> moveGenerator;
 
-    public NoCastlingThroughCheckRule(MoveGenerator moveGenerator) {
+    public NoCastlingThroughCheckRule(MoveGenerator<StandardPieceType> moveGenerator) {
         this.moveGenerator = moveGenerator;
     }
 
     @Override
-    public void filterMoves(MoveCollection moves, GameState<StandardPieceType> gameState) {
-        Iterator<Move> iterator = moves.iterator();
+    public void filterMoves(MoveCollection<StandardPieceType> moves, GameState<StandardPieceType> gameState) {
+        Iterator<Move<StandardPieceType>> iterator = moves.iterator();
 
         while (iterator.hasNext()) {
-            Move move = iterator.next();
+            Move<StandardPieceType> move = iterator.next();
 
             if (!move.hasComponent(CastlingComponent.class)) continue;
 

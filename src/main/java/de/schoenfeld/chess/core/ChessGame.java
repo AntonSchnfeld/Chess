@@ -41,7 +41,7 @@ public class ChessGame<T extends PieceType> {
         eventBus.publish(new GameStateChangedEvent<>(gameId, gameState));
     }
 
-    private void handleMoveProposed(MoveProposedEvent event) {
+    private void handleMoveProposed(MoveProposedEvent<T> event) {
         if (!event.gameId().equals(gameId)) return;
 
         if (event.player().isWhite() != gameState.isWhiteTurn()) {
@@ -61,7 +61,7 @@ public class ChessGame<T extends PieceType> {
             return;
         }
 
-        MoveCollection currentValidMoves = rules.generateMoves(gameState);
+        MoveCollection<T> currentValidMoves = rules.generateMoves(gameState);
 
         if (!currentValidMoves.contains(event.move())) {
             eventBus.publish(new ErrorEvent(gameId, event.player(), "Invalid move"));

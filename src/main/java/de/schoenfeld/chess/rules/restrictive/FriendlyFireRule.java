@@ -10,12 +10,12 @@ import java.util.Iterator;
 
 public class FriendlyFireRule<T extends PieceType> implements RestrictiveMoveRule<T> {
     @Override
-    public void filterMoves(MoveCollection moves, GameState<T> gameState) {
-        Iterator<Move> iterator = moves.iterator();
+    public void filterMoves(MoveCollection<T> moves, GameState<T> gameState) {
+        Iterator<Move<T>> iterator = moves.iterator();
 
         while (iterator.hasNext()) { // Properly iterating over the collection
-            Move move = iterator.next();
-            ChessPiece targetPiece = gameState.chessBoard().getPieceAt(move.to());
+            Move<T> move = iterator.next();
+            ChessPiece<T> targetPiece = gameState.chessBoard().getPieceAt(move.to());
 
             if (targetPiece != null && move.movedPiece().isWhite() == targetPiece.isWhite()) {
                 iterator.remove();

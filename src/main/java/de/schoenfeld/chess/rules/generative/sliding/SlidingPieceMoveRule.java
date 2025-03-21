@@ -42,8 +42,8 @@ public abstract class SlidingPieceMoveRule<T extends PieceType> implements Gener
     }
 
     protected void generateMoves(GameState<T> gameState,
-                                 ChessPiece piece,
-                                 MoveCollection moves) {
+                                 ChessPiece<T> piece,
+                                 MoveCollection<T> moves) {
         var board = gameState.chessBoard();
         var position = board.getPiecePosition(piece);
 
@@ -51,11 +51,11 @@ public abstract class SlidingPieceMoveRule<T extends PieceType> implements Gener
             var current = position.offset(direction);
 
             while (board.getBounds().contains(current)) {
-                ChessPiece target = board.getPieceAt(current);
+                ChessPiece<T> target = board.getPieceAt(current);
 
                 if (target != null) {
                     // If target is an opponent's piece, add a capturing move
-                    moves.add(Move.of(piece, position, current, new CaptureComponent(target)));
+                    moves.add(Move.of(piece, position, current, new CaptureComponent<T>(target)));
                     break;
                 }
 

@@ -9,25 +9,25 @@ import de.schoenfeld.chess.move.components.CaptureComponent;
 
 public class EnPassantRule implements GenerativeMoveRule<StandardPieceType> {
     @Override
-    public MoveCollection generateMoves(GameState<StandardPieceType> gameState) {
+    public MoveCollection<StandardPieceType> generateMoves(GameState<StandardPieceType> gameState) {
         var board = gameState.chessBoard();
         var history = gameState.moveHistory();
 
         // check if there are any moves
-        if (history.getMoveCount() == 0) return new MoveCollection();
+        if (history.getMoveCount() == 0) return new MoveCollection<>();
 
         // check if the last move was a pawn move
-        var lastMove = history.getLastMove();
+        Move<StandardPieceType> lastMove = history.getLastMove();
         if (!StandardPieceType.PAWN.equals(lastMove.movedPiece().pieceType()))
-            return new MoveCollection();
+            return new MoveCollection<>();
 
         // check if the last move was a double pawn move
         if (Math.abs(lastMove.from().y() - lastMove.to().y()) != 2)
-            return new MoveCollection();
+            return new MoveCollection<>();
 
         int direction = lastMove.movedPiece().isWhite() ? 1 : -1;
         Square enPassantTarget = Square.of(lastMove.to().x(), lastMove.to().y() + direction);
-        MoveCollection moves = new MoveCollection();
+        MoveCollection<StandardPieceType> moves = new MoveCollection<>();
 
         // Find the pawn that can capture the en passant target
         var enPassantPawn = board.getPieceAt(enPassantTarget.offset(1, -direction));
@@ -39,7 +39,7 @@ public class EnPassantRule implements GenerativeMoveRule<StandardPieceType> {
                     enPassantPawn,
                     board.getPiecePosition(enPassantPawn),
                     enPassantTarget,
-                    new CaptureComponent(enPassantPawn)
+                    new CaptureComponent<>(enPassantPawn)
             ));
         }
 
@@ -51,7 +51,7 @@ public class EnPassantRule implements GenerativeMoveRule<StandardPieceType> {
                     enPassantPawn,
                     board.getPiecePosition(enPassantPawn),
                     enPassantTarget,
-                    new CaptureComponent(enPassantPawn)
+                    new CaptureComponent<>(enPassantPawn)
             ));
         }
 

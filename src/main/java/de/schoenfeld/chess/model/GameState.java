@@ -10,7 +10,7 @@ import java.util.Objects;
 
 public record GameState<T extends PieceType>(
         ChessBoard<T> chessBoard,
-        MoveHistory moveHistory,
+        MoveHistory<T> moveHistory,
         boolean isWhiteTurn
 ) implements ChessBoard<T>, Serializable {
 
@@ -54,12 +54,12 @@ public record GameState<T extends PieceType>(
     }
 
     @Override
-    public ChessPiece getPieceAt(Square square) {
+    public ChessPiece<T> getPieceAt(Square square) {
         return chessBoard.getPieceAt(square);
     }
 
     @Override
-    public Square getPiecePosition(ChessPiece chessPiece) {
+    public Square getPiecePosition(ChessPiece<T> chessPiece) {
         return chessBoard.getPiecePosition(chessPiece);
     }
 
@@ -69,22 +69,22 @@ public record GameState<T extends PieceType>(
     }
 
     @Override
-    public List<ChessPiece> getPiecesOfColour(boolean isWhite) {
+    public List<ChessPiece<T>> getPiecesOfColour(boolean isWhite) {
         return chessBoard.getPiecesOfColour(isWhite);
     }
 
     @Override
-    public List<ChessPiece> getPieces() {
+    public List<ChessPiece<T>> getPieces() {
         return chessBoard.getPieces();
     }
 
     @Override
-    public List<ChessPiece> getPiecesOfTypeAndColour(T pieceType, boolean isWhite) {
+    public List<ChessPiece<T>> getPiecesOfTypeAndColour(T pieceType, boolean isWhite) {
         return chessBoard.getPiecesOfTypeAndColour(pieceType, isWhite);
     }
 
     @Override
-    public List<ChessPiece> getPiecesOfType(T pieceType) {
+    public List<ChessPiece<T>> getPiecesOfType(T pieceType) {
         return chessBoard.getPiecesOfType(pieceType);
     }
 
@@ -94,7 +94,7 @@ public record GameState<T extends PieceType>(
     }
 
     @Override
-    public GameState<T> withPieceAt(ChessPiece piece, Square square) {
+    public GameState<T> withPieceAt(ChessPiece<T> piece, Square square) {
         return withChessBoard(chessBoard.withPieceAt(piece, square));
     }
 
@@ -109,7 +109,7 @@ public record GameState<T extends PieceType>(
     }
 
     @Override
-    public ChessBoard<T> withAllPieces(Map<Square, ChessPiece> pieces) {
+    public ChessBoard<T> withAllPieces(Map<Square, ChessPiece<T>> pieces) {
         return withChessBoard(chessBoard.withAllPieces(pieces));
     }
 
