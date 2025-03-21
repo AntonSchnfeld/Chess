@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-public interface ChessBoard extends Serializable {
+public interface ChessBoard<T extends PieceType> extends Serializable {
     ChessPiece getPieceAt(Square square);
 
     Square getPiecePosition(ChessPiece chessPiece);
@@ -20,21 +20,21 @@ public interface ChessBoard extends Serializable {
 
     List<ChessPiece> getPieces();
 
-    List<ChessPiece> getPiecesOfTypeAndColour(PieceType pieceType, boolean isWhite);
+    List<ChessPiece> getPiecesOfTypeAndColour(T pieceType, boolean isWhite);
 
-    List<ChessPiece> getPiecesOfType(PieceType pieceType);
+    List<ChessPiece> getPiecesOfType(T pieceType);
 
     String toFen();
 
-    ChessBoard withPieceAt(ChessPiece piece, Square square);
+    ChessBoard<T> withPieceAt(ChessPiece piece, Square square);
 
-    ChessBoard withoutPieceAt(Square square);
+    ChessBoard<T> withoutPieceAt(Square square);
 
-    ChessBoard withPieceMoved(Square from, Square to);
+    ChessBoard<T> withPieceMoved(Square from, Square to);
 
-    ChessBoard withAllPieces(Map<Square, ChessPiece> pieces);
+    ChessBoard<T> withAllPieces(Map<Square, ChessPiece> pieces);
 
-    ChessBoard withoutPieces();
+    ChessBoard<T> withoutPieces();
 
-    ChessBoard withBounds(ChessBoardBounds bounds);
+    ChessBoard<T> withBounds(ChessBoardBounds bounds);
 }

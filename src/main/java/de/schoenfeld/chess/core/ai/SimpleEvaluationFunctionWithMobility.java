@@ -4,6 +4,7 @@ import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.PieceType;
+import de.schoenfeld.chess.model.StandardPieceType;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.rules.MoveGenerator;
 
@@ -11,10 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static de.schoenfeld.chess.model.PieceType.KING;
-import static de.schoenfeld.chess.model.PieceType.PAWN;
-
-public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator {
+public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<StandardPieceType> {
 
     // Bonus per legal move.
     private static final int MOBILITY_BONUS = 5;
@@ -25,32 +23,27 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator 
     private static final int WIN_BONUS = 100000;
     // Capture bonus factor (20% extra bonus on the material difference).
     private static final double CAPTURE_BONUS_FACTOR = 0.20;
-    private final MoveGenerator moveGenerator;
+    private final MoveGenerator<StandardPieceType> moveGenerator;
 
-    /**
-     * Constructs the evaluation function with a given move generator.
-     *
-     * @param moveGenerator a MoveGenerator used to compute mobility; must not be null.
-     */
-    public SimpleEvaluationFunctionWithMobility(MoveGenerator moveGenerator) {
+    public SimpleEvaluationFunctionWithMobility(MoveGenerator<StandardPieceType> moveGenerator) {
         this.moveGenerator = moveGenerator;
     }
 
     @Override
-    public int evaluate(GameState gameState) {
+    public int evaluate(GameState<StandardPieceType> gameState) {
         if (gameState == null) {
             throw new NullPointerException("GameState must not be null");
         }
 
-        ChessBoard board = gameState.chessBoard();
+        ChessBoard<StandardPieceType> board = gameState.chessBoard();
 
         // Check for win conditions.
         // If the opponent's king is missing, return a huge win bonus.
-        if (board.getPiecesOfTypeAndColour(KING, !gameState.isWhiteTurn()).isEmpty()) {
+        if (board.getPiecesOfTypeAndColour(StandardPieceType.KING, !gameState.isWhiteTurn()).isEmpty()) {
             return gameState.isWhiteTurn() ? WIN_BONUS : -WIN_BONUS;
         }
         // If our king is missing, return a huge loss.
-        if (board.getPiecesOfTypeAndColour(KING, gameState.isWhiteTurn()).isEmpty()) {
+        if (board.getPiecesOfTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()).isEmpty()) {
             return gameState.isWhiteTurn() ? -WIN_BONUS : WIN_BONUS;
         }
 
@@ -77,16 +70,8 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator 
         return materialScore + captureBonus + mobilityScore + pawnScore;
     }
 
-    /**
-     * Evaluates the pawn structure for the specified side.
-     * Applies penalties for doubled and isolated pawns.
-     *
-     * @param board   the current immutable chess board.
-     * @param isWhite true to evaluate for White, false for Black.
-     * @return the total pawn structure penalty.
-     */
-    private int evaluatePawnStructure(ChessBoard board, boolean isWhite) {
-        List<ChessPiece> pawns = board.getPiecesOfTypeAndColour(PAWN, isWhite);
+    private int evaluatePawnStructure(ChessBoard<StandardPieceType> board, boolean isWhite) {
+        List<ChessPiece> pawns = board.getPiecesOfTypeAndColour(StandardPieceType.PAWN, isWhite);
         if (pawns.isEmpty()) return 0;
 
         // Map from file (x coordinate) to the count of pawns.

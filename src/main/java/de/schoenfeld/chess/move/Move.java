@@ -2,15 +2,15 @@ package de.schoenfeld.chess.move;
 
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.model.Square;
-import de.schoenfeld.chess.move.components.CaptureComponent;
-import de.schoenfeld.chess.move.components.CastlingComponent;
 import de.schoenfeld.chess.move.components.MoveComponent;
-import de.schoenfeld.chess.move.components.PromotionComponent;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class Move implements Serializable {
     @Serial
@@ -34,7 +34,6 @@ public class Move implements Serializable {
 
     public static Move of(ChessPiece movedPiece, Square from, Square to,
                           MoveComponent... components) {
-        Map<Class<? extends MoveComponent>, MoveComponent> componentsMap = new HashMap<>();
         return new Move(List.of(components), movedPiece, from, to);
     }
 
@@ -66,18 +65,6 @@ public class Move implements Serializable {
         return components.stream().anyMatch(clazz::isInstance);
     }
 
-    public boolean isCapture() {
-        return hasComponent(CaptureComponent.class);
-    }
-
-    public boolean isPromotion() {
-        return hasComponent(PromotionComponent.class);
-    }
-
-    public boolean isCastling() {
-        return hasComponent(CastlingComponent.class);
-    }
-
     public <T extends MoveComponent> Move withComponent(T component) {
         List<MoveComponent> newComponents = new ArrayList<>(this.components);
         newComponents.add(component);
@@ -107,7 +94,7 @@ public class Move implements Serializable {
         return new Move(newComponents, movedPiece, from, to);
     }
 
-    public GameState executeOn(GameState gameState) {
+    public <T extends PieceType> GameState<T> executeOn(GameState<T> gameState) {
         gameState = gameState
                 .withMoveHistory(gameState.moveHistory().withMoveRecorded(this));
         gameState = gameState

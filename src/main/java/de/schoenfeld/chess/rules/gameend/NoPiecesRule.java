@@ -2,12 +2,13 @@ package de.schoenfeld.chess.rules.gameend;
 
 import de.schoenfeld.chess.events.GameConclusion;
 import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.PieceType;
 
 import java.util.Optional;
 
-public class NoPiecesRule implements GameConclusionRule {
+public class NoPiecesRule<T extends PieceType> implements GameConclusionRule<T> {
     @Override
-    public Optional<GameConclusion> detectGameEndCause(GameState gameState) {
+    public Optional<GameConclusion> detectGameEndCause(GameState<T> gameState) {
         if (gameState.chessBoard().getPiecesOfColour(gameState.isWhiteTurn()).isEmpty()) {
             return Optional.of(
                     new GameConclusion(GameConclusion.Winner.of(!gameState.isWhiteTurn()),

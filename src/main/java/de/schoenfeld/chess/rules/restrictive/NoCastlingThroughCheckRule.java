@@ -2,6 +2,7 @@ package de.schoenfeld.chess.rules.restrictive;
 
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.Square;
+import de.schoenfeld.chess.model.StandardPieceType;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.move.components.CastlingComponent;
@@ -10,7 +11,7 @@ import de.schoenfeld.chess.rules.MoveGenerator;
 import java.util.Iterator;
 import java.util.List;
 
-public class NoCastlingThroughCheckRule implements RestrictiveMoveRule {
+public class NoCastlingThroughCheckRule implements RestrictiveMoveRule<StandardPieceType> {
     private final MoveGenerator moveGenerator;
 
     public NoCastlingThroughCheckRule(MoveGenerator moveGenerator) {
@@ -18,7 +19,7 @@ public class NoCastlingThroughCheckRule implements RestrictiveMoveRule {
     }
 
     @Override
-    public void filterMoves(MoveCollection moves, GameState gameState) {
+    public void filterMoves(MoveCollection moves, GameState<StandardPieceType> gameState) {
         Iterator<Move> iterator = moves.iterator();
 
         while (iterator.hasNext()) {
@@ -44,7 +45,7 @@ public class NoCastlingThroughCheckRule implements RestrictiveMoveRule {
         );
     }
 
-    private boolean isAnyPositionAttacked(List<Square> squares, GameState gameState) {
+    private boolean isAnyPositionAttacked(List<Square> squares, GameState<StandardPieceType> gameState) {
         var enemyState = gameState.withIsWhiteTurn(!gameState.isWhiteTurn());
         var opponentMoves = moveGenerator.generateMoves(enemyState);
 

@@ -3,10 +3,11 @@ package de.schoenfeld.chess.core.ai;
 import de.schoenfeld.chess.core.Player;
 import de.schoenfeld.chess.events.*;
 import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.model.PlayerData;
 import de.schoenfeld.chess.move.Move;
 
-public class AIPlayer extends Player {
+public class AIPlayer<T extends PieceType> extends Player<T> {
     private final MoveSearchStrategy searchStrategy;
 
     public AIPlayer(PlayerData playerData,
@@ -17,17 +18,17 @@ public class AIPlayer extends Player {
     }
 
     @Override
-    protected void onGameStateChanged(GameStateChangedEvent event) {
+    protected void onGameStateChanged(GameStateChangedEvent<T> event) {
         if (shouldAct(event.newState())) {
             processMove(event.newState());
         }
     }
 
-    private boolean shouldAct(GameState state) {
+    private boolean shouldAct(GameState<T> state) {
         return state.isWhiteTurn() == playerData.isWhite();
     }
 
-    private void processMove(GameState state) {
+    private void processMove(GameState<T> state) {
         Move move = searchStrategy.searchMove(state);
         eventBus.publish(new MoveProposedEvent(
                 gameId,

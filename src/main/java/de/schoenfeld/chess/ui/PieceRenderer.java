@@ -5,7 +5,7 @@ import de.schoenfeld.chess.model.PieceType;
 
 import java.awt.*;
 
-import static de.schoenfeld.chess.model.PieceType.*;
+import static de.schoenfeld.chess.model.StandardPieceType.*;
 
 public class PieceRenderer {
     private final Theme theme;

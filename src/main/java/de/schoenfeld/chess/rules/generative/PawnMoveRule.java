@@ -7,7 +7,7 @@ import de.schoenfeld.chess.move.components.PromotionComponent;
 
 import java.util.List;
 
-public class PawnMoveRule implements GenerativeMoveRule {
+public class PawnMoveRule implements GenerativeMoveRule<StandardPieceType> {
     private final List<PieceType> promotionTypes;
 
     public PawnMoveRule(List<PieceType> promotionTypes) {
@@ -16,10 +16,13 @@ public class PawnMoveRule implements GenerativeMoveRule {
     }
 
     public PawnMoveRule() {
-        this(List.of(PieceType.QUEEN, PieceType.ROOK, PieceType.BISHOP, PieceType.KNIGHT));
+        this(List.of(
+                StandardPieceType.QUEEN, StandardPieceType.ROOK,
+                StandardPieceType.BISHOP, StandardPieceType.KNIGHT
+        ));
     }
 
-    private static void generatePawnMoves(GameState gameState,
+    private static void generatePawnMoves(GameState<StandardPieceType> gameState,
                                           ChessPiece pawn,
                                           MoveCollection moves,
                                           List<PieceType> promotionTypes) {
@@ -87,12 +90,12 @@ public class PawnMoveRule implements GenerativeMoveRule {
     }
 
     @Override
-    public MoveCollection generateMoves(GameState gameState) {
+    public MoveCollection generateMoves(GameState<StandardPieceType> gameState) {
         var moves = new MoveCollection();
 
         var pawns = gameState
                 .chessBoard()
-                .getPiecesOfTypeAndColour(PieceType.PAWN, gameState.isWhiteTurn());
+                .getPiecesOfTypeAndColour(StandardPieceType.PAWN, gameState.isWhiteTurn());
 
         for (var pawn : pawns) {
             generatePawnMoves(gameState, pawn, moves, promotionTypes);

@@ -1,11 +1,12 @@
 package de.schoenfeld.chess.core;
 
 import de.schoenfeld.chess.events.*;
+import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.model.PlayerData;
 
 import java.util.UUID;
 
-public abstract class Player {
+public abstract class Player<T extends PieceType> {
     protected final EventBus eventBus;
     protected final PlayerData playerData;
     protected UUID gameId;
@@ -26,7 +27,7 @@ public abstract class Player {
 
     protected abstract void onGameEnded(GameEndedEvent event);
 
-    protected abstract void onGameStateChanged(GameStateChangedEvent event);
+    protected abstract void onGameStateChanged(GameStateChangedEvent<T> event);
 
     protected abstract void onError(ErrorEvent event);
 }

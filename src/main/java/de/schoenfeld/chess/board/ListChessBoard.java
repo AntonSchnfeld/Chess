@@ -8,10 +8,10 @@ import de.schoenfeld.chess.model.Square;
 import java.util.*;
 import java.util.stream.IntStream;
 
-public record ListChessBoard(
+public record ListChessBoard<T extends PieceType>(
         List<ChessPiece> pieces,
         ChessBoardBounds bounds
-) implements ChessBoard {
+) implements ChessBoard<T> {
 
     public ListChessBoard {
         Objects.requireNonNull(pieces, "Pieces list cannot be null");
@@ -83,7 +83,7 @@ public record ListChessBoard(
     }
 
     @Override
-    public List<ChessPiece> getPiecesOfTypeAndColour(PieceType pieceType, boolean colour) {
+    public List<ChessPiece> getPiecesOfTypeAndColour(T pieceType, boolean colour) {
         return pieces.stream()
                 .filter(Objects::nonNull)
                 .filter(p -> p.pieceType().equals(pieceType) && p.isWhite() == colour)
@@ -91,42 +91,42 @@ public record ListChessBoard(
     }
 
     @Override
-    public List<ChessPiece> getPiecesOfType(PieceType pieceType) {
+    public List<ChessPiece> getPiecesOfType(T pieceType) {
         return pieces.stream()
                 .filter(p -> p != null && p.pieceType().equals(pieceType))
                 .toList();
     }
 
     @Override
-    public ListChessBoard withPieceAt(ChessPiece piece, Square square) {
+    public ListChessBoard<T> withPieceAt(ChessPiece piece, Square square) {
         List<ChessPiece> newPieces = new ArrayList<>(pieces);
         newPieces.set(calculateIndex(square), piece);
-        return new ListChessBoard(newPieces, bounds);
+        return new ListChessBoard<>(newPieces, bounds);
     }
 
     @Override
-    public ListChessBoard withoutPieceAt(Square square) {
+    public ListChessBoard<T> withoutPieceAt(Square square) {
         List<ChessPiece> newPieces = new ArrayList<>(pieces);
         newPieces.set(calculateIndex(square), null);
-        return new ListChessBoard(newPieces, bounds);
+        return new ListChessBoard<>(newPieces, bounds);
     }
 
     @Override
-    public ListChessBoard withPieceMoved(Square from, Square to) {
+    public ListChessBoard<T> withPieceMoved(Square from, Square to) {
         ChessPiece piece = getPieceAt(from);
         List<ChessPiece> newPieces = new ArrayList<>(pieces);
         newPieces.set(calculateIndex(from), null);
         newPieces.set(calculateIndex(to), piece.withMoved(true));
-        return new ListChessBoard(newPieces, bounds);
+        return new ListChessBoard<>(newPieces, bounds);
     }
 
     @Override
-    public ListChessBoard withAllPieces(Map<Square, ChessPiece> pieces) {
+    public ListChessBoard<T> withAllPieces(Map<Square, ChessPiece> pieces) {
         List<ChessPiece> newPieces = createEmptyList(bounds);
         pieces.forEach((pos, piece) ->
                 newPieces.set(calculateIndex(pos), piece)
         );
-        return new ListChessBoard(newPieces, bounds);
+        return new ListChessBoard<>(newPieces, bounds);
     }
 
     @Override
@@ -137,12 +137,12 @@ public record ListChessBoard(
     }
 
     @Override
-    public ListChessBoard withoutPieces() {
-        return new ListChessBoard(createEmptyList(bounds), bounds);
+    public ListChessBoard<T> withoutPieces() {
+        return new ListChessBoard<>(createEmptyList(bounds), bounds);
     }
 
     @Override
-    public ListChessBoard withBounds(ChessBoardBounds newBounds) {
+    public ListChessBoard<T> withBounds(ChessBoardBounds newBounds) {
         List<ChessPiece> newPieces = new ArrayList<>(
                 Collections.nCopies(newBounds.rows() * newBounds.columns(), null)
         );
@@ -156,7 +156,7 @@ public record ListChessBoard(
                             }
                         }));
 
-        return new ListChessBoard(newPieces, newBounds);
+        return new ListChessBoard<>(newPieces, newBounds);
     }
 
     @Override

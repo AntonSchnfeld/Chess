@@ -8,6 +8,7 @@ import de.schoenfeld.chess.events.EventBus;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.MoveHistory;
 import de.schoenfeld.chess.model.PlayerData;
+import de.schoenfeld.chess.model.StandardPieceType;
 import de.schoenfeld.chess.rules.Rules;
 import de.schoenfeld.chess.ui.ChessUIClient;
 import de.schoenfeld.chess.ui.DefaultTheme;
@@ -48,8 +49,9 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        Rules rules = Rules.DEFAULT;
-        GameState gameState = new GameState(BoardUtility.getDefaultBoard(),
+        Rules<StandardPieceType> rules = Rules.DEFAULT;
+        GameState<StandardPieceType> gameState = new GameState<StandardPieceType>(
+                BoardUtility.getDefaultBoard(),
                 new MoveHistory(), true);
 
         GameStateEvaluator advancedEvaluator = new PieceValueEvaluator();

@@ -2,6 +2,7 @@ package de.schoenfeld.chess.core.ai;
 
 import de.schoenfeld.chess.events.GameConclusion;
 import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.components.CaptureComponent;
 import de.schoenfeld.chess.move.components.PromotionComponent;
@@ -13,19 +14,20 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class AlphaBetaNegamax implements MoveSearchStrategy {
+public class AlphaBetaNegamax<T extends PieceType> implements MoveSearchStrategy<T> {
     private static final int INF = Integer.MAX_VALUE;
     private static final int MATE_SCORE = INF - 100;
     private final int maxDepth;
     private final int parallelDepth;
-    private final Rules rules;
-    private final GameStateEvaluator evaluator;
+    private final Rules<T> rules;
+    private final GameStateEvaluator<T> evaluator;
     private final ExecutorService rootExecutor;
     private final ForkJoinPool branchPool;
     private final Map<Long, TranspositionEntry> transpositionTable = new ConcurrentHashMap<>();
-    private GameState lastState;
+    private GameState<T> lastState;
 
-    public AlphaBetaNegamax(int maxDepth, int parallelDepth, Rules rules, GameStateEvaluator evaluator) {
+    public AlphaBetaNegamax(int maxDepth, int parallelDepth, Rules<T> rules,
+                            GameStateEvaluator<T> evaluator) {
         this.maxDepth = maxDepth;
         this.parallelDepth = parallelDepth;
         this.rules = rules;
@@ -35,7 +37,7 @@ public class AlphaBetaNegamax implements MoveSearchStrategy {
     }
 
     @Override
-    public Move searchMove(GameState gameState) {
+    public Move searchMove(GameState<T> gameState) {
         lastState = gameState;
         List<Move> legalMoves = rules.generateMoves(gameState);
         legalMoves.sort(Comparator.comparingInt(this::moveOrderingHeuristic).reversed());
@@ -46,7 +48,7 @@ public class AlphaBetaNegamax implements MoveSearchStrategy {
 
         List<CompletableFuture<Void>> futures = legalMoves.stream()
                 .map(move -> CompletableFuture.runAsync(() -> {
-                    GameState newState = move.executeOn(gameState);
+                    GameState<T> newState = move.executeOn(gameState);
                     int moveValue = -branchPool.invoke(new NegamaxTask(newState, maxDepth - 1, -beta.get(), -alpha.get(), parallelDepth));
 
                     synchronized (alpha) {
@@ -63,7 +65,7 @@ public class AlphaBetaNegamax implements MoveSearchStrategy {
     }
 
     private int moveOrderingHeuristic(Move move) {
-        GameState newState = move.executeOn(lastState);
+        GameState<T> newState = move.executeOn(lastState);
 
         // Check if the move wins the game
         Optional<GameConclusion> gameConclusion = rules.detectGameEndCause(newState);
@@ -100,13 +102,13 @@ public class AlphaBetaNegamax implements MoveSearchStrategy {
     private class NegamaxTask extends RecursiveTask<Integer> {
         @Serial
         private static final long serialVersionUID = 1L;
-        private final GameState state;
+        private final GameState<T> state;
         private final int depth;
         private final int alpha;
         private final int beta;
         private final int currentParallelDepth;
 
-        NegamaxTask(GameState state, int depth, int alpha, int beta, int currentParallelDepth) {
+        NegamaxTask(GameState<T> state, int depth, int alpha, int beta, int currentParallelDepth) {
             this.state = state;
             this.depth = depth;
             this.alpha = alpha;
@@ -136,7 +138,7 @@ public class AlphaBetaNegamax implements MoveSearchStrategy {
 
             List<NegamaxTask> tasks = new ArrayList<>();
             for (Move move : moves) {
-                GameState newState = move.executeOn(state);
+                GameState<T> newState = move.executeOn(state);
                 if (depth > (maxDepth - currentParallelDepth)) {
                     int value = -new NegamaxTask(newState, depth - 1, -beta, -currentAlpha, currentParallelDepth).compute();
                     bestValue = Math.max(bestValue, value);

@@ -2,23 +2,24 @@ package de.schoenfeld.chess.core;
 
 import de.schoenfeld.chess.events.*;
 import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.rules.Rules;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public class ChessGame {
+public class ChessGame<T extends PieceType> {
     private final EventBus eventBus;
     private final UUID gameId;
-    private final Rules rules;
-    private GameState gameState;
+    private final Rules<T> rules;
+    private GameState<T> gameState;
 
-    public ChessGame(GameState gameState, Rules rules, EventBus eventBus) {
+    public ChessGame(GameState<T> gameState, Rules<T> rules, EventBus eventBus) {
         this(UUID.randomUUID(), gameState, rules, eventBus);
     }
 
-    public ChessGame(UUID gameId, GameState gameState, Rules rules, EventBus eventBus) {
+    public ChessGame(UUID gameId, GameState<T> gameState, Rules<T> rules, EventBus eventBus) {
         this.gameState = gameState;
         this.rules = rules;
         this.eventBus = eventBus;
@@ -26,14 +27,6 @@ public class ChessGame {
 
         // Register for move proposals
         eventBus.subscribe(MoveProposedEvent.class, this::handleMoveProposed);
-    }
-
-    public ChessGame() {
-        this(new GameState(), Rules.DEFAULT, new EventBus());
-    }
-
-    public ChessGame(EventBus eventBus) {
-        this(new GameState(), Rules.DEFAULT, eventBus);
     }
 
     public void start() {
@@ -45,7 +38,7 @@ public class ChessGame {
             return;
         }
 
-        eventBus.publish(new GameStateChangedEvent(gameId, gameState));
+        eventBus.publish(new GameStateChangedEvent<>(gameId, gameState));
     }
 
     private void handleMoveProposed(MoveProposedEvent event) {
@@ -61,7 +54,7 @@ public class ChessGame {
             return;
         }
 
-        GameState moveState = event.move().executeOn(gameState);
+        GameState<T> moveState = event.move().executeOn(gameState);
         Optional<GameConclusion> gameEndCause = rules.detectGameEndCause(moveState);
         if (gameEndCause.isPresent()) {
             eventBus.publish(new GameEndedEvent(gameId, gameEndCause.get()));
@@ -77,11 +70,11 @@ public class ChessGame {
 
         gameState = event.move().executeOn(gameState);
 
-        GameStateChangedEvent gameStateChangedEvent = new GameStateChangedEvent(gameId, gameState);
+        GameStateChangedEvent<T> gameStateChangedEvent = new GameStateChangedEvent<>(gameId, gameState);
         eventBus.publish(gameStateChangedEvent);
     }
 
-    public GameState getGameState() {
+    public GameState<T> getGameState() {
         return gameState;
     }
 
@@ -89,7 +82,7 @@ public class ChessGame {
         return gameId;
     }
 
-    public Rules getRules() {
+    public Rules<T> getRules() {
         return rules;
     }
 }

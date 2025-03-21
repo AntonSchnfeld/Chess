@@ -69,7 +69,7 @@ public class ChessUIClient {
         eventBus.subscribe(GameStateChangedEvent.class, this::handleGameStateChanged);
     }
 
-    private void handleGameStateChanged(GameStateChangedEvent event) {
+    private void handleGameStateChanged(GameStateChangedEvent<?> event) {
         SwingUtilities.invokeLater(() -> {
             try {
                 Map<Square, ChessPiece> positions = new HashMap<>();

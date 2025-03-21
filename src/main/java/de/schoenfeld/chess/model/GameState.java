@@ -8,57 +8,49 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public record GameState(
-        ChessBoard chessBoard,
+public record GameState<T extends PieceType>(
+        ChessBoard<T> chessBoard,
         MoveHistory moveHistory,
         boolean isWhiteTurn
-) implements ChessBoard, Serializable {
-    private static final GameState INITIAL_STATE = new GameState(
-            new MapChessBoard(new ChessBoardBounds(8, 8)),
-            new MoveHistory(),
-            true
-    );
+) implements ChessBoard<T>, Serializable {
 
     public GameState {
         Objects.requireNonNull(chessBoard, "chessBoard cannot be null");
         Objects.requireNonNull(moveHistory, "moveHistory cannot be null");
     }
 
-    public GameState(ChessBoard chessBoard) {
+    public GameState(ChessBoard<T> chessBoard) {
         this(chessBoard, new MoveHistory(), true);
     }
 
-    public GameState(ChessBoard chessBoard, MoveHistory moveHistory) {
+    public GameState() {
+        this(new MapChessBoard<T>(new ChessBoardBounds(8, 8)), new MoveHistory());
+    }
+
+    public GameState(ChessBoard<T> chessBoard, MoveHistory moveHistory) {
         this(chessBoard, moveHistory, true);
     }
 
-    public GameState() {
-        this(INITIAL_STATE.chessBoard, INITIAL_STATE.moveHistory, true);
-    }
-
-    public static GameState createInitial() {
-        return INITIAL_STATE;
-    }
-
     // State transition methods optimized for performance
-    public GameState withIsWhiteTurn(boolean newTurn) {
-        return (this.isWhiteTurn == newTurn) ? this : new GameState(chessBoard, moveHistory, newTurn);
+    public GameState<T> withIsWhiteTurn(boolean newTurn) {
+        return (this.isWhiteTurn == newTurn) ?
+                this : new GameState<>(chessBoard, moveHistory, newTurn);
     }
 
-    public GameState withTurnSwitched() {
-        return new GameState(chessBoard, moveHistory, !isWhiteTurn);
+    public GameState<T> withTurnSwitched() {
+        return new GameState<>(chessBoard, moveHistory, !isWhiteTurn);
     }
 
-    public GameState withChessBoard(ChessBoard newBoard) {
-        return (this.chessBoard == newBoard) ? this : new GameState(newBoard, moveHistory, isWhiteTurn);
+    public GameState<T> withChessBoard(ChessBoard<T> newBoard) {
+        return (this.chessBoard == newBoard) ? this : new GameState<>(newBoard, moveHistory, isWhiteTurn);
     }
 
-    public GameState withMoveHistory(MoveHistory newHistory) {
-        return (this.moveHistory == newHistory) ? this : new GameState(chessBoard, newHistory, isWhiteTurn);
+    public GameState<T> withMoveHistory(MoveHistory newHistory) {
+        return (this.moveHistory == newHistory) ? this : new GameState<>(chessBoard, newHistory, isWhiteTurn);
     }
 
-    public GameState previousState() {
-        return moveHistory.getMoveCount() == 0 ? this : new GameState(chessBoard, moveHistory.withoutLastMove(), isWhiteTurn);
+    public GameState<T> previousState() {
+        return moveHistory.getMoveCount() == 0 ? this : new GameState<>(chessBoard, moveHistory.withoutLastMove(), isWhiteTurn);
     }
 
     @Override
@@ -87,12 +79,12 @@ public record GameState(
     }
 
     @Override
-    public List<ChessPiece> getPiecesOfTypeAndColour(PieceType pieceType, boolean isWhite) {
+    public List<ChessPiece> getPiecesOfTypeAndColour(T pieceType, boolean isWhite) {
         return chessBoard.getPiecesOfTypeAndColour(pieceType, isWhite);
     }
 
     @Override
-    public List<ChessPiece> getPiecesOfType(PieceType pieceType) {
+    public List<ChessPiece> getPiecesOfType(T pieceType) {
         return chessBoard.getPiecesOfType(pieceType);
     }
 
@@ -102,32 +94,32 @@ public record GameState(
     }
 
     @Override
-    public GameState withPieceAt(ChessPiece piece, Square square) {
+    public GameState<T> withPieceAt(ChessPiece piece, Square square) {
         return withChessBoard(chessBoard.withPieceAt(piece, square));
     }
 
     @Override
-    public ChessBoard withoutPieceAt(Square square) {
+    public ChessBoard<T> withoutPieceAt(Square square) {
         return withChessBoard(chessBoard.withoutPieceAt(square));
     }
 
     @Override
-    public ChessBoard withPieceMoved(Square from, Square to) {
+    public ChessBoard<T> withPieceMoved(Square from, Square to) {
         return withChessBoard(chessBoard.withPieceMoved(from, to));
     }
 
     @Override
-    public ChessBoard withAllPieces(Map<Square, ChessPiece> pieces) {
+    public ChessBoard<T> withAllPieces(Map<Square, ChessPiece> pieces) {
         return withChessBoard(chessBoard.withAllPieces(pieces));
     }
 
     @Override
-    public ChessBoard withoutPieces() {
+    public ChessBoard<T> withoutPieces() {
         return withChessBoard(chessBoard.withoutPieces());
     }
 
     @Override
-    public ChessBoard withBounds(ChessBoardBounds bounds) {
+    public ChessBoard<T> withBounds(ChessBoardBounds bounds) {
         return withChessBoard(chessBoard.withBounds(bounds));
     }
 }

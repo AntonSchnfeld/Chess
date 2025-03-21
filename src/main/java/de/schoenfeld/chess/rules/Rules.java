@@ -2,6 +2,8 @@ package de.schoenfeld.chess.rules;
 
 import de.schoenfeld.chess.events.GameConclusion;
 import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.PieceType;
+import de.schoenfeld.chess.model.StandardPieceType;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.rules.gameend.*;
 import de.schoenfeld.chess.rules.generative.GenerativeMoveRule;
@@ -19,9 +21,11 @@ import de.schoenfeld.chess.rules.restrictive.RestrictiveMoveRule;
 import java.util.List;
 import java.util.Optional;
 
-public record Rules(List<GenerativeMoveRule> generativeMoveRules, List<RestrictiveMoveRule> restrictiveMoveRules,
-                    List<GameConclusionRule> gameConclusionRules) implements MoveGenerator {
-    public static final Rules DEFAULT;
+public record Rules<T extends PieceType>(List<GenerativeMoveRule<T>> generativeMoveRules,
+                                         List<RestrictiveMoveRule<T>> restrictiveMoveRules,
+                                         List<GameConclusionRule<T>> gameConclusionRules)
+        implements MoveGenerator<T> {
+    public static final Rules<StandardPieceType> DEFAULT;
 
     static {
         var generativeMoveRules = List.of(
@@ -32,26 +36,26 @@ public record Rules(List<GenerativeMoveRule> generativeMoveRules, List<Restricti
                 new QueenMoveRule(),
                 new KingMoveRule()
         );
-        MoveGenerator moveGenerator = new SimpleMoveGenerator(generativeMoveRules);
+        MoveGenerator<StandardPieceType> moveGenerator = new SimpleMoveGenerator<>(generativeMoveRules);
         var restrictiveMoveRules = List.of(
-                new FriendlyFireRule(),
+                new FriendlyFireRule<StandardPieceType>(),
                 new CheckRule(moveGenerator),
                 new NoCastlingThroughCheckRule(moveGenerator)
         );
-        MoveGenerator gameEndMoveGenerator =
-                new RestrictiveMoveGenerator(restrictiveMoveRules, generativeMoveRules);
+        MoveGenerator<StandardPieceType> gameEndMoveGenerator =
+                new RestrictiveMoveGenerator<>(restrictiveMoveRules, generativeMoveRules);
         var gameEndRules = List.of(
-                new NoPiecesRule(),
+                new NoPiecesRule<StandardPieceType>(),
                 new InsufficientMaterialRule(),
                 new StaleMateRule(gameEndMoveGenerator),
                 new CheckMateRule(gameEndMoveGenerator)
         );
-        DEFAULT = new Rules(generativeMoveRules, restrictiveMoveRules, gameEndRules);
+        DEFAULT = new Rules<>(generativeMoveRules, restrictiveMoveRules, gameEndRules);
     }
 
-    public Rules(List<GenerativeMoveRule> generativeMoveRules,
-                 List<RestrictiveMoveRule> restrictiveMoveRules,
-                 List<GameConclusionRule> gameConclusionRules) {
+    public Rules(List<GenerativeMoveRule<T>> generativeMoveRules,
+                 List<RestrictiveMoveRule<T>> restrictiveMoveRules,
+                 List<GameConclusionRule<T>> gameConclusionRules) {
         if (generativeMoveRules == null) throw new NullPointerException("generativeMoveRules");
         if (restrictiveMoveRules == null) throw new NullPointerException("restrictiveMoveRules");
         if (gameConclusionRules == null) throw new NullPointerException("gameEndRules");
@@ -61,7 +65,7 @@ public record Rules(List<GenerativeMoveRule> generativeMoveRules, List<Restricti
         this.gameConclusionRules = List.copyOf(gameConclusionRules);
     }
 
-    public Optional<GameConclusion> detectGameEndCause(GameState gameState) {
+    public Optional<GameConclusion> detectGameEndCause(GameState<T> gameState) {
         for (var rule : gameConclusionRules) {
             var cause = rule.detectGameEndCause(gameState);
             if (cause.isPresent()) return cause;
@@ -69,7 +73,7 @@ public record Rules(List<GenerativeMoveRule> generativeMoveRules, List<Restricti
         return Optional.empty();
     }
 
-    public MoveCollection generateMoves(GameState gameState) {
+    public MoveCollection generateMoves(GameState<T> gameState) {
         var moves = new MoveCollection();
         // Check if the game has ended
         if (detectGameEndCause(gameState).isPresent()) return moves;
@@ -85,53 +89,53 @@ public record Rules(List<GenerativeMoveRule> generativeMoveRules, List<Restricti
         return moves;
     }
 
-    public Rules withGenerativeMoveRules(List<GenerativeMoveRule> generativeMoveRules) {
-        return new Rules(generativeMoveRules, restrictiveMoveRules, gameConclusionRules);
+    public Rules<T> withGenerativeMoveRules(List<GenerativeMoveRule<T>> generativeMoveRules) {
+        return new Rules<>(generativeMoveRules, restrictiveMoveRules, gameConclusionRules);
     }
 
-    public Rules withRestrictiveMoveRules(List<RestrictiveMoveRule> restrictiveMoveRules) {
-        return new Rules(generativeMoveRules, restrictiveMoveRules, gameConclusionRules);
+    public Rules<T> withRestrictiveMoveRules(List<RestrictiveMoveRule<T>> restrictiveMoveRules) {
+        return new Rules<>(generativeMoveRules, restrictiveMoveRules, gameConclusionRules);
     }
 
-    public Rules withGameEndRules(List<GameConclusionRule> gameConclusionRules) {
-        return new Rules(generativeMoveRules, restrictiveMoveRules, gameConclusionRules);
+    public Rules<T> withGameEndRules(List<GameConclusionRule<T>> gameConclusionRules) {
+        return new Rules<>(generativeMoveRules, restrictiveMoveRules, gameConclusionRules);
     }
 
-    public Rules withGenerativeMoveRule(GenerativeMoveRule generativeMoveRule) {
-        return new Rules(List.of(generativeMoveRule), restrictiveMoveRules, gameConclusionRules);
+    public Rules<T> withGenerativeMoveRule(GenerativeMoveRule<T> generativeMoveRule) {
+        return new Rules<>(List.of(generativeMoveRule), restrictiveMoveRules, gameConclusionRules);
     }
 
-    public Rules withRestrictiveMoveRule(RestrictiveMoveRule restrictiveMoveRule) {
-        return new Rules(generativeMoveRules, List.of(restrictiveMoveRule), gameConclusionRules);
+    public Rules<T> withRestrictiveMoveRule(RestrictiveMoveRule<T> restrictiveMoveRule) {
+        return new Rules<>(generativeMoveRules, List.of(restrictiveMoveRule), gameConclusionRules);
     }
 
-    public Rules withGameEndRule(GameConclusionRule gameConclusionRule) {
-        return new Rules(generativeMoveRules, restrictiveMoveRules, List.of(gameConclusionRule));
+    public Rules<T> withGameEndRule(GameConclusionRule<T> gameConclusionRule) {
+        return new Rules<>(generativeMoveRules, restrictiveMoveRules, List.of(gameConclusionRule));
     }
 
-    public Rules withoutGenerativeMoveRule(Class<? extends GenerativeMoveRule> clazz) {
-        return new Rules(generativeMoveRules
+    public Rules<T> withoutGenerativeMoveRule(Class<? extends GenerativeMoveRule<T>> clazz) {
+        return new Rules<>(generativeMoveRules
                 .stream()
                 .filter(rule -> !clazz.isInstance(rule))
                 .toList(), restrictiveMoveRules, gameConclusionRules);
     }
 
-    public Rules withoutRestrictiveMoveRule(Class<? extends RestrictiveMoveRule> clazz) {
-        return new Rules(generativeMoveRules, restrictiveMoveRules
+    public Rules<T> withoutRestrictiveMoveRule(Class<? extends RestrictiveMoveRule<T>> clazz) {
+        return new Rules<>(generativeMoveRules, restrictiveMoveRules
                 .stream()
                 .filter(rule -> !clazz.isInstance(rule))
                 .toList(), gameConclusionRules);
     }
 
-    public Rules withoutGameEndRule(Class<? extends GameConclusionRule> clazz) {
-        return new Rules(generativeMoveRules, restrictiveMoveRules, gameConclusionRules
+    public Rules<T> withoutGameEndRule(Class<? extends GameConclusionRule<T>> clazz) {
+        return new Rules<>(generativeMoveRules, restrictiveMoveRules, gameConclusionRules
                 .stream()
                 .filter(rule -> !clazz.isInstance(rule))
                 .toList());
     }
 
-    public Rules withoutGenerativeMoveRules(List<Class<? extends GenerativeMoveRule>> classes) {
-        return new Rules(generativeMoveRules
+    public Rules<T> withoutGenerativeMoveRules(List<Class<? extends GenerativeMoveRule<T>>> classes) {
+        return new Rules<>(generativeMoveRules
                 .stream()
                 .filter(rule -> classes
                         .stream()
@@ -139,8 +143,8 @@ public record Rules(List<GenerativeMoveRule> generativeMoveRules, List<Restricti
                 .toList(), restrictiveMoveRules, gameConclusionRules);
     }
 
-    public Rules withoutRestrictiveMoveRules(List<Class<? extends RestrictiveMoveRule>> classes) {
-        return new Rules(generativeMoveRules, restrictiveMoveRules
+    public Rules<T> withoutRestrictiveMoveRules(List<Class<? extends RestrictiveMoveRule<T>>> classes) {
+        return new Rules<>(generativeMoveRules, restrictiveMoveRules
                 .stream()
                 .filter(rule -> classes
                         .stream()
@@ -148,8 +152,8 @@ public record Rules(List<GenerativeMoveRule> generativeMoveRules, List<Restricti
                 .toList(), gameConclusionRules);
     }
 
-    public Rules withoutGameEndRules(List<Class<? extends GameConclusionRule>> classes) {
-        return new Rules(generativeMoveRules, restrictiveMoveRules, gameConclusionRules
+    public Rules<T> withoutGameEndRules(List<Class<? extends GameConclusionRule<T>>> classes) {
+        return new Rules<>(generativeMoveRules, restrictiveMoveRules, gameConclusionRules
                 .stream()
                 .filter(rule -> classes
                         .stream()

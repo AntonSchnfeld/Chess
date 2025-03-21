@@ -3,24 +3,27 @@ package de.schoenfeld.chess.rules.generative;
 import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
-import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.model.Square;
+import de.schoenfeld.chess.model.StandardPieceType;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.move.components.CastlingComponent;
 
 import java.util.Optional;
 
-public class CastlingRule implements GenerativeMoveRule {
+public class CastlingRule implements GenerativeMoveRule<StandardPieceType> {
 
     @Override
-    public MoveCollection generateMoves(GameState gameState) {
+    public MoveCollection generateMoves(GameState<StandardPieceType> gameState) {
         var moves = new MoveCollection();
         var board = gameState.chessBoard(); // ImmutableChessBoard
         boolean isWhite = gameState.isWhiteTurn();
 
         // Get king position
-        Optional<ChessPiece> king = board.getPiecesOfTypeAndColour(PieceType.KING, isWhite).stream().findFirst();
+        Optional<ChessPiece> king = board
+                .getPiecesOfTypeAndColour(StandardPieceType.KING, isWhite)
+                .stream()
+                .findFirst();
         if (king.isEmpty()) return moves; // No king found (should never happen in normal chess)
 
         Square kingPos = board.getPiecePosition(king.get());
@@ -40,7 +43,7 @@ public class CastlingRule implements GenerativeMoveRule {
         return moves;
     }
 
-    private void checkAndAddCastlingMove(GameState gameState,
+    private void checkAndAddCastlingMove(GameState<StandardPieceType> gameState,
                                          ChessPiece king,
                                          Square kingPos,
                                          Square rookPos,
@@ -50,7 +53,7 @@ public class CastlingRule implements GenerativeMoveRule {
         var board = gameState.chessBoard(); // ImmutableChessBoard
         ChessPiece rook = board.getPieceAt(rookPos);
 
-        if (rook == null || rook.pieceType() != PieceType.ROOK) return;
+        if (rook == null || rook.pieceType() != StandardPieceType.ROOK) return;
         if (king.hasMoved() || rook.hasMoved()) return; // Castling not allowed if either piece has moved
 
         // Ensure the squares between king and rook are empty
@@ -60,7 +63,8 @@ public class CastlingRule implements GenerativeMoveRule {
         moves.add(Move.of(king, kingPos, kingTarget, new CastlingComponent(rook, rookPos, rookTarget)));
     }
 
-    private boolean areIntermediateSquaresEmpty(ChessBoard board, Square from, Square to) {
+    private boolean areIntermediateSquaresEmpty(ChessBoard<StandardPieceType> board,
+                                                Square from, Square to) {
         int dx = Integer.signum(to.x() - from.x()); // +1 or -1 (direction)
         for (int x = from.x() + dx; x != to.x(); x += dx) {
             if (board.getPieceAt(Square.of(x, from.y())) != null) {

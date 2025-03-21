@@ -8,7 +8,8 @@ import de.schoenfeld.chess.move.Move;
 
 public record PromotionComponent(PieceType promotionTo) implements MoveComponent {
     @Override
-    public ChessBoard executeOn(GameState gameState, Move move) {
+    public <T extends PieceType> ChessBoard<T> executeOn(GameState<T> gameState,
+                                                         Move move) {
         ChessPiece promotedPiece = new ChessPiece(promotionTo, move.movedPiece().isWhite());
 
         return gameState.chessBoard()

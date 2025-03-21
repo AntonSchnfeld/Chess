@@ -1,8 +1,9 @@
 package de.schoenfeld.chess.core.ai;
 
 import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.move.Move;
 
-public interface MoveSearchStrategy {
-    Move searchMove(GameState gameState);
+public interface MoveSearchStrategy<T extends PieceType> {
+    Move searchMove(GameState<T> gameState);
 }

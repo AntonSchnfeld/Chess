@@ -4,8 +4,8 @@ import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.events.GameConclusion;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
-import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.model.Square;
+import de.schoenfeld.chess.model.StandardPieceType;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.rules.MoveGenerator;
@@ -13,7 +13,7 @@ import de.schoenfeld.chess.rules.MoveGenerator;
 import java.util.List;
 import java.util.Optional;
 
-public class CheckMateRule implements GameConclusionRule {
+public class CheckMateRule implements GameConclusionRule<StandardPieceType> {
     private final MoveGenerator moveGenerator;
 
     public CheckMateRule(MoveGenerator moveGenerator) {
@@ -21,7 +21,7 @@ public class CheckMateRule implements GameConclusionRule {
     }
 
     @Override
-    public Optional<GameConclusion> detectGameEndCause(GameState gameState) {
+    public Optional<GameConclusion> detectGameEndCause(GameState<StandardPieceType> gameState) {
         // No need for further computation if no king is in check
         if (allKingsSafe(gameState)) return Optional.empty();
         // Detect all possible moves for the checked player
@@ -30,7 +30,7 @@ public class CheckMateRule implements GameConclusionRule {
         // prevent check since checking fewer moves is faster
         for (Move move : moves) {
             // Simulate move
-            GameState newState = move.executeOn(gameState);
+            GameState<StandardPieceType> newState = move.executeOn(gameState);
             // Use withTurnSwitched to reverse turn change in move.executeOn(GameState)
             if (allKingsSafe(newState.withTurnSwitched())) {
                 // Found a move that prevents check
@@ -44,11 +44,11 @@ public class CheckMateRule implements GameConclusionRule {
         ));
     }
 
-    private boolean allKingsSafe(GameState gameState) {
-        ChessBoard board = gameState.chessBoard();
+    private boolean allKingsSafe(GameState<StandardPieceType> gameState) {
+        ChessBoard<StandardPieceType> board = gameState.chessBoard();
         boolean isWhiteTurn = gameState.isWhiteTurn();
         // Get all kings
-        List<ChessPiece> kings = board.getPiecesOfTypeAndColour(PieceType.KING, isWhiteTurn);
+        List<ChessPiece> kings = board.getPiecesOfTypeAndColour(StandardPieceType.KING, isWhiteTurn);
         if (kings.isEmpty()) return true; // No kings => no check
         // withTurnSwitched to generate moves for the opposite player
         MoveCollection opponentMoves = moveGenerator.generateMoves(gameState.withTurnSwitched());

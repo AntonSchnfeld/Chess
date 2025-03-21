@@ -6,11 +6,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static de.schoenfeld.chess.model.StandardPieceType.*;
+
 public final class BoardUtility {
     private BoardUtility() {
     }
 
-    public static ChessBoard fromFen(String fen) {
+    public static ChessBoard<StandardPieceType> fromFen(String fen) {
         Map<Square, ChessPiece> positions = new HashMap<>();
         String[] fenParts = fen.split("\\s+");
         String[] ranks = fenParts[0].split("/");
@@ -55,12 +57,12 @@ public final class BoardUtility {
         char pieceChar = Character.toLowerCase(c);
 
         PieceType type = switch (pieceChar) {
-            case 'p' -> PieceType.PAWN;
-            case 'n' -> PieceType.KNIGHT;
-            case 'b' -> PieceType.BISHOP;
-            case 'r' -> PieceType.ROOK;
-            case 'q' -> PieceType.QUEEN;
-            case 'k' -> PieceType.KING;
+            case 'p' -> PAWN;
+            case 'n' -> KNIGHT;
+            case 'b' -> BISHOP;
+            case 'r' -> ROOK;
+            case 'q' -> QUEEN;
+            case 'k' -> KING;
             default -> throw new IllegalArgumentException(
                     "Invalid FEN character: " + c
             );
@@ -69,11 +71,11 @@ public final class BoardUtility {
         return new ChessPiece(type, isWhite);
     }
 
-    public static ChessBoard getDefaultBoard() {
+    public static ChessBoard<StandardPieceType> getDefaultBoard() {
         return fromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     }
 
-    public static GameState fromPgn(String pgn) {
+    public static GameState<StandardPieceType> fromPgn(String pgn) {
         // Implementation omitted
         return null;
     }

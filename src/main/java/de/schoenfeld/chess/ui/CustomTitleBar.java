@@ -4,10 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class CustomTitleBar extends JPanel {
-    private final Theme theme;
 
     public CustomTitleBar(Theme theme) {
-        this.theme = theme;
         setLayout(new BorderLayout());
         setBackground(theme.titleBarBackground());
         setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));

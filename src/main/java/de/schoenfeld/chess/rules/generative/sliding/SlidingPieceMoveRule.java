@@ -2,6 +2,7 @@ package de.schoenfeld.chess.rules.generative.sliding;
 
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.model.Square;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.MoveCollection;
@@ -10,7 +11,7 @@ import de.schoenfeld.chess.rules.generative.GenerativeMoveRule;
 
 import java.util.List;
 
-public abstract class SlidingPieceMoveRule implements GenerativeMoveRule {
+public abstract class SlidingPieceMoveRule<T extends PieceType> implements GenerativeMoveRule<T> {
 
     public static final List<Square> STRAIGHT_DIRECTIONS = List.of(
             Square.of(1, 0),  // Right
@@ -40,7 +41,7 @@ public abstract class SlidingPieceMoveRule implements GenerativeMoveRule {
         this.directions = directions;
     }
 
-    protected void generateMoves(GameState gameState,
+    protected void generateMoves(GameState<T> gameState,
                                  ChessPiece piece,
                                  MoveCollection moves) {
         var board = gameState.chessBoard();

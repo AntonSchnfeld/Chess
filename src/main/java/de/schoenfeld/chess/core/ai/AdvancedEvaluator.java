@@ -4,26 +4,26 @@ import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.events.GameConclusion;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
-import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.model.Square;
+import de.schoenfeld.chess.model.StandardPieceType;
 import de.schoenfeld.chess.rules.Rules;
 
 import java.util.List;
 
-public class AdvancedEvaluator implements GameStateEvaluator {
+public class AdvancedEvaluator implements GameStateEvaluator<StandardPieceType> {
     private static final int CHECKMATE_SCORE = 1_000_000; // Large value for checkmate
     private static final int MOBILITY_WEIGHT = 10;
     private static final int KING_SAFETY_WEIGHT = 50;
     private static final int PAWN_STRUCTURE_WEIGHT = 20;
 
-    private final Rules rules;
+    private final Rules<StandardPieceType> rules;
 
-    public AdvancedEvaluator(Rules rules) {
+    public AdvancedEvaluator(Rules<StandardPieceType> rules) {
         this.rules = rules;
     }
 
     @Override
-    public int evaluate(GameState gameState) {
+    public int evaluate(GameState<StandardPieceType> gameState) {
         if (rules.detectGameEndCause(gameState).isPresent()) {
             return evaluateGameConclusion(gameState);
         }
@@ -42,10 +42,7 @@ public class AdvancedEvaluator implements GameStateEvaluator {
                 + (pawnStructureScore * PAWN_STRUCTURE_WEIGHT);
     }
 
-    /**
-     * Evaluates material balance: total piece values of White - total piece values of Black
-     */
-    private int evaluateMaterial(GameState gameState) {
+    private int evaluateMaterial(GameState<StandardPieceType> gameState) {
         int whiteValue = gameState.chessBoard().getPiecesOfColour(true)
                 .stream()
                 .mapToInt(p -> p.pieceType().value())
@@ -59,11 +56,8 @@ public class AdvancedEvaluator implements GameStateEvaluator {
         return whiteValue - blackValue;
     }
 
-    /**
-     * Evaluates king safety by considering king exposure and castling
-     */
-    private int evaluateKingSafety(GameState gameState) {
-        ChessBoard board = gameState.chessBoard();
+    private int evaluateKingSafety(GameState<StandardPieceType> gameState) {
+        ChessBoard<StandardPieceType> board = gameState.chessBoard();
         Square whiteKingPos = findKingPosition(board, true);
         Square blackKingPos = findKingPosition(board, false);
 
@@ -73,15 +67,16 @@ public class AdvancedEvaluator implements GameStateEvaluator {
         return blackSafety - whiteSafety; // Higher values mean White is safer
     }
 
-    private Square findKingPosition(ChessBoard board, boolean isWhite) {
-        return board.getPiecesOfTypeAndColour(PieceType.KING, isWhite)
+    private Square findKingPosition(ChessBoard<StandardPieceType> board, boolean isWhite) {
+        return board.getPiecesOfTypeAndColour(StandardPieceType.KING, isWhite)
                 .stream()
                 .map(board::getPiecePosition)
                 .findFirst()
                 .orElseThrow();
     }
 
-    private int assessKingSafety(ChessBoard board, Square kingPos, boolean isWhite) {
+    private int assessKingSafety(ChessBoard<StandardPieceType> board,
+                                 Square kingPos, boolean isWhite) {
         int safetyScore = 0;
         int surroundingPieces = countSurroundingPieces(board, kingPos, isWhite);
         safetyScore += surroundingPieces * 5;
@@ -92,7 +87,8 @@ public class AdvancedEvaluator implements GameStateEvaluator {
         return safetyScore;
     }
 
-    private int countSurroundingPieces(ChessBoard board, Square pos, boolean isWhite) {
+    private int countSurroundingPieces(ChessBoard<StandardPieceType> board,
+                                       Square pos, boolean isWhite) {
         int count = 0;
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
@@ -108,34 +104,25 @@ public class AdvancedEvaluator implements GameStateEvaluator {
         return count;
     }
 
-    /**
-     * Evaluates mobility: more legal moves = better position
-     */
-    private int evaluateMobility(GameState gameState) {
+    private int evaluateMobility(GameState<StandardPieceType> gameState) {
         return rules.generateMoves(gameState).size();
     }
 
-    /**
-     * Penalizes opponent's mobility: restricting opponent's moves is beneficial
-     */
-    private int evaluateEnemyMobility(GameState gameState) {
-        GameState enemyState = gameState.withTurnSwitched();
+    private int evaluateEnemyMobility(GameState<StandardPieceType> gameState) {
+        GameState<StandardPieceType> enemyState = gameState.withTurnSwitched();
         return rules.generateMoves(gameState).size();
     }
 
-    /**
-     * Evaluates pawn structure, penalizing weaknesses like isolated or doubled pawns
-     */
-    private int evaluatePawnStructure(GameState gameState) {
-        ChessBoard board = gameState.chessBoard();
+    private int evaluatePawnStructure(GameState<StandardPieceType> gameState) {
+        ChessBoard<StandardPieceType> board = gameState.chessBoard();
         int whitePenalty = assessPawnWeaknesses(board, true);
         int blackPenalty = assessPawnWeaknesses(board, false);
 
         return blackPenalty - whitePenalty;
     }
 
-    private int assessPawnWeaknesses(ChessBoard board, boolean isWhite) {
-        List<ChessPiece> pawns = board.getPiecesOfTypeAndColour(PieceType.PAWN, isWhite);
+    private int assessPawnWeaknesses(ChessBoard<StandardPieceType> board, boolean isWhite) {
+        List<ChessPiece> pawns = board.getPiecesOfTypeAndColour(StandardPieceType.PAWN, isWhite);
         int penalty = 0;
 
         boolean[] hasPawnOnFile = new boolean[8]; // Tracks pawns on each file
@@ -156,10 +143,7 @@ public class AdvancedEvaluator implements GameStateEvaluator {
         return penalty;
     }
 
-    /**
-     * Handles checkmate and draw cases
-     */
-    private int evaluateGameConclusion(GameState gameState) {
+    private int evaluateGameConclusion(GameState<StandardPieceType> gameState) {
         GameConclusion conclusion = rules.detectGameEndCause(gameState).orElseThrow();
         if (conclusion.isDraw()) {
             return 0; // Draw has neutral value
