@@ -1,10 +1,10 @@
 package de.schoenfeld.chess.rules.generative;
 
-import de.schoenfeld.chess.board.ImmutableChessBoard;
+import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.PieceType;
-import de.schoenfeld.chess.model.Position;
+import de.schoenfeld.chess.model.Square;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.move.components.CastlingComponent;
@@ -20,18 +20,18 @@ public class CastlingRule implements GenerativeMoveRule {
         boolean isWhite = gameState.isWhiteTurn();
 
         // Get king position
-        Optional<ChessPiece> king = board.getPiecesOfType(PieceType.KING, isWhite).stream().findFirst();
+        Optional<ChessPiece> king = board.getPiecesOfTypeAndColour(PieceType.KING, isWhite).stream().findFirst();
         if (king.isEmpty()) return moves; // No king found (should never happen in normal chess)
 
-        Position kingPos = board.getPiecePosition(king.get());
+        Square kingPos = board.getPiecePosition(king.get());
 
         // Standard chess castling positions
-        Position kingSideRookPos = isWhite ? Position.of(7, 0) : Position.of(7, 7);
-        Position queenSideRookPos = isWhite ? Position.of(0, 0) : Position.of(0, 7);
-        Position kingSideCastlingTarget = isWhite ? Position.of(6, 0) : Position.of(6, 7);
-        Position queenSideCastlingTarget = isWhite ? Position.of(2, 0) : Position.of(2, 7);
-        Position kingSideRookTarget = isWhite ? Position.of(5, 0) : Position.of(5, 7);
-        Position queenSideRookTarget = isWhite ? Position.of(3, 0) : Position.of(3, 7);
+        Square kingSideRookPos = isWhite ? Square.of(7, 0) : Square.of(7, 7);
+        Square queenSideRookPos = isWhite ? Square.of(0, 0) : Square.of(0, 7);
+        Square kingSideCastlingTarget = isWhite ? Square.of(6, 0) : Square.of(6, 7);
+        Square queenSideCastlingTarget = isWhite ? Square.of(2, 0) : Square.of(2, 7);
+        Square kingSideRookTarget = isWhite ? Square.of(5, 0) : Square.of(5, 7);
+        Square queenSideRookTarget = isWhite ? Square.of(3, 0) : Square.of(3, 7);
 
         // Try adding castling moves
         checkAndAddCastlingMove(gameState, king.get(), kingPos, kingSideRookPos, kingSideCastlingTarget, kingSideRookTarget, moves);
@@ -42,10 +42,10 @@ public class CastlingRule implements GenerativeMoveRule {
 
     private void checkAndAddCastlingMove(GameState gameState,
                                          ChessPiece king,
-                                         Position kingPos,
-                                         Position rookPos,
-                                         Position kingTarget,
-                                         Position rookTarget,
+                                         Square kingPos,
+                                         Square rookPos,
+                                         Square kingTarget,
+                                         Square rookTarget,
                                          MoveCollection moves) {
         var board = gameState.chessBoard(); // ImmutableChessBoard
         ChessPiece rook = board.getPieceAt(rookPos);
@@ -60,10 +60,10 @@ public class CastlingRule implements GenerativeMoveRule {
         moves.add(Move.of(king, kingPos, kingTarget, new CastlingComponent(rook, rookPos, rookTarget)));
     }
 
-    private boolean areIntermediateSquaresEmpty(ImmutableChessBoard board, Position from, Position to) {
+    private boolean areIntermediateSquaresEmpty(ChessBoard board, Square from, Square to) {
         int dx = Integer.signum(to.x() - from.x()); // +1 or -1 (direction)
         for (int x = from.x() + dx; x != to.x(); x += dx) {
-            if (board.getPieceAt(Position.of(x, from.y())) != null) {
+            if (board.getPieceAt(Square.of(x, from.y())) != null) {
                 return false; // Square is occupied
             }
         }

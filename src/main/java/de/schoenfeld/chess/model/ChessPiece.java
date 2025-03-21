@@ -1,7 +1,11 @@
 package de.schoenfeld.chess.model;
 
+import de.schoenfeld.chess.board.ChessBoard;
+
 import java.io.Serializable;
+import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public record ChessPiece(
         PieceType pieceType,
@@ -9,10 +13,24 @@ public record ChessPiece(
         boolean hasMoved,
         long uniqueId
 ) implements Serializable {
-    private static final AtomicInteger ID_GENERATOR = new AtomicInteger(0);
+    private static final WeakHashMap<Long, ChessPiece> PIECE_ID_MAP = new WeakHashMap<>(32);
+
+    private static final AtomicLong ID_GENERATOR = new AtomicLong(0);
+
+    public ChessPiece {
+        synchronized (PIECE_ID_MAP) {
+            PIECE_ID_MAP.put(uniqueId, this);
+        }
+    }
 
     public ChessPiece(PieceType pieceType, boolean isWhite) {
         this(pieceType, isWhite, false, ID_GENERATOR.getAndIncrement());
+    }
+
+    public static ChessPiece getById(long uniqueId) {
+        synchronized (PIECE_ID_MAP) {
+            return PIECE_ID_MAP.get(uniqueId);
+        }
     }
 
     public ChessPiece withMoved(boolean hasMoved) {

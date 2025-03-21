@@ -4,7 +4,7 @@ import de.schoenfeld.chess.events.EventBus;
 import de.schoenfeld.chess.events.GameStateChangedEvent;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.PieceType;
-import de.schoenfeld.chess.model.Position;
+import de.schoenfeld.chess.model.Square;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -24,7 +24,7 @@ public class UIClient {
     private final Color pieceWhite = new Color(255, 255, 255);  // Pure white
     private final Color pieceBlack = new Color(40, 40, 40);      // Soft black
 
-    private final Map<Position, JLabel> boardSquares = new HashMap<>();
+    private final Map<Square, JLabel> boardSquares = new HashMap<>();
     private final JFrame frame = new JFrame("Chess Viewer");
 
     // Gradient colors for background
@@ -86,7 +86,7 @@ public class UIClient {
         // Create chess board squares with 3D effect
         for (int y = 7; y >= 0; y--) {
             for (int x = 0; x < 8; x++) {
-                Position pos = new Position(x, y);
+                Square pos = new Square(x, y);
                 JLabel square = createBoardSquare(pos);
                 boardSquares.put(pos, square);
                 chessBoard.add(square);
@@ -107,7 +107,7 @@ public class UIClient {
         frame.add(titleBar, BorderLayout.NORTH);
     }
 
-    private JLabel createBoardSquare(Position pos) {
+    private JLabel createBoardSquare(Square pos) {
         JLabel label = new JLabel("", SwingConstants.CENTER) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -213,7 +213,7 @@ public class UIClient {
 
             // Update with new state
             event.newState().chessBoard().getPieces().forEach((piece) -> {
-                Position pos = event.newState().chessBoard().getPiecePosition(piece);
+                Square pos = event.newState().chessBoard().getPiecePosition(piece);
                 JLabel square = boardSquares.get(pos);
                 square.setText(getPieceSymbol(piece));
                 square.setForeground(piece.isWhite() ? pieceWhite : pieceBlack);

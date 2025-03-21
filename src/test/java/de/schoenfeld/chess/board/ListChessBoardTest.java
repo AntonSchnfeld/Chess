@@ -3,7 +3,7 @@ package de.schoenfeld.chess.board;
 import de.schoenfeld.chess.model.ChessBoardBounds;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.PieceType;
-import de.schoenfeld.chess.model.Position;
+import de.schoenfeld.chess.model.Square;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +31,7 @@ public class ListChessBoardTest {
         // Given
         // Board is already empty
         // When
-        ChessPiece piece = tested.getPieceAt(new Position(0, 0));
+        ChessPiece piece = tested.getPieceAt(Square.of(0, 0));
         // Then
         assertNull(piece);
     }
@@ -40,13 +40,13 @@ public class ListChessBoardTest {
     public void givenPieceAtPosition_whenGetPieceAt_thenPiece() {
         // Given
         ChessPiece piece = mock(ChessPiece.class);
-        Position piecePosition = Position.of(0, 0);
+        Square pieceSquare = Square.of(0, 0);
 
         when(piece.isWhite()).thenReturn(false);
 
-        tested = tested.withPieceAt(piece, piecePosition);
+        tested = tested.withPieceAt(piece, pieceSquare);
         // When
-        ChessPiece result = tested.getPieceAt(piecePosition);
+        ChessPiece result = tested.getPieceAt(pieceSquare);
         // Then
         assertSame(piece, result);
     }
@@ -55,15 +55,15 @@ public class ListChessBoardTest {
     public void givenPieceAtPosition_whenGetPiecePosition_thenPosition() {
         // Given
         ChessPiece piece = mock(ChessPiece.class);
-        Position piecePosition = Position.of(0, 0);
+        Square pieceSquare = Square.of(0, 0);
 
         when(piece.isWhite()).thenReturn(false);
 
-        tested = tested.withPieceAt(piece, piecePosition);
+        tested = tested.withPieceAt(piece, pieceSquare);
         // When
-        Position result = tested.getPiecePosition(piece);
+        Square result = tested.getPiecePosition(piece);
         // Then
-        assertEquals(piecePosition, result);
+        assertEquals(pieceSquare, result);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class ListChessBoardTest {
         // Given
         // Board is already empty
         // When
-        Position result = tested.getPiecePosition(mock(ChessPiece.class));
+        Square result = tested.getPiecePosition(mock(ChessPiece.class));
         // Then
         assertNull(result);
     }
@@ -100,7 +100,7 @@ public class ListChessBoardTest {
         // Given
         ChessPiece piece = mock(ChessPiece.class);
         when(piece.isWhite()).thenReturn(false);
-        tested = tested.withPieceAt(piece, Position.of(0, 0));
+        tested = tested.withPieceAt(piece, Square.of(0, 0));
         // When
         var result = tested.getPiecesOfColour(false);
         // Then
@@ -123,7 +123,7 @@ public class ListChessBoardTest {
         // Given
         ChessPiece piece = mock(ChessPiece.class);
         when(piece.isWhite()).thenReturn(false);
-        tested = tested.withPieceAt(piece, Position.of(0, 0));
+        tested = tested.withPieceAt(piece, Square.of(0, 0));
         // When
         var result = tested.getPieces();
         // Then
@@ -132,30 +132,30 @@ public class ListChessBoardTest {
     }
 
     @Test
-    public void givenNoPieces_whenGetPiecesOfType_thenEmptyList() {
+    public void givenNoPieces_whenGetPiecesOfType_AndColour_thenEmptyList() {
         // Given
         // Board is already empty
         // When
-        var result = tested.getPiecesOfType(null, false);
+        var result = tested.getPiecesOfTypeAndColour(null, false);
         // Then
         assertTrue(result.isEmpty());
     }
 
     @Test
-    public void givenPiecesOfType_whenGetPiecesOfType_thenPieces() {
+    public void givenPiecesOfType_whenGetPiecesOfType_thenPiecesAndColour() {
         // Given
         ChessPiece piece = mock(ChessPiece.class);
         when(piece.isWhite()).thenReturn(false);
-        tested = tested.withPieceAt(piece, Position.of(0, 0));
+        tested = tested.withPieceAt(piece, Square.of(0, 0));
         // When
-        var result = tested.getPiecesOfType(null, false);
+        var result = tested.getPiecesOfTypeAndColour(null, false);
         // Then
         assertEquals(1, result.size());
         assertSame(piece, result.getFirst());
     }
 
     @Test
-    public void givenManyPieces_whenGetPiecesOfType_thenPiecesOfType() {
+    public void givenManyPieces_whenGetPiecesOfType_thenPiecesOfTypeAndColour() {
         // Given
         PieceType searchPieceType = mock(PieceType.class);
         PieceType otherPieceType = mock(PieceType.class);
@@ -166,18 +166,18 @@ public class ListChessBoardTest {
             when(piece.isWhite()).thenReturn(false);
             when(piece.pieceType()).thenReturn(searchPieceType);
             searchedPieces.add(piece);
-            tested = tested.withPieceAt(piece, Position.of(0, i));
+            tested = tested.withPieceAt(piece, Square.of(0, i));
         }
 
         for (int i = 0; i < 8; i++) {
             ChessPiece piece = mock(ChessPiece.class);
             when(piece.isWhite()).thenReturn(false);
             when(piece.pieceType()).thenReturn(otherPieceType);
-            tested = tested.withPieceAt(piece, Position.of(1, i));
+            tested = tested.withPieceAt(piece, Square.of(1, i));
         }
 
         // When
-        var result = tested.getPiecesOfType(searchPieceType, false);
+        var result = tested.getPiecesOfTypeAndColour(searchPieceType, false);
         // Then
         assertEquals(searchedPieces.size(), result.size());
         assertIterableEquals(searchedPieces, result);
@@ -187,11 +187,11 @@ public class ListChessBoardTest {
     public void givenNoPieces_whenWithPieceAt_thenPieceAtPosition() {
         // Given
         ChessPiece piece = mock(ChessPiece.class);
-        Position piecePosition = Position.of(0, 0);
+        Square pieceSquare = Square.of(0, 0);
         // When
-        tested = tested.withPieceAt(piece, piecePosition);
+        tested = tested.withPieceAt(piece, pieceSquare);
         // Then
-        assertSame(piece, tested.getPieceAt(piecePosition));
+        assertSame(piece, tested.getPieceAt(pieceSquare));
         assertEquals(1, tested.getPieces().size());
     }
 
@@ -199,12 +199,12 @@ public class ListChessBoardTest {
     public void givenPieceAtPosition_whenWithoutPieceAt_thenNoPieceAtPosition() {
         // Given
         ChessPiece piece = mock(ChessPiece.class);
-        Position piecePosition = Position.of(0, 0);
-        tested = tested.withPieceAt(piece, piecePosition);
+        Square pieceSquare = Square.of(0, 0);
+        tested = tested.withPieceAt(piece, pieceSquare);
         // When
-        tested = tested.withoutPieceAt(piecePosition);
+        tested = tested.withoutPieceAt(pieceSquare);
         // Then
-        assertNull(tested.getPieceAt(piecePosition));
+        assertNull(tested.getPieceAt(pieceSquare));
         assertEquals(0, tested.getPieces().size());
     }
 
@@ -212,8 +212,8 @@ public class ListChessBoardTest {
     public void givenPieceAtPosition_whenWithPieceMoved_thenPieceAtNewPosition() {
         // Given
         ChessPiece piece = mock(ChessPiece.class);
-        Position from = Position.of(0, 0);
-        Position to = Position.of(1, 1);
+        Square from = Square.of(0, 0);
+        Square to = Square.of(1, 1);
         tested = tested.withPieceAt(piece, from);
         // When
         tested = tested.withPieceMoved(from, to);
@@ -227,18 +227,18 @@ public class ListChessBoardTest {
         // Given
         ChessPiece piece1 = mock(ChessPiece.class);
         ChessPiece piece2 = mock(ChessPiece.class);
-        Position position1 = Position.of(0, 0);
-        Position position2 = Position.of(1, 1);
+        Square square1 = Square.of(0, 0);
+        Square square2 = Square.of(1, 1);
 
-        Map<Position, ChessPiece> map = new HashMap<>();
-        map.put(position1, piece1);
-        map.put(position2, piece2);
+        Map<Square, ChessPiece> map = new HashMap<>();
+        map.put(square1, piece1);
+        map.put(square2, piece2);
         // When
         tested = tested.withAllPieces(map);
         // Then
         assertEquals(2, tested.getPieces().size());
-        assertSame(piece1, tested.getPieceAt(position1));
-        assertSame(piece2, tested.getPieceAt(position2));
+        assertSame(piece1, tested.getPieceAt(square1));
+        assertSame(piece2, tested.getPieceAt(square2));
     }
 
     @Test
@@ -246,16 +246,16 @@ public class ListChessBoardTest {
         // Given
         ChessPiece piece1 = mock(ChessPiece.class);
         ChessPiece piece2 = mock(ChessPiece.class);
-        Position position1 = Position.of(0, 0);
-        Position position2 = Position.of(1, 1);
+        Square square1 = Square.of(0, 0);
+        Square square2 = Square.of(1, 1);
 
-        tested = tested.withPieceAt(piece1, position1);
-        tested = tested.withPieceAt(piece2, position2);
+        tested = tested.withPieceAt(piece1, square1);
+        tested = tested.withPieceAt(piece2, square2);
         // When
         tested = tested.withoutPieces();
         // Then
-        assertNull(tested.getPieceAt(position1));
-        assertNull(tested.getPieceAt(position2));
+        assertNull(tested.getPieceAt(square1));
+        assertNull(tested.getPieceAt(square2));
         assertEquals(0, tested.getPieces().size());
     }
 

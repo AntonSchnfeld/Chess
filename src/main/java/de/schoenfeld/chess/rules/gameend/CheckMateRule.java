@@ -1,14 +1,19 @@
 package de.schoenfeld.chess.rules.gameend;
 
+import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.events.GameConclusion;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.PieceType;
+import de.schoenfeld.chess.model.Square;
+import de.schoenfeld.chess.move.Move;
+import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.rules.MoveGenerator;
 
+import java.util.List;
 import java.util.Optional;
 
-public class CheckMateRule implements GameEndRule {
+public class CheckMateRule implements GameConclusionRule {
     private final MoveGenerator moveGenerator;
 
     public CheckMateRule(MoveGenerator moveGenerator) {
@@ -17,37 +22,42 @@ public class CheckMateRule implements GameEndRule {
 
     @Override
     public Optional<GameConclusion> detectGameEndCause(GameState gameState) {
-        var moves = moveGenerator.generateMoves(gameState);
-
-        // If the current player has no legal moves, check if their king is attacked
-        if (moves.isEmpty() && isKingAttacked(gameState)) {
-            return Optional.of(new GameConclusion(
-                    gameState.isWhiteTurn() ? GameConclusion.Winner.BLACK
-                            : GameConclusion.Winner.WHITE,
-                    "Checkmate"
-            ));
+        // No need for further computation if no king is in check
+        if (allKingsSafe(gameState)) return Optional.empty();
+        // Detect all possible moves for the checked player
+        MoveCollection moves = moveGenerator.generateMoves(gameState);
+        // Could perhaps be faster to sort moves according to which ones are most likely to
+        // prevent check since checking fewer moves is faster
+        for (Move move : moves) {
+            // Simulate move
+            GameState newState = move.executeOn(gameState);
+            // Use withTurnSwitched to reverse turn change in move.executeOn(GameState)
+            if (allKingsSafe(newState.withTurnSwitched())) {
+                // Found a move that prevents check
+                return Optional.empty();
+            }
         }
-
-        return Optional.empty();
+        // No safe moves found :(
+        return Optional.of(new GameConclusion(
+                gameState.isWhiteTurn() ? GameConclusion.Winner.BLACK : GameConclusion.Winner.WHITE,
+                "Checkmate"
+        ));
     }
 
-    private boolean isKingAttacked(GameState gameState) {
-        var board = gameState.chessBoard();
+    private boolean allKingsSafe(GameState gameState) {
+        ChessBoard board = gameState.chessBoard();
         boolean isWhiteTurn = gameState.isWhiteTurn();
+        // Get all kings
+        List<ChessPiece> kings = board.getPiecesOfTypeAndColour(PieceType.KING, isWhiteTurn);
+        if (kings.isEmpty()) return true; // No kings => no check
+        // withTurnSwitched to generate moves for the opposite player
+        MoveCollection opponentMoves = moveGenerator.generateMoves(gameState.withTurnSwitched());
 
-        // Locate the king
-        ChessPiece king = board.getPiecesOfType(PieceType.KING, isWhiteTurn)
-                .stream()
-                .findFirst()
-                .orElse(null);
-        if (king == null) return false; // Should never happen unless the game is corrupted
-
-        var enemyState = gameState.withIsWhiteTurn(!gameState.isWhiteTurn());
-        var opponentMoves = moveGenerator.generateMoves(enemyState);
-
-        // Check if any move targets the king's position
-        return opponentMoves
-                .stream()
-                .anyMatch(move -> move.to().equals(board.getPiecePosition(king)));
+        for (ChessPiece king : kings) {
+            // Get king pos and check if opponent has any move to that square
+            Square kingPos = board.getPiecePosition(king);
+            if (opponentMoves.containsMoveTo(kingPos)) return false;
+        }
+        return true; // No check found, everyone is happy
     }
 }

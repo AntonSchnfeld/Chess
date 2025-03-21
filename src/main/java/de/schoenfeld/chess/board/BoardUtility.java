@@ -10,8 +10,8 @@ public final class BoardUtility {
     private BoardUtility() {
     }
 
-    public static ImmutableChessBoard fromFen(String fen) {
-        Map<Position, ChessPiece> positions = new HashMap<>();
+    public static ChessBoard fromFen(String fen) {
+        Map<Square, ChessPiece> positions = new HashMap<>();
         String[] fenParts = fen.split("\\s+");
         String[] ranks = fenParts[0].split("/");
 
@@ -28,7 +28,7 @@ public final class BoardUtility {
                     x += Character.getNumericValue(c);
                 } else {
                     positions.put(
-                            new Position(x, y),
+                            new Square(x, y),
                             createPieceFromFenChar(c)
                     );
                     x++;
@@ -69,7 +69,7 @@ public final class BoardUtility {
         return new ChessPiece(type, isWhite);
     }
 
-    public static ImmutableChessBoard getDefaultBoard() {
+    public static ChessBoard getDefaultBoard() {
         return fromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     }
 

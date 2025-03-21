@@ -3,25 +3,26 @@ package de.schoenfeld.chess.board;
 import de.schoenfeld.chess.model.ChessBoardBounds;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.PieceType;
-import de.schoenfeld.chess.model.Position;
+import de.schoenfeld.chess.model.Square;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public record MapChessBoard(
-        Map<Position, ChessPiece> positionMap,
-        Map<ChessPiece, Position> chessPieceMap,
+        Map<Square, ChessPiece> positionMap,
+        Map<ChessPiece, Square> chessPieceMap,
         ChessBoardBounds bounds
-) implements ImmutableChessBoard {
+) implements ChessBoard {
 
     public MapChessBoard {
         positionMap = Map.copyOf(positionMap);
         chessPieceMap = Map.copyOf(chessPieceMap);
     }
 
-    public MapChessBoard(Map<Position, ChessPiece> positionMap, ChessBoardBounds bounds) {
+    public MapChessBoard(Map<Square, ChessPiece> positionMap, ChessBoardBounds bounds) {
         this(positionMap, positionMap.entrySet().stream().
                         collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey)),
                 bounds);
@@ -32,12 +33,12 @@ public record MapChessBoard(
     }
 
     @Override
-    public ChessPiece getPieceAt(Position position) {
-        return positionMap.get(position);
+    public ChessPiece getPieceAt(Square square) {
+        return positionMap.get(square);
     }
 
     @Override
-    public Position getPiecePosition(ChessPiece chessPiece) {
+    public Square getPiecePosition(ChessPiece chessPiece) {
         return chessPieceMap.get(chessPiece);
     }
 
@@ -48,9 +49,13 @@ public record MapChessBoard(
 
     @Override
     public List<ChessPiece> getPiecesOfColour(boolean isWhite) {
-        return chessPieceMap.keySet().stream()
-                .filter(p -> p.isWhite() == isWhite)
-                .toList();
+        List<ChessPiece> pieces = new ArrayList<>(chessPieceMap.size() / 2);
+        for (Map.Entry<ChessPiece, Square> entry : chessPieceMap.entrySet()) {
+            if (entry.getKey().isWhite() == isWhite) {
+                pieces.add(entry.getKey());
+            }
+        }
+        return pieces;
     }
 
     @Override
@@ -59,40 +64,66 @@ public record MapChessBoard(
     }
 
     @Override
-    public List<ChessPiece> getPiecesOfType(PieceType pieceType, boolean isWhite) {
-        return chessPieceMap.keySet().stream()
-                .filter(p -> p.isWhite() == isWhite && p.pieceType().equals(pieceType))
-                .toList();
+    public List<ChessPiece> getPiecesOfTypeAndColour(PieceType pieceType, boolean isWhite) {
+        List<ChessPiece> pieces = new ArrayList<>((chessPieceMap.size() / 2) / 8);
+        for (Map.Entry<ChessPiece, Square> entry : chessPieceMap.entrySet()) {
+            if (entry.getKey().isWhite() == isWhite && entry.getKey().pieceType().equals(pieceType)) {
+                pieces.add(entry.getKey());
+            }
+        }
+        return pieces;
     }
 
-    public MapChessBoard withPieceAt(ChessPiece piece, Position position) {
-        if (!bounds.contains(position))
+    @Override
+    public List<ChessPiece> getPiecesOfType(PieceType pieceType) {
+        List<ChessPiece> pieces = new ArrayList<>(chessPieceMap.size() / 8);
+        for (Map.Entry<ChessPiece, Square> entry : chessPieceMap.entrySet()) {
+            if (entry.getKey().pieceType().equals(pieceType)) {
+                pieces.add(entry.getKey());
+            }
+        }
+        return pieces;
+    }
+
+    public MapChessBoard withPieceAt(ChessPiece piece, Square square) {
+        if (!bounds.contains(square))
             throw new IllegalArgumentException("position must be in bounds");
-        Map<Position, ChessPiece> newPositions = new HashMap<>(positionMap);
-        newPositions.put(position, piece);
+
+        if (square.equals(chessPieceMap.get(piece))) return this;
+
+        Map<Square, ChessPiece> newPositions = new HashMap<>(positionMap);
+        newPositions.put(square, piece);
         return new MapChessBoard(newPositions, bounds);
     }
 
-    public MapChessBoard withoutPieceAt(Position position) {
-        Map<Position, ChessPiece> newPositions = new HashMap<>(positionMap);
-        newPositions.remove(position);
+    public MapChessBoard withoutPieceAt(Square square) {
+        if (!bounds.contains(square))
+            throw new IllegalArgumentException("position must be in bounds");
+        if (!positionMap.containsKey(square)) return this;
+
+        Map<Square, ChessPiece> newPositions = new HashMap<>(positionMap);
+        newPositions.remove(square);
         return new MapChessBoard(newPositions, bounds);
     }
 
-    public MapChessBoard withPieceMoved(Position from, Position to) {
+    public MapChessBoard withPieceMoved(Square from, Square to) {
+        if (from.equals(to)) return this;
         ChessPiece piece = getPieceAt(from);
+        if (piece == null) return this;
         return withoutPieceAt(from).withPieceAt(piece.withMoved(true), to);
     }
 
-    public MapChessBoard withAllPieces(Map<Position, ChessPiece> newPieces) {
+    public MapChessBoard withAllPieces(Map<Square, ChessPiece> newPieces) {
+        if (newPieces.isEmpty()) return this;
         return new MapChessBoard(newPieces, bounds);
     }
 
     public MapChessBoard withoutPieces() {
-        return new MapChessBoard(Map.of(), bounds);
+        return new MapChessBoard(Map.of(), Map.of(), bounds);
     }
 
     public MapChessBoard withBounds(ChessBoardBounds newBounds) {
+        if (newBounds.equals(bounds)) return this;
         return new MapChessBoard(positionMap, newBounds);
     }
 

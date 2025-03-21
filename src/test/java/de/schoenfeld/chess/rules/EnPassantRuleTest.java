@@ -1,6 +1,6 @@
 package de.schoenfeld.chess.rules;
 
-import de.schoenfeld.chess.board.ImmutableChessBoard;
+import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.MoveHistory;
 import de.schoenfeld.chess.rules.generative.EnPassantRule;
@@ -19,7 +19,7 @@ public class EnPassantRuleTest {
         tested = new EnPassantRule();
         gameState = mock(GameState.class);
         MoveHistory moveHistory = mock(MoveHistory.class);
-        ImmutableChessBoard chessBoard = mock(ImmutableChessBoard.class);
+        ChessBoard chessBoard = mock(ChessBoard.class);
 
         when(gameState.chessBoard()).thenReturn(chessBoard);
         when(gameState.moveHistory()).thenReturn(moveHistory);

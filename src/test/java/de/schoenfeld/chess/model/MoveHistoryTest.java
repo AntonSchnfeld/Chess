@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class MoveHistoryTest {
     private MoveHistory tested;
@@ -20,7 +19,7 @@ public class MoveHistoryTest {
     public void givenEmptyHistory_whenCreated_thenHasNoMoves() {
         assertEquals(0, tested.getMoveCount());
         assertNull(tested.getLastMove());
-        assertTrue(tested.getAllMoves().isEmpty());
+        assertTrue(tested.moves().isEmpty());
     }
 
     @Test

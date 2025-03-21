@@ -3,7 +3,7 @@ package de.schoenfeld.chess.board;
 import de.schoenfeld.chess.model.ChessBoardBounds;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.PieceType;
-import de.schoenfeld.chess.model.Position;
+import de.schoenfeld.chess.model.Square;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
 public record ListChessBoard(
         List<ChessPiece> pieces,
         ChessBoardBounds bounds
-) implements ImmutableChessBoard {
+) implements ChessBoard {
 
     public ListChessBoard {
         Objects.requireNonNull(pieces, "Pieces list cannot be null");
@@ -43,20 +43,20 @@ public record ListChessBoard(
         }
     }
 
-    private int calculateIndex(Position position) {
-        if (!bounds.contains(position)) {
-            throw new IndexOutOfBoundsException("Position out of bounds: " + position);
+    private int calculateIndex(Square square) {
+        if (!bounds.contains(square)) {
+            throw new IndexOutOfBoundsException("Position out of bounds: " + square);
         }
-        return position.x() + position.y() * bounds.columns();
+        return square.x() + square.y() * bounds.columns();
     }
 
     @Override
-    public ChessPiece getPieceAt(Position position) {
-        return pieces.get(calculateIndex(position));
+    public ChessPiece getPieceAt(Square square) {
+        return pieces.get(calculateIndex(square));
     }
 
     @Override
-    public Position getPiecePosition(ChessPiece chessPiece) {
+    public Square getPiecePosition(ChessPiece chessPiece) {
         int index = IntStream.range(0, pieces.size())
                 .filter(i -> chessPiece.equals(pieces.get(i)))
                 .findFirst()
@@ -66,7 +66,7 @@ public record ListChessBoard(
 
         int y = index / bounds.columns();
         int x = index % bounds.columns();
-        return new Position(x, y);
+        return new Square(x, y);
     }
 
     @Override
@@ -83,7 +83,7 @@ public record ListChessBoard(
     }
 
     @Override
-    public List<ChessPiece> getPiecesOfType(PieceType pieceType, boolean colour) {
+    public List<ChessPiece> getPiecesOfTypeAndColour(PieceType pieceType, boolean colour) {
         return pieces.stream()
                 .filter(Objects::nonNull)
                 .filter(p -> p.pieceType().equals(pieceType) && p.isWhite() == colour)
@@ -91,21 +91,28 @@ public record ListChessBoard(
     }
 
     @Override
-    public ListChessBoard withPieceAt(ChessPiece piece, Position position) {
+    public List<ChessPiece> getPiecesOfType(PieceType pieceType) {
+        return pieces.stream()
+                .filter(p -> p != null && p.pieceType().equals(pieceType))
+                .toList();
+    }
+
+    @Override
+    public ListChessBoard withPieceAt(ChessPiece piece, Square square) {
         List<ChessPiece> newPieces = new ArrayList<>(pieces);
-        newPieces.set(calculateIndex(position), piece);
+        newPieces.set(calculateIndex(square), piece);
         return new ListChessBoard(newPieces, bounds);
     }
 
     @Override
-    public ListChessBoard withoutPieceAt(Position position) {
+    public ListChessBoard withoutPieceAt(Square square) {
         List<ChessPiece> newPieces = new ArrayList<>(pieces);
-        newPieces.set(calculateIndex(position), null);
+        newPieces.set(calculateIndex(square), null);
         return new ListChessBoard(newPieces, bounds);
     }
 
     @Override
-    public ListChessBoard withPieceMoved(Position from, Position to) {
+    public ListChessBoard withPieceMoved(Square from, Square to) {
         ChessPiece piece = getPieceAt(from);
         List<ChessPiece> newPieces = new ArrayList<>(pieces);
         newPieces.set(calculateIndex(from), null);
@@ -114,7 +121,7 @@ public record ListChessBoard(
     }
 
     @Override
-    public ListChessBoard withAllPieces(Map<Position, ChessPiece> pieces) {
+    public ListChessBoard withAllPieces(Map<Square, ChessPiece> pieces) {
         List<ChessPiece> newPieces = createEmptyList(bounds);
         pieces.forEach((pos, piece) ->
                 newPieces.set(calculateIndex(pos), piece)
@@ -143,7 +150,7 @@ public record ListChessBoard(
         IntStream.range(0, Math.min(bounds.rows(), newBounds.rows()))
                 .forEach(y -> IntStream.range(0, Math.min(bounds.columns(), newBounds.columns()))
                         .forEach(x -> {
-                            Position pos = new Position(x, y);
+                            Square pos = new Square(x, y);
                             if (newBounds.contains(pos)) {
                                 newPieces.set(pos.x() + pos.y() * newBounds.columns(), getPieceAt(pos));
                             }
@@ -159,7 +166,7 @@ public record ListChessBoard(
             int emptyCounter = 0;
 
             for (int x = 0; x < bounds.columns(); x++) {
-                ChessPiece piece = getPieceAt(new Position(x, y));
+                ChessPiece piece = getPieceAt(new Square(x, y));
 
                 if (piece == null) {
                     emptyCounter++;

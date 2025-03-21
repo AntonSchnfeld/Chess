@@ -5,6 +5,6 @@ import de.schoenfeld.chess.model.GameState;
 
 import java.util.Optional;
 
-public interface GameEndRule {
+public interface GameConclusionRule {
     Optional<GameConclusion> detectGameEndCause(GameState gameState);
 }

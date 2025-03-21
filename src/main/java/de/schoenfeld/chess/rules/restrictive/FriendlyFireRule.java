@@ -11,14 +11,14 @@ public class FriendlyFireRule implements RestrictiveMoveRule {
     @Override
     public void filterMoves(MoveCollection moves, GameState gameState) {
         Iterator<Move> iterator = moves.iterator();
-        if (!iterator.hasNext()) return;
 
-        for (Move move = iterator.next(); iterator.hasNext(); move = iterator.next()) {
+        while (iterator.hasNext()) { // Properly iterating over the collection
+            Move move = iterator.next();
             ChessPiece targetPiece = gameState.chessBoard().getPieceAt(move.to());
-            if (targetPiece == null) continue;
 
-            if (move.movedPiece().isWhite() == targetPiece.isWhite())
+            if (targetPiece != null && move.movedPiece().isWhite() == targetPiece.isWhite()) {
                 iterator.remove();
+            }
         }
     }
 }

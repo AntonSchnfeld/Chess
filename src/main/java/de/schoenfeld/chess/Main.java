@@ -3,12 +3,20 @@ package de.schoenfeld.chess;
 import de.schoenfeld.chess.board.BoardUtility;
 import de.schoenfeld.chess.core.ChessGame;
 import de.schoenfeld.chess.core.Player;
+import de.schoenfeld.chess.core.ai.*;
 import de.schoenfeld.chess.events.EventBus;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.MoveHistory;
 import de.schoenfeld.chess.model.PlayerData;
 import de.schoenfeld.chess.rules.Rules;
-import de.schoenfeld.chess.rules.generative.CastlingRule;
+import de.schoenfeld.chess.rules.SimpleMoveGenerator;
+import de.schoenfeld.chess.rules.gameend.CheckMateRule;
+import de.schoenfeld.chess.rules.generative.KingMoveRule;
+import de.schoenfeld.chess.rules.generative.sliding.RookMoveRule;
+import de.schoenfeld.chess.ui.ChessUIClient;
+import de.schoenfeld.chess.ui.DefaultTheme;
+import de.schoenfeld.chess.ui.PieceRenderer;
+import de.schoenfeld.chess.ui.Theme;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +31,6 @@ public class Main {
 
     static {
         try {
-
             try (InputStream is = Main.class.getResourceAsStream("/logging.properties")) {
                 LogManager.getLogManager().readConfiguration(is);
             } catch (IOException e) {
@@ -46,21 +53,23 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        EventBus eventBus = new EventBus();
-
         Rules rules = Rules.DEFAULT;
-
         GameState gameState = new GameState(BoardUtility.getDefaultBoard(),
-                new MoveHistory(), false);
-        UIClient client = new UIClient(eventBus);
-        Player white = new RandomMovePlayer(
-                new PlayerData(UUID.randomUUID(), "Weiss", true),
-                eventBus, rules
-        );
-        Player black = new RandomMovePlayer(
-                new PlayerData(UUID.randomUUID(), "Schwarz", false),
-                eventBus, rules
-        );
+                new MoveHistory(), true);
+
+        GameStateEvaluator advancedEvaluator = new PieceValueEvaluator();
+        GameStateEvaluator otherEvaluator = new SimpleEvaluationFunctionWithMobility(rules);
+        MoveSearchStrategy whiteStrategy = new AlphaBetaNegamax(3   , Runtime.getRuntime().availableProcessors(), rules, advancedEvaluator);
+        MoveSearchStrategy blackStrategy = new AlphaBetaNegamax(3, Runtime.getRuntime().availableProcessors(), rules, otherEvaluator);
+
+        EventBus eventBus = new EventBus();
+        PlayerData black = new PlayerData(UUID.randomUUID(), "Schwarz", false);
+        PlayerData white = new PlayerData(UUID.randomUUID(), "Weiß", true);
+
+        Theme theme = new DefaultTheme();
+        ChessUIClient client = new ChessUIClient(eventBus, new PieceRenderer(theme), theme);
+        Player whitePlayer = new AIPlayer(white, eventBus, whiteStrategy);
+        Player blackPlayer = new AIPlayer(black, eventBus, blackStrategy);
         ChessGame chessGame = new ChessGame(gameState, rules, eventBus);
         client.show();
         chessGame.start();

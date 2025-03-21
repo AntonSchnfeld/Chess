@@ -2,7 +2,7 @@ package de.schoenfeld.chess.move;
 
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
-import de.schoenfeld.chess.model.Position;
+import de.schoenfeld.chess.model.Square;
 import de.schoenfeld.chess.move.components.CaptureComponent;
 import de.schoenfeld.chess.move.components.CastlingComponent;
 import de.schoenfeld.chess.move.components.MoveComponent;
@@ -17,22 +17,22 @@ public class Move implements Serializable {
     private static final long serialVersionUID = 1921632465085309764L;
     private final List<MoveComponent> components;
     private final ChessPiece movedPiece;
-    private final Position from, to;
+    private final Square from, to;
 
     private Move(List<MoveComponent> components,
-                 ChessPiece movedPiece, Position from, Position to) {
+                 ChessPiece movedPiece, Square from, Square to) {
         this.components = components;
         this.movedPiece = movedPiece;
         this.from = from;
         this.to = to;
     }
 
-    public static Move of(ChessPiece movedPiece, Position from, Position to,
-                          Set<MoveComponent> components) {
+    public static Move of(ChessPiece movedPiece, Square from, Square to,
+                          List<MoveComponent> components) {
         return new Move(List.copyOf(components), movedPiece, from, to);
     }
 
-    public static Move of(ChessPiece movedPiece, Position from, Position to,
+    public static Move of(ChessPiece movedPiece, Square from, Square to,
                           MoveComponent... components) {
         Map<Class<? extends MoveComponent>, MoveComponent> componentsMap = new HashMap<>();
         return new Move(List.of(components), movedPiece, from, to);
@@ -42,11 +42,11 @@ public class Move implements Serializable {
         return movedPiece;
     }
 
-    public Position from() {
+    public Square from() {
         return from;
     }
 
-    public Position to() {
+    public Square to() {
         return to;
     }
 
@@ -84,19 +84,23 @@ public class Move implements Serializable {
         return new Move(newComponents, movedPiece, from, to);
     }
 
-    public Move withFrom(Position from) {
+    public Move withFrom(Square from) {
+        if (this.from.equals(from)) return this;
         return new Move(components, movedPiece, from, to);
     }
 
-    public Move withTo(Position to) {
+    public Move withTo(Square to) {
+        if (this.to.equals(to)) return this;
         return new Move(components, movedPiece, from, to);
     }
 
     public Move withMovedPiece(ChessPiece movedPiece) {
+        if (this.movedPiece.equals(movedPiece)) return this;
         return new Move(components, movedPiece, from, to);
     }
 
     public Move withoutComponent(Class<? extends MoveComponent> clazz) {
+        if (!hasComponent(clazz)) return this;
         List<MoveComponent> newComponents = components.stream()
                 .filter(c -> c.getClass().equals(clazz))
                 .toList();
@@ -112,7 +116,7 @@ public class Move implements Serializable {
         for (MoveComponent component : components) {
             gameState = gameState.withChessBoard(component.executeOn(gameState, this));
         }
-        return gameState.withIsWhiteTurn(!gameState.isWhiteTurn());
+        return gameState.withTurnSwitched();
     }
 
     @Override

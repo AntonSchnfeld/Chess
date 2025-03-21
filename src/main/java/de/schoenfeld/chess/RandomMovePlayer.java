@@ -5,7 +5,7 @@ import de.schoenfeld.chess.events.*;
 import de.schoenfeld.chess.model.PlayerData;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.MoveCollection;
-import de.schoenfeld.chess.rules.Rules;
+import de.schoenfeld.chess.rules.MoveGenerator;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -13,9 +13,9 @@ import java.util.concurrent.TimeUnit;
 public class RandomMovePlayer extends Player {
 
     private final Random random;
-    private final Rules rules;
+    private final MoveGenerator rules;
 
-    public RandomMovePlayer(PlayerData data, EventBus eventBus, Rules rules) {
+    public RandomMovePlayer(PlayerData data, EventBus eventBus, MoveGenerator rules) {
         super(data, eventBus);
         random = new Random(System.nanoTime());
         this.rules = rules;
@@ -29,13 +29,6 @@ public class RandomMovePlayer extends Player {
     @Override
     protected void onGameStateChanged(GameStateChangedEvent event) {
         if (event.newState().isWhiteTurn() == playerData.isWhite()) {
-
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-
             MoveCollection moves = rules.generateMoves(event.newState());
 
             int randomMoveIdx = random.nextInt(moves.size());

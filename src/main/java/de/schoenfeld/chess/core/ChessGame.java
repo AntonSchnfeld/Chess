@@ -38,6 +38,13 @@ public class ChessGame {
 
     public void start() {
         eventBus.publish(new GameStartedEvent(gameId));
+
+        Optional<GameConclusion> gameConclusion = rules.detectGameEndCause(gameState);
+        if (gameConclusion.isPresent()) {
+            eventBus.publish(new GameEndedEvent(gameId, gameConclusion.get()));
+            return;
+        }
+
         eventBus.publish(new GameStateChangedEvent(gameId, gameState));
     }
 
@@ -54,7 +61,8 @@ public class ChessGame {
             return;
         }
 
-        Optional<GameConclusion> gameEndCause = rules.detectGameEndCause(gameState);
+        GameState moveState = event.move().executeOn(gameState);
+        Optional<GameConclusion> gameEndCause = rules.detectGameEndCause(moveState);
         if (gameEndCause.isPresent()) {
             eventBus.publish(new GameEndedEvent(gameId, gameEndCause.get()));
             return;

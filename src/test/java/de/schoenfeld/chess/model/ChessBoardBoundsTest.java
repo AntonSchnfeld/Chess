@@ -14,14 +14,14 @@ public class ChessBoardBoundsTest {
 
     @Test
     public void givenEightByEightDimensionsAndOutOfBoundsPositivePosition_whenContains_thenReturnFalse() {
-        Position outOfBoundsPosition = new Position(8, 8);
-        Assertions.assertFalse(dimensions.contains(outOfBoundsPosition));
+        Square outOfBoundsSquare = Square.of(8, 8);
+        Assertions.assertFalse(dimensions.contains(outOfBoundsSquare));
     }
 
     @Test
     public void givenEightByEightDimensionsAndInBoundsPositivePosition_whenContains_thenReturnTrue() {
-        Position inBoundsPosition = new Position(3, 3);
-        Assertions.assertTrue(dimensions.contains(inBoundsPosition));
+        Square inBoundsSquare = Square.of(3, 3);
+        Assertions.assertTrue(dimensions.contains(inBoundsSquare));
     }
 
     @Test
@@ -55,13 +55,13 @@ public class ChessBoardBoundsTest {
 
     @Test
     public void givenEightByEightDimensionsAndPositionAtUpperBounds_whenContains_thenReturnTrue() {
-        Position upperBoundPosition = new Position(7, 7);
-        Assertions.assertTrue(dimensions.contains(upperBoundPosition));
+        Square upperBoundSquare = Square.of(7, 7);
+        Assertions.assertTrue(dimensions.contains(upperBoundSquare));
     }
 
     @Test
     public void givenEightByEightDimensionsAndPositionJustOutside_whenContains_thenReturnFalse() {
-        Position outOfBoundsPosition = new Position(8, 7);
-        Assertions.assertFalse(dimensions.contains(outOfBoundsPosition));
+        Square outOfBoundsSquare = Square.of(8, 7);
+        Assertions.assertFalse(dimensions.contains(outOfBoundsSquare));
     }
 }

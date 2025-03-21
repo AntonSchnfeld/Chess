@@ -1,7 +1,7 @@
 package de.schoenfeld.chess.rules.restrictive;
 
 import de.schoenfeld.chess.model.GameState;
-import de.schoenfeld.chess.model.Position;
+import de.schoenfeld.chess.model.Square;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.move.components.CastlingComponent;
@@ -36,20 +36,20 @@ public class NoCastlingThroughCheckRule implements RestrictiveMoveRule {
         }
     }
 
-    private List<Position> getIntermediateKingPositions(Position from, Position to) {
+    private List<Square> getIntermediateKingPositions(Square from, Square to) {
         int direction = Integer.compare(to.x(), from.x()); // Only horizontal movement
         return List.of(
-                new Position(from.x() + direction, from.y()),
-                new Position(from.x() + 2 * direction, from.y()) // King's destination
+                new Square(from.x() + direction, from.y()),
+                new Square(from.x() + 2 * direction, from.y()) // King's destination
         );
     }
 
-    private boolean isAnyPositionAttacked(List<Position> positions, GameState gameState) {
+    private boolean isAnyPositionAttacked(List<Square> squares, GameState gameState) {
         var enemyState = gameState.withIsWhiteTurn(!gameState.isWhiteTurn());
         var opponentMoves = moveGenerator.generateMoves(enemyState);
 
         for (var move : opponentMoves) {
-            if (positions.contains(move.to())) {
+            if (squares.contains(move.to())) {
                 return true;
             }
         }

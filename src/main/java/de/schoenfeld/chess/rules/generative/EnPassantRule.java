@@ -2,31 +2,12 @@ package de.schoenfeld.chess.rules.generative;
 
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.PieceType;
-import de.schoenfeld.chess.model.Position;
+import de.schoenfeld.chess.model.Square;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.move.components.CaptureComponent;
 
-/**
- * A rule that generates en passant moves.
- * En passant is a special pawn capture that can only be done immediately
- * after a pawn moves two squares forward from its starting position,
- * and it could have been captured by an enemy pawn had it moved only one square forward.
- * The opponent captures the just-moved pawn "as it passes" through the first square.
- * The result is the same as if the pawn had moved only one square forward
- * and the enemy pawn had captured it normally.
- * <a href="https://en.wikipedia.org/wiki/En_passant">En passant</a>
- *
- * @author Anton Schoenfeld
- */
 public class EnPassantRule implements GenerativeMoveRule {
-    /**
-     * Generates a collection of en passant moves.
-     *
-     * @param gameState The current game state
-     * @return A {@link MoveCollection} containing the generated moves
-     * @throws NullPointerException if {@code gameState} is null
-     */
     @Override
     public MoveCollection generateMoves(GameState gameState) {
         var board = gameState.chessBoard();
@@ -45,7 +26,7 @@ public class EnPassantRule implements GenerativeMoveRule {
             return new MoveCollection();
 
         int direction = lastMove.movedPiece().isWhite() ? 1 : -1;
-        Position enPassantTarget = Position.of(lastMove.to().x(), lastMove.to().y() + direction);
+        Square enPassantTarget = Square.of(lastMove.to().x(), lastMove.to().y() + direction);
         MoveCollection moves = new MoveCollection();
 
         // Find the pawn that can capture the en passant target

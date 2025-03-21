@@ -38,29 +38,29 @@ public record ChessBoardBounds(int rows, int columns) implements Serializable {
      * The positions are returned in row-major order.
      * @return The list of all positions
      */
-    public List<Position> allPositions() {
-        ArrayList<Position> list = new ArrayList<>();
+    public List<Square> allPositions() {
+        ArrayList<Square> list = new ArrayList<>();
         list.ensureCapacity(rows * columns);
 
         for (int x = 0; x < rows; x++)
             for (int y = 0; y < columns; y++)
-                list.add(new Position(x, y));
+                list.add(new Square(x, y));
 
         return list;
     }
 
     /**
      * Returns whether the given position is contained in the bounds.
-     * @param position The position to check
+     * @param square The position to check
      * @return Whether the position is contained in the bounds
      */
-    public boolean contains(Position position) {
-        if (position == null) {
+    public boolean contains(Square square) {
+        if (square == null) {
             return false;
         }
-        return position.x() >= 0 &&
-                rows > position.x() &&
-                position.y() >= 0 &&
-                columns > position.y();
+        return square.x() >= 0 &&
+                rows > square.x() &&
+                square.y() >= 0 &&
+                columns > square.y();
     }
 }

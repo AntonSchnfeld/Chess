@@ -4,7 +4,6 @@ import de.schoenfeld.chess.move.Move;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public record MoveHistory(
@@ -31,11 +30,7 @@ public record MoveHistory(
     }
 
     public Move getLastMove() {
-        return moves.isEmpty() ? null : moves.getLast();
-    }
-
-    public List<Move> getAllMoves() {
-        return Collections.unmodifiableList(moves);
+        return moves.isEmpty() ? null : moves.get(moves.size() - 1);
     }
 
     public int getMoveCount() {

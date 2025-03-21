@@ -72,8 +72,8 @@ public class PawnMoveRule implements GenerativeMoveRule {
 
     private static void addPromotionMoves(MoveCollection moves,
                                           ChessPiece pawn,
-                                          Position from,
-                                          Position to,
+                                          Square from,
+                                          Square to,
                                           List<PieceType> promotionTypes) {
         for (PieceType promotionType : promotionTypes)
             moves.add(Move.of(pawn, from, to, new PromotionComponent(promotionType)));
@@ -92,7 +92,7 @@ public class PawnMoveRule implements GenerativeMoveRule {
 
         var pawns = gameState
                 .chessBoard()
-                .getPiecesOfType(PieceType.PAWN, gameState.isWhiteTurn());
+                .getPiecesOfTypeAndColour(PieceType.PAWN, gameState.isWhiteTurn());
 
         for (var pawn : pawns) {
             generatePawnMoves(gameState, pawn, moves, promotionTypes);
