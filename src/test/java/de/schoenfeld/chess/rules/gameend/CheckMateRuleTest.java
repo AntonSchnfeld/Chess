@@ -20,7 +20,6 @@ public class CheckMateRuleTest {
     private CheckMateRule tested;
     private MoveGenerator<StandardPieceType> moveGenerator;
     private GameState<StandardPieceType> gameState;
-    private ChessBoard<StandardPieceType> board;
     private ChessPiece<StandardPieceType> king;
     private ChessPiece<StandardPieceType> secondKing;
 
@@ -29,7 +28,7 @@ public class CheckMateRuleTest {
         moveGenerator = mock(MoveGenerator.class);
         tested = new CheckMateRule(moveGenerator);
 
-        board = new MapChessBoard<>(new ChessBoardBounds(8, 8));
+        ChessBoard<StandardPieceType> board = new MapChessBoard<>(new ChessBoardBounds(8, 8));
         gameState = new GameState<>(board);
         king = new ChessPiece<>(StandardPieceType.KING, true);
         secondKing = new ChessPiece<>(StandardPieceType.KING, true);

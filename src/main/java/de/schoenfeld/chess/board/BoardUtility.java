@@ -47,7 +47,7 @@ public final class BoardUtility {
         }
 
         return new MapChessBoard<>(
-                Collections.unmodifiableMap(positions),
+                positions,
                 new ChessBoardBounds(8, 8)
         );
     }

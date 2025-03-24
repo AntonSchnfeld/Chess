@@ -8,6 +8,7 @@ import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.move.components.CastlingComponent;
 import de.schoenfeld.chess.rules.MoveGenerator;
 
+import java.lang.runtime.SwitchBootstraps;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,9 +28,9 @@ public class NoCastlingThroughCheckRule implements RestrictiveMoveRule<StandardP
 
             if (!move.hasComponent(CastlingComponent.class)) continue;
 
-            var kingFrom = move.from();
-            var kingTo = move.to();
-            var intermediatePositions = getIntermediateKingPositions(kingFrom, kingTo);
+            Square kingFrom = move.from();
+            Square kingTo = move.to();
+            List<Square> intermediatePositions = getIntermediateKingPositions(kingFrom, kingTo);
 
             if (isAnyPositionAttacked(intermediatePositions, gameState)) {
                 iterator.remove();
@@ -45,15 +46,18 @@ public class NoCastlingThroughCheckRule implements RestrictiveMoveRule<StandardP
         );
     }
 
-    private boolean isAnyPositionAttacked(List<Square> squares, GameState<StandardPieceType> gameState) {
-        var enemyState = gameState.withIsWhiteTurn(!gameState.isWhiteTurn());
-        var opponentMoves = moveGenerator.generateMoves(enemyState);
+    private boolean isAnyPositionAttacked(List<Square> squares,
+                                          GameState<StandardPieceType> gameState) {
+        GameState<StandardPieceType> enemyState = gameState
+                .withIsWhiteTurn(!gameState.isWhiteTurn());
+        MoveCollection<StandardPieceType> opponentMoves = moveGenerator.generateMoves(enemyState);
 
-        for (var move : opponentMoves) {
+        for (Move<StandardPieceType> move : opponentMoves) {
             if (squares.contains(move.to())) {
                 return true;
             }
         }
+
         return false;
     }
 }

@@ -46,10 +46,6 @@ public class Move<T extends PieceType> implements Serializable {
         return to;
     }
 
-    /**
-     * Retrieves the first component that is an instance of the given class.
-     * This method is type safe at the call site.
-     */
     public <C extends MoveComponent<T>> C getComponent(Class<C> clazz) {
         for (MoveComponent<T> comp : components) {
             if (clazz.isInstance(comp)) {
@@ -60,14 +56,14 @@ public class Move<T extends PieceType> implements Serializable {
         return null;
     }
 
-    // Example of a method using the components.
-    public boolean hasComponent(Class<? extends MoveComponent<T>> clazz) {
-        return getComponent(clazz) != null;
+    public boolean hasComponent(Class<? extends MoveComponent> clazz) {
+        for (MoveComponent<T> comp : components)
+            if (clazz.isInstance(comp))
+                return true;
+        return false;
     }
 
     public GameState<T> executeOn(GameState<T> gameState) {
-        // Example execution logic. In a real implementation, you’d iterate over the components
-        // and allow each to update the game state.
         gameState = gameState.withMoveHistory(gameState.moveHistory().withMoveRecorded(this));
         gameState = gameState.withChessBoard(gameState.chessBoard().withPieceMoved(from, to));
         for (MoveComponent<T> component : components) {

@@ -43,14 +43,14 @@ public class AdvancedEvaluator implements GameStateEvaluator<StandardPieceType> 
     }
 
     private int evaluateMaterial(GameState<StandardPieceType> gameState) {
-        int whiteValue = gameState.chessBoard().getPiecesOfColour(true)
+        int whiteValue = gameState.chessBoard().getSquaresWithColour(true)
                 .stream()
-                .mapToInt(p -> p.pieceType().value())
+                .mapToInt(p -> gameState.getPieceAt(p).pieceType().value())
                 .sum();
 
-        int blackValue = gameState.chessBoard().getPiecesOfColour(false)
+        int blackValue = gameState.chessBoard().getSquaresWithColour(false)
                 .stream()
-                .mapToInt(p -> p.pieceType().value())
+                .mapToInt(p -> gameState.getPieceAt(p).pieceType().value())
                 .sum();
 
         return whiteValue - blackValue;
@@ -68,9 +68,8 @@ public class AdvancedEvaluator implements GameStateEvaluator<StandardPieceType> 
     }
 
     private Square findKingPosition(ChessBoard<StandardPieceType> board, boolean isWhite) {
-        return board.getPiecesOfTypeAndColour(StandardPieceType.KING, isWhite)
+        return board.getSquaresWithTypeAndColour(StandardPieceType.KING, isWhite)
                 .stream()
-                .map(board::getPiecePosition)
                 .findFirst()
                 .orElseThrow();
     }
@@ -122,12 +121,11 @@ public class AdvancedEvaluator implements GameStateEvaluator<StandardPieceType> 
     }
 
     private int assessPawnWeaknesses(ChessBoard<StandardPieceType> board, boolean isWhite) {
-        List<ChessPiece<StandardPieceType>> pawns = board.getPiecesOfTypeAndColour(StandardPieceType.PAWN, isWhite);
+        List<Square> pawnSquares = board.getSquaresWithTypeAndColour(StandardPieceType.PAWN, isWhite);
         int penalty = 0;
 
         boolean[] hasPawnOnFile = new boolean[8]; // Tracks pawns on each file
-        for (ChessPiece<StandardPieceType> pawn : pawns) {
-            Square pos = board.getPiecePosition(pawn);
+        for (Square pos : pawnSquares) {
             int file = pos.x();
             if (hasPawnOnFile[file]) {
                 penalty += 10; // Doubled pawn penalty

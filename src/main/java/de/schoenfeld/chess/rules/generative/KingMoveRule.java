@@ -18,20 +18,20 @@ public class KingMoveRule implements GenerativeMoveRule<StandardPieceType> {
     );
 
     private static void generateKingMoves(GameState<StandardPieceType> gameState,
-                                          ChessPiece<StandardPieceType> king,
+                                          Square kingPos,
                                           MoveCollection<StandardPieceType> moves) {
+        ChessPiece<StandardPieceType> king = gameState.getPieceAt(kingPos);
         // Generate moves in all directions
-        for (var direction : KING_DIRECTIONS) {
-            var from = gameState.chessBoard().getPiecePosition(king);
-            var to = from.offset(direction);
+        for (Square direction : KING_DIRECTIONS) {
+            Square to = kingPos.offset(direction);
             // Check if the target position is on the board
-            if (gameState.chessBoard().getBounds().contains(to)) {
-                var targetPiece = gameState.chessBoard().getPieceAt(to);
+            if (gameState.getBounds().contains(to)) {
+                ChessPiece<StandardPieceType> targetPiece = gameState.getPieceAt(to);
                 // Check if the target position is empty or contains an enemy piece
-                if (targetPiece == null) moves.add(Move.of(king, from, to));
-                    // Capture
+                if (targetPiece == null) moves.add(Move.of(king, kingPos, to));
+                // Capture
                 else if (targetPiece.isWhite() != king.isWhite())
-                    moves.add(Move.of(king, from, to, new CaptureComponent<>(targetPiece)));
+                    moves.add(Move.of(king, kingPos, to, new CaptureComponent<>(targetPiece)));
             }
         }
     }
@@ -41,12 +41,12 @@ public class KingMoveRule implements GenerativeMoveRule<StandardPieceType> {
         MoveCollection<StandardPieceType> moves = new MoveCollection<>();
         ChessBoard<StandardPieceType> board = gameState.chessBoard();
 
-        var kings = board
-                .getPiecesOfTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn())
+        List<Square> kings = board
+                .getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn())
                 .stream()
                 .toList();
 
-        for (var king : kings) generateKingMoves(gameState, king, moves);
+        for (Square king : kings) generateKingMoves(gameState, king, moves);
 
         return moves;
     }

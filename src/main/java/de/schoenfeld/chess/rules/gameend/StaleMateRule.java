@@ -33,17 +33,16 @@ public class StaleMateRule implements GameConclusionRule<StandardPieceType> {
         ChessBoard<StandardPieceType> board = gameState.chessBoard();
         boolean isWhiteTurn = gameState.isWhiteTurn();
         // Get all kings
-        List<ChessPiece<StandardPieceType>> kings = board
-                .getPiecesOfTypeAndColour(StandardPieceType.KING, isWhiteTurn);
-        if (kings.isEmpty()) return true; // No kings => no check
+        List<Square> kingSquares = board
+                .getSquaresWithTypeAndColour(StandardPieceType.KING, isWhiteTurn);
+        if (kingSquares.isEmpty()) return true; // No kings => no check
         // withTurnSwitched to generate moves for the opposite player
         MoveCollection<StandardPieceType> opponentMoves = moveGenerator
                 .generateMoves(gameState.withTurnSwitched());
 
-        for (ChessPiece<StandardPieceType> king : kings) {
+        for (Square square : kingSquares) {
             // Get king pos and check if opponent has any move to that square
-            Square kingPos = board.getPiecePosition(king);
-            if (opponentMoves.containsMoveTo(kingPos)) return false;
+            if (opponentMoves.containsMoveTo(square)) return false;
         }
         return true; // No check found, everyone is happy
     }

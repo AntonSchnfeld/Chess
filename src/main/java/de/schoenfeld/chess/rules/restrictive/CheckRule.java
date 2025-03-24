@@ -1,7 +1,5 @@
 package de.schoenfeld.chess.rules.restrictive;
 
-import de.schoenfeld.chess.board.ChessBoard;
-import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.Square;
 import de.schoenfeld.chess.model.StandardPieceType;
@@ -20,7 +18,16 @@ public class CheckRule implements RestrictiveMoveRule<StandardPieceType> {
     }
 
     @Override
-    public void filterMoves(MoveCollection<StandardPieceType> moves, GameState<StandardPieceType> gameState) {
+    public void filterMoves(MoveCollection<StandardPieceType> moves,
+                            GameState<StandardPieceType> gameState) {
+        // Approach to calculating check:
+        // 1. Loop through all moves
+        // 2. Simulate each move
+        // 3. Get the king positions of the current player in the simulated future
+        // 4. Continue if no king positions are found
+        // 5. Generate the opponent moves
+        // 6. Check if any opponent move targets any king
+
         Iterator<Move<StandardPieceType>> iterator = moves.iterator();
 
         while (iterator.hasNext()) {
@@ -28,24 +35,23 @@ public class CheckRule implements RestrictiveMoveRule<StandardPieceType> {
 
             // Simulate move
             GameState<StandardPieceType> future = move.executeOn(gameState);
-            MoveCollection<StandardPieceType> opponentMoves = moveGenerator.generateMoves(future);
 
             // Get the current player's king in the simulated future state
-            ChessBoard<StandardPieceType> futureBoard = future.chessBoard();
-            List<ChessPiece<StandardPieceType>> kings = futureBoard.getPiecesOfTypeAndColour(StandardPieceType.KING,
-                    gameState.isWhiteTurn());
+            List<Square> kingSquares = future
+                    .getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn());
 
-            if (kings.isEmpty()) {
+            if (kingSquares.isEmpty()) {
                 // This should never happen in a normal game, but we guard against it
                 continue;
             }
 
-            ChessPiece<StandardPieceType> king = kings.getFirst(); // There should be only one king per player
-            Square kingSquare = futureBoard.getPiecePosition(king);
+            MoveCollection<StandardPieceType> opponentMoves = moveGenerator.generateMoves(future);
 
-            // If any opponent move targets the king's position, the move is illegal
-            if (opponentMoves.containsMoveTo(kingSquare)) {
-                iterator.remove();
+            for (Square square : kingSquares) {
+                // If any opponent move targets the king's position, the move is illegal
+                if (opponentMoves.containsMoveTo(square)) {
+                    iterator.remove();
+                }
             }
         }
     }

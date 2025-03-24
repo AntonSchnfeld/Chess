@@ -56,10 +56,6 @@ public record Square(int x, int y) {
         return new Square(square.x + x, square.y + y);
     }
 
-    public int getIndex(int gridWidth) {
-        return y * gridWidth + x;
-    }
-
     public String toAlgebraic() {
         return String.format("%c%d", 'a' + x, y + 1);
     }

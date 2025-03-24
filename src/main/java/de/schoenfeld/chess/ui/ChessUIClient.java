@@ -73,12 +73,11 @@ public class ChessUIClient {
     private <T extends PieceType> void handleGameStateChanged(GameStateChangedEvent<T> event) {
         SwingUtilities.invokeLater(() -> {
             try {
-                Map<Square, ChessPiece<T>> positions = new HashMap<>();
-                event.newState().chessBoard().getPieces().forEach(piece -> {
-                    Square pos = event.newState().chessBoard().getPiecePosition(piece);
-                    positions.put(pos, piece);
+                Map<Square, ChessPiece<T>> squares = new HashMap<>();
+                event.newState().getOccupiedSquares().forEach(square -> {
+                    squares.put(square, event.newState().getPieceAt(square));
                 });
-                boardPanel.updateBoard(positions);
+                boardPanel.updateBoard(squares);
                 frame.revalidate();
                 frame.repaint();
             } catch (Exception e) {

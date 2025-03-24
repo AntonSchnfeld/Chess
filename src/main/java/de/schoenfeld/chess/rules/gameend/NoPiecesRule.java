@@ -9,7 +9,7 @@ import java.util.Optional;
 public class NoPiecesRule<T extends PieceType> implements GameConclusionRule<T> {
     @Override
     public Optional<GameConclusion> detectGameEndCause(GameState<T> gameState) {
-        if (gameState.chessBoard().getPiecesOfColour(gameState.isWhiteTurn()).isEmpty()) {
+        if (gameState.chessBoard().getSquaresWithColour(gameState.isWhiteTurn()).isEmpty()) {
             return Optional.of(
                     new GameConclusion(GameConclusion.Winner.of(!gameState.isWhiteTurn()),
                             "No pieces left for the other player")

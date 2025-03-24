@@ -1,5 +1,6 @@
 package de.schoenfeld.chess.rules.generative.sliding;
 
+import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.PieceType;
@@ -42,13 +43,13 @@ public abstract class SlidingPieceMoveRule<T extends PieceType> implements Gener
     }
 
     protected void generateMoves(GameState<T> gameState,
-                                 ChessPiece<T> piece,
+                                 Square position,
                                  MoveCollection<T> moves) {
-        var board = gameState.chessBoard();
-        var position = board.getPiecePosition(piece);
+        ChessBoard<T> board = gameState.chessBoard();
+        ChessPiece<T> piece = gameState.getPieceAt(position);
 
-        for (var direction : directions) {
-            var current = position.offset(direction);
+        for (Square direction : directions) {
+            Square current = position.offset(direction);
 
             while (board.getBounds().contains(current)) {
                 ChessPiece<T> target = board.getPieceAt(current);

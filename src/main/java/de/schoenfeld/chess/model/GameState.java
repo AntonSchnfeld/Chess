@@ -19,15 +19,20 @@ public record GameState<T extends PieceType>(
         Objects.requireNonNull(moveHistory, "moveHistory cannot be null");
     }
 
+    @Override
+    public boolean isOccupied(Square square) {
+        return chessBoard.isOccupied(square);
+    }
+
     public GameState(ChessBoard<T> chessBoard) {
-        this(chessBoard, new MoveHistory(), true);
+        this(chessBoard, new MoveHistory<>(), true);
     }
 
     public GameState() {
-        this(new MapChessBoard<T>(new ChessBoardBounds(8, 8)), new MoveHistory());
+        this(new MapChessBoard<>(new ChessBoardBounds(8, 8)), new MoveHistory<>());
     }
 
-    public GameState(ChessBoard<T> chessBoard, MoveHistory moveHistory) {
+    public GameState(ChessBoard<T> chessBoard, MoveHistory<T> moveHistory) {
         this(chessBoard, moveHistory, true);
     }
 
@@ -45,7 +50,7 @@ public record GameState<T extends PieceType>(
         return (this.chessBoard == newBoard) ? this : new GameState<>(newBoard, moveHistory, isWhiteTurn);
     }
 
-    public GameState<T> withMoveHistory(MoveHistory newHistory) {
+    public GameState<T> withMoveHistory(MoveHistory<T> newHistory) {
         return (this.moveHistory == newHistory) ? this : new GameState<>(chessBoard, newHistory, isWhiteTurn);
     }
 
@@ -59,33 +64,28 @@ public record GameState<T extends PieceType>(
     }
 
     @Override
-    public Square getPiecePosition(ChessPiece<T> chessPiece) {
-        return chessBoard.getPiecePosition(chessPiece);
-    }
-
-    @Override
     public ChessBoardBounds getBounds() {
         return chessBoard.getBounds();
     }
 
     @Override
-    public List<ChessPiece<T>> getPiecesOfColour(boolean isWhite) {
-        return chessBoard.getPiecesOfColour(isWhite);
+    public List<Square> getSquaresWithColour(boolean isWhite) {
+        return chessBoard.getSquaresWithColour(isWhite);
     }
 
     @Override
-    public List<ChessPiece<T>> getPieces() {
-        return chessBoard.getPieces();
+    public List<Square> getOccupiedSquares() {
+        return chessBoard.getOccupiedSquares();
     }
 
     @Override
-    public List<ChessPiece<T>> getPiecesOfTypeAndColour(T pieceType, boolean isWhite) {
-        return chessBoard.getPiecesOfTypeAndColour(pieceType, isWhite);
+    public List<Square> getSquaresWithTypeAndColour(T pieceType, boolean isWhite) {
+        return chessBoard.getSquaresWithTypeAndColour(pieceType, isWhite);
     }
 
     @Override
-    public List<ChessPiece<T>> getPiecesOfType(T pieceType) {
-        return chessBoard.getPiecesOfType(pieceType);
+    public List<Square> getSquaresWithType(T pieceType) {
+        return chessBoard.getSquaresWithType(pieceType);
     }
 
     @Override

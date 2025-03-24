@@ -1,10 +1,7 @@
 package de.schoenfeld.chess.core.ai;
 
 import de.schoenfeld.chess.board.ChessBoard;
-import de.schoenfeld.chess.model.ChessPiece;
-import de.schoenfeld.chess.model.GameState;
-import de.schoenfeld.chess.model.PieceType;
-import de.schoenfeld.chess.model.StandardPieceType;
+import de.schoenfeld.chess.model.*;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.rules.MoveGenerator;
 
@@ -39,27 +36,27 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<
 
         // Check for win conditions.
         // If the opponent's king is missing, return a huge win bonus.
-        if (board.getPiecesOfTypeAndColour(StandardPieceType.KING, !gameState.isWhiteTurn()).isEmpty()) {
+        if (board.getSquaresWithTypeAndColour(StandardPieceType.KING, !gameState.isWhiteTurn()).isEmpty()) {
             return gameState.isWhiteTurn() ? WIN_BONUS : -WIN_BONUS;
         }
         // If our king is missing, return a huge loss.
-        if (board.getPiecesOfTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()).isEmpty()) {
+        if (board.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()).isEmpty()) {
             return gameState.isWhiteTurn() ? -WIN_BONUS : WIN_BONUS;
         }
 
         // Material evaluation.
         int materialScore = 0;
-        for (ChessPiece<StandardPieceType> chessPiece : board.getPiecesOfColour(gameState.isWhiteTurn()))
-            materialScore += getPieceValue(chessPiece.pieceType());
-        for (ChessPiece<StandardPieceType> chessPiece : board.getPiecesOfColour(!gameState.isWhiteTurn()))
-            materialScore -= getPieceValue(chessPiece.pieceType());
+        for (Square square : board.getSquaresWithColour(gameState.isWhiteTurn()))
+            materialScore += getPieceValue(gameState.getPieceAt(square).pieceType());
+        for (Square square : board.getSquaresWithColour(!gameState.isWhiteTurn()))
+            materialScore -= getPieceValue(gameState.getPieceAt(square).pieceType());
 
         // Add capture bonus: additional bonus equal to 20% of the material score.
         int captureBonus = (int) (materialScore * CAPTURE_BONUS_FACTOR);
 
         // Mobility evaluation.
-        MoveCollection whiteMoves = moveGenerator.generateMoves(gameState.withIsWhiteTurn(true));
-        MoveCollection blackMoves = moveGenerator.generateMoves(gameState.withIsWhiteTurn(false));
+        MoveCollection<StandardPieceType> whiteMoves = moveGenerator.generateMoves(gameState.withIsWhiteTurn(true));
+        MoveCollection<StandardPieceType> blackMoves = moveGenerator.generateMoves(gameState.withIsWhiteTurn(false));
         int mobilityScore = MOBILITY_BONUS * (whiteMoves.size() - blackMoves.size());
 
         // Pawn structure evaluation.
@@ -71,13 +68,13 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<
     }
 
     private int evaluatePawnStructure(ChessBoard<StandardPieceType> board, boolean isWhite) {
-        List<ChessPiece<StandardPieceType>> pawns = board.getPiecesOfTypeAndColour(StandardPieceType.PAWN, isWhite);
-        if (pawns.isEmpty()) return 0;
+        List<Square> pawnSquares = board.getSquaresWithTypeAndColour(StandardPieceType.PAWN, isWhite);
+        if (pawnSquares.isEmpty()) return 0;
 
         // Map from file (x coordinate) to the count of pawns.
         Map<Integer, Integer> fileCounts = new HashMap<>();
-        for (ChessPiece<StandardPieceType> pawn : pawns) {
-            int file = board.getPiecePosition(pawn).x();
+        for (Square square : pawnSquares) {
+            int file = square.x();
             fileCounts.put(file, fileCounts.getOrDefault(file, 0) + 1);
         }
 
@@ -90,8 +87,8 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<
         }
 
         // Penalize isolated pawns: if a pawn's file has no adjacent friendly pawn.
-        for (ChessPiece<StandardPieceType> pawn : pawns) {
-            int file = board.getPiecePosition(pawn).x();
+        for (Square pawnPos : pawnSquares) {
+            int file = pawnPos.x();
             boolean hasLeft = fileCounts.containsKey(file - 1);
             boolean hasRight = fileCounts.containsKey(file + 1);
             if (!hasLeft && !hasRight) {

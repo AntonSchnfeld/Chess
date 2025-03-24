@@ -33,6 +33,10 @@ public record ListChessBoard<T extends PieceType>(
         ));
     }
 
+    public boolean isOccupied(Square square) {
+        return getPieceAt(square) != null;
+    }
+
     private static <T extends PieceType> void validateBoardSize(ChessBoardBounds bounds,
                                                                 List<ChessPiece<T>> pieces) {
         int expectedSize = bounds.rows() * bounds.columns();
@@ -67,41 +71,66 @@ public record ListChessBoard<T extends PieceType>(
     }
 
     @Override
-    public Square getPiecePosition(ChessPiece<T> chessPiece) {
-        int index = IntStream.range(0, pieces.size())
-                .filter(i -> chessPiece.equals(pieces.get(i)))
-                .findFirst()
-                .orElse(-1);
+    public List<Square> getSquaresWithColour(boolean isWhite) {
+        List<Square> squares = new ArrayList<>();
 
-        if (index == -1) return null;
+        for (int i = 0; i < pieces.size(); i++) {
+            ChessPiece<T> piece = pieces.get(i);
+            if (piece != null && piece.isWhite() == isWhite) {
+                squares.add(indexToSquare(i));
+            }
+        }
 
-        int y = index / bounds.columns();
-        int x = index % bounds.columns();
-        return new Square(x, y);
+        return squares;
     }
 
     @Override
-    public List<ChessPiece<T>> getPiecesOfColour(boolean isWhite) {
-        return pieces.stream()
-                .filter(Objects::nonNull)
-                .filter(p -> p.isWhite() == isWhite)
-                .toList();
+    public List<Square> getSquaresWithTypeAndColour(T pieceType, boolean isWhite) {
+        List<Square> squares = new ArrayList<>();
+
+        for (int i = 0; i < pieces.size(); i++) {
+            ChessPiece<T> piece = pieces.get(i);
+            if (piece != null && piece.isWhite() == isWhite && piece.pieceType().equals(pieceType)) {
+                squares.add(indexToSquare(i));
+            }
+        }
+
+        return squares;
     }
 
     @Override
-    public List<ChessPiece<T>> getPiecesOfTypeAndColour(T pieceType, boolean colour) {
-        return pieces.stream()
-                .filter(Objects::nonNull)
-                .filter(p -> p.pieceType().equals(pieceType) && p.isWhite() == colour)
-                .toList();
+    public List<Square> getSquaresWithType(T pieceType) {
+        List<Square> squares = new ArrayList<>();
+
+        for (int i = 0; i < pieces.size(); i++) {
+            ChessPiece<T> piece = pieces.get(i);
+            if (piece != null && piece.pieceType().equals(pieceType)) {
+                squares.add(indexToSquare(i));
+            }
+        }
+
+        return squares;
     }
 
     @Override
-    public List<ChessPiece<T>> getPiecesOfType(T pieceType) {
-        return pieces.stream()
-                .filter(p -> p != null && p.pieceType().equals(pieceType))
-                .toList();
+    public List<Square> getOccupiedSquares() {
+        List<Square> squares = new ArrayList<>();
+
+        for (int i = 0; i < pieces.size(); i++) {
+            if (pieces.get(i) != null) {
+                squares.add(indexToSquare(i));
+            }
+        }
+
+        return squares;
     }
+
+    private Square indexToSquare(int index) {
+        int column = index % bounds.columns(); // This should be x (column)
+        int row = index / bounds.columns(); // This should be y (row)
+        return Square.of(column, row); // Swap row and column
+    }
+
 
     @Override
     public ListChessBoard<T> withPieceAt(ChessPiece<T> piece, Square square) {
@@ -138,13 +167,6 @@ public record ListChessBoard<T extends PieceType>(
     @Override
     public ListChessBoard<T> withoutPieces() {
         return new ListChessBoard<>(createEmptyList(bounds), bounds);
-    }
-
-    @Override
-    public List<ChessPiece<T>> getPieces() {
-        return pieces.stream()
-                .filter(Objects::nonNull)
-                .toList();
     }
 
     @Override

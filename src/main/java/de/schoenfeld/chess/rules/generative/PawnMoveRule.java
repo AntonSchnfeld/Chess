@@ -23,51 +23,50 @@ public class PawnMoveRule implements GenerativeMoveRule<StandardPieceType> {
     }
 
     private static void generatePawnMoves(GameState<StandardPieceType> gameState,
-                                          ChessPiece<StandardPieceType> pawn,
+                                          Square pawnSquare,
                                           MoveCollection<StandardPieceType> moves,
                                           List<StandardPieceType> promotionTypes) {
         int direction = gameState.isWhiteTurn() ? 1 : -1;
-        var board = gameState.chessBoard();
-
-        var from = board.getPiecePosition(pawn);
-
+        ChessPiece<StandardPieceType> pawn = gameState.getPieceAt(pawnSquare);
         // Add one-step move
-        var oneForward = from.offset(0, direction);
+        Square oneForward = pawnSquare.offset(0, direction);
         // Check if the one-step move is possible
-        if (board.getBounds().contains(oneForward) && board.getPieceAt(oneForward) == null) {
+        if (gameState.getBounds().contains(oneForward) &&
+                gameState.getPieceAt(oneForward) == null) {
             // Check if the one-step move is a promotion
-            if (isPromotionRank(pawn, oneForward.y(), board.getBounds()))
-                addPromotionMoves(moves, pawn, from, oneForward, promotionTypes);
+            if (isPromotionRank(pawn, oneForward.y(), gameState.getBounds()))
+                addPromotionMoves(moves, pawn, pawnSquare, oneForward, promotionTypes);
                 // Otherwise, add a normal one-step move
-            else moves.add(Move.of(pawn, from, oneForward));
+            else moves.add(Move.of(pawn, pawnSquare, oneForward));
 
             // Add a two-step move if pawn hasn't moved yet
             if (!pawn.hasMoved()) {
-                var twoForward = oneForward.offset(0, direction);
+                Square twoForward = oneForward.offset(0, direction);
                 // Check if the two-step move is possible
-                if (board.getBounds().contains(twoForward) && board.getPieceAt(twoForward) == null) {
+                if (gameState.getBounds().contains(twoForward) &&
+                        gameState.getPieceAt(twoForward) == null) {
                     // Check if the two-step move is a promotion
-                    if (isPromotionRank(pawn, twoForward.y(), board.getBounds()))
-                        addPromotionMoves(moves, pawn, from, twoForward, promotionTypes);
+                    if (isPromotionRank(pawn, twoForward.y(), gameState.getBounds()))
+                        addPromotionMoves(moves, pawn, pawnSquare, twoForward, promotionTypes);
                         // Otherwise, add a normal two-step move
-                    else moves.add(Move.of(pawn, from, twoForward));
+                    else moves.add(Move.of(pawn, pawnSquare, twoForward));
                 }
             }
         }
         // Add capture moves
         int[] captureDirections = {1, -1};
         for (int captureDirection : captureDirections) {
-            var capturePosition = from.offset(captureDirection, direction);
+            var capturePosition = pawnSquare.offset(captureDirection, direction);
             // Check if the capture is on the board
-            if (board.getBounds().contains(capturePosition)) {
-                var capturePiece = board.getPieceAt(capturePosition);
+            if (gameState.getBounds().contains(capturePosition)) {
+                var capturePiece = gameState.getPieceAt(capturePosition);
                 // Check if the capture is possible
                 if (capturePiece != null && capturePiece.isWhite() != pawn.isWhite()) {
                     // Check if the capture is a promotion
-                    if (isPromotionRank(pawn, capturePosition.y(), board.getBounds()))
-                        addPromotionMoves(moves, pawn, from, capturePosition, promotionTypes);
+                    if (isPromotionRank(pawn, capturePosition.y(), gameState.getBounds()))
+                        addPromotionMoves(moves, pawn, pawnSquare, capturePosition, promotionTypes);
                         // Otherwise, add a normal capture
-                    else moves.add(Move.of(pawn, from, capturePosition));
+                    else moves.add(Move.of(pawn, pawnSquare, capturePosition));
                 }
             }
         }
@@ -95,7 +94,7 @@ public class PawnMoveRule implements GenerativeMoveRule<StandardPieceType> {
 
         var pawns = gameState
                 .chessBoard()
-                .getPiecesOfTypeAndColour(StandardPieceType.PAWN, gameState.isWhiteTurn());
+                .getSquaresWithTypeAndColour(StandardPieceType.PAWN, gameState.isWhiteTurn());
 
         for (var pawn : pawns) {
             generatePawnMoves(gameState, pawn, moves, promotionTypes);

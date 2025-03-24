@@ -17,9 +17,8 @@ public class FriendlyFireRule<T extends PieceType> implements RestrictiveMoveRul
             Move<T> move = iterator.next();
             ChessPiece<T> targetPiece = gameState.chessBoard().getPieceAt(move.to());
 
-            if (targetPiece != null && move.movedPiece().isWhite() == targetPiece.isWhite()) {
+            if (targetPiece != null && move.movedPiece().isWhite() == targetPiece.isWhite())
                 iterator.remove();
-            }
         }
     }
 }

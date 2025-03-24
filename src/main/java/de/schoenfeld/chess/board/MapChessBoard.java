@@ -9,23 +9,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public record MapChessBoard<T extends PieceType>(
         Map<Square, ChessPiece<T>> positionMap,
-        Map<ChessPiece<T>, Square> chessPieceMap,
         ChessBoardBounds bounds
 ) implements ChessBoard<T> {
 
     public MapChessBoard {
         positionMap = Map.copyOf(positionMap);
-        chessPieceMap = Map.copyOf(chessPieceMap);
     }
 
-    public MapChessBoard(Map<Square, ChessPiece<T>> positionMap, ChessBoardBounds bounds) {
-        this(positionMap, positionMap.entrySet().stream().
-                        collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey)),
-                bounds);
+    public boolean isOccupied(Square square) {
+        return getPieceAt(square) != null;
     }
 
     public MapChessBoard(ChessBoardBounds chessBoardBounds) {
@@ -38,50 +33,51 @@ public record MapChessBoard<T extends PieceType>(
     }
 
     @Override
-    public Square getPiecePosition(ChessPiece<T> chessPiece) {
-        return chessPieceMap.get(chessPiece);
-    }
-
-    @Override
     public ChessBoardBounds getBounds() {
         return bounds;
     }
 
     @Override
-    public List<ChessPiece<T>> getPiecesOfColour(boolean isWhite) {
-        List<ChessPiece<T>> pieces = new ArrayList<>(chessPieceMap.size() / 2);
-        for (Map.Entry<ChessPiece<T>, Square> entry : chessPieceMap.entrySet()) {
-            if (entry.getKey().isWhite() == isWhite) {
+    public List<Square> getSquaresWithColour(boolean isWhite) {
+        List<Square> pieces = new ArrayList<>(positionMap.size() / 2);
+
+        for (Map.Entry<Square, ChessPiece<T>> entry : positionMap.entrySet())
+            if (entry.getValue().isWhite() == isWhite)
                 pieces.add(entry.getKey());
-            }
-        }
+
         return pieces;
     }
 
     @Override
-    public List<ChessPiece<T>> getPieces() {
-        return chessPieceMap.keySet().stream().toList();
+    public List<Square> getOccupiedSquares() {
+        List<Square> squares = new ArrayList<>(positionMap.size());
+
+        for (Map.Entry<Square, ChessPiece<T>> entry : positionMap.entrySet())
+            squares.add(entry.getKey());
+
+        return squares;
     }
 
     @Override
-    public List<ChessPiece<T>> getPiecesOfTypeAndColour(T pieceType, boolean isWhite) {
-        List<ChessPiece<T>> pieces = new ArrayList<>((chessPieceMap.size() / 2) / 8);
-        for (Map.Entry<ChessPiece<T>, Square> entry : chessPieceMap.entrySet()) {
-            if (entry.getKey().isWhite() == isWhite && entry.getKey().pieceType().equals(pieceType)) {
+    public List<Square> getSquaresWithTypeAndColour(T pieceType, boolean isWhite) {
+        List<Square> pieces = new ArrayList<>((positionMap.size() / 2) / 8);
+
+        for (Map.Entry<Square, ChessPiece<T>> entry : positionMap.entrySet())
+            if (entry.getValue().isWhite() == isWhite &&
+                    entry.getValue().pieceType().equals(pieceType))
                 pieces.add(entry.getKey());
-            }
-        }
+
         return pieces;
     }
 
     @Override
-    public List<ChessPiece<T>> getPiecesOfType(T pieceType) {
-        List<ChessPiece<T>> pieces = new ArrayList<>(chessPieceMap.size() / 8);
-        for (Map.Entry<ChessPiece<T>, Square> entry : chessPieceMap.entrySet()) {
-            if (entry.getKey().pieceType().equals(pieceType)) {
+    public List<Square> getSquaresWithType(T pieceType) {
+        List<Square> pieces = new ArrayList<>(positionMap.size() / 8);
+
+        for (Map.Entry<Square, ChessPiece<T>> entry : positionMap.entrySet())
+            if (entry.getValue().pieceType().equals(pieceType))
                 pieces.add(entry.getKey());
-            }
-        }
+
         return pieces;
     }
 
@@ -119,7 +115,7 @@ public record MapChessBoard<T extends PieceType>(
     }
 
     public MapChessBoard<T> withoutPieces() {
-        return new MapChessBoard<>(Map.of(), Map.of(), bounds);
+        return new MapChessBoard<>(Map.of(), bounds);
     }
 
     public MapChessBoard<T> withBounds(ChessBoardBounds newBounds) {

@@ -12,17 +12,17 @@ import java.util.Map;
 public interface ChessBoard<T extends PieceType> extends Serializable {
     ChessPiece<T> getPieceAt(Square square);
 
-    Square getPiecePosition(ChessPiece<T> chessPiece);
-
     ChessBoardBounds getBounds();
 
-    List<ChessPiece<T>> getPiecesOfColour(boolean isWhite);
+    List<Square> getSquaresWithColour(boolean isWhite);
 
-    List<ChessPiece<T>> getPieces();
+    List<Square> getOccupiedSquares();
 
-    List<ChessPiece<T>> getPiecesOfTypeAndColour(T pieceType, boolean isWhite);
+    List<Square> getSquaresWithTypeAndColour(T pieceType, boolean isWhite);
 
-    List<ChessPiece<T>> getPiecesOfType(T pieceType);
+    List<Square> getSquaresWithType(T pieceType);
+
+    boolean isOccupied(Square square);
 
     String toFen();
 

@@ -17,21 +17,20 @@ public class KnightMoveRule implements GenerativeMoveRule<StandardPieceType> {
             new Square(1, 2), new Square(1, -2), new Square(-1, 2), new Square(-1, -2)
     );
 
-    private static void generateKnightMoves(ChessBoard<StandardPieceType> board,
-                                            ChessPiece<StandardPieceType> knight,
+    private static void generateKnightMoves(GameState<StandardPieceType> board,
+                                            Square knightPos,
                                             MoveCollection<StandardPieceType> moves) {
-        var from = board.getPiecePosition(knight);
-
-        for (var offset : KNIGHT_MOVES) {
-            var to = from.offset(offset.x(), offset.y());
+        for (Square offset : KNIGHT_MOVES) {
+            Square to = knightPos.offset(offset.x(), offset.y());
 
             // Ensure the move stays within the board boundaries
             if (board.getBounds().contains(to)) {
-                var targetPiece = board.getPieceAt(to);
+                ChessPiece<StandardPieceType> knight = board.getPieceAt(knightPos);
+                ChessPiece<StandardPieceType> targetPiece = board.getPieceAt(to);
                 // Allow the move if the destination is empty or occupied by an opponent's piece
-                if (targetPiece == null) moves.add(Move.of(knight, from, to));
+                if (targetPiece == null) moves.add(Move.of(knight, knightPos, to));
                 else if (targetPiece.isWhite() != knight.isWhite())
-                    moves.add(Move.of(knight, from, to, new CaptureComponent<>(targetPiece)));
+                    moves.add(Move.of(knight, knightPos, to, new CaptureComponent<>(targetPiece)));
             }
         }
     }
@@ -39,12 +38,12 @@ public class KnightMoveRule implements GenerativeMoveRule<StandardPieceType> {
     @Override
     public MoveCollection<StandardPieceType> generateMoves(GameState<StandardPieceType> gameState) {
         MoveCollection<StandardPieceType> moves = new MoveCollection<>();
-        ChessBoard<StandardPieceType> board = gameState.chessBoard();
 
         // Retrieve all knights belonging to the current player
-        var knights = board.getPiecesOfTypeAndColour(StandardPieceType.KNIGHT, gameState.isWhiteTurn());
+        List<Square> knightSquares = gameState
+                .getSquaresWithTypeAndColour(StandardPieceType.KNIGHT, gameState.isWhiteTurn());
 
-        for (var knight : knights) generateKnightMoves(board, knight, moves);
+        for (Square square : knightSquares) generateKnightMoves(gameState, square, moves);
 
         return moves;
     }

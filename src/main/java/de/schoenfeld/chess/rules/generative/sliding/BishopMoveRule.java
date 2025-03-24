@@ -3,6 +3,7 @@ package de.schoenfeld.chess.rules.generative.sliding;
 import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.Square;
 import de.schoenfeld.chess.model.StandardPieceType;
 import de.schoenfeld.chess.move.MoveCollection;
 
@@ -16,14 +17,13 @@ public class BishopMoveRule extends SlidingPieceMoveRule<StandardPieceType> {
 
     @Override
     public MoveCollection<StandardPieceType> generateMoves(GameState<StandardPieceType> gameState) {
-        ChessBoard<StandardPieceType> board = gameState.chessBoard();
-        List<ChessPiece<StandardPieceType>> bishops = board
-                .getPiecesOfTypeAndColour(StandardPieceType.BISHOP,
+        List<Square> bishopSquares = gameState
+                .getSquaresWithTypeAndColour(StandardPieceType.BISHOP,
                 gameState.isWhiteTurn());
         MoveCollection<StandardPieceType> moves = new MoveCollection<>();
 
-        for (var bishop : bishops) {
-            generateMoves(gameState, bishop, moves);
+        for (Square square : bishopSquares) {
+            generateMoves(gameState, square, moves);
         }
 
         return moves;
