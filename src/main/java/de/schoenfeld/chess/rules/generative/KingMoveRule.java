@@ -1,6 +1,5 @@
 package de.schoenfeld.chess.rules.generative;
 
-import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.Square;
@@ -29,7 +28,7 @@ public class KingMoveRule implements GenerativeMoveRule<StandardPieceType> {
                 ChessPiece<StandardPieceType> targetPiece = gameState.getPieceAt(to);
                 // Check if the target position is empty or contains an enemy piece
                 if (targetPiece == null) moves.add(Move.of(king, kingPos, to));
-                // Capture
+                    // Capture
                 else if (targetPiece.isWhite() != king.isWhite())
                     moves.add(Move.of(king, kingPos, to, new CaptureComponent<>(targetPiece)));
             }

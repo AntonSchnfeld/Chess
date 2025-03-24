@@ -3,8 +3,8 @@ package de.schoenfeld.chess.rules.gameend;
 import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.events.GameConclusion;
 import de.schoenfeld.chess.model.GameState;
-import de.schoenfeld.chess.model.StandardPieceType;
 import de.schoenfeld.chess.model.Square;
+import de.schoenfeld.chess.model.StandardPieceType;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

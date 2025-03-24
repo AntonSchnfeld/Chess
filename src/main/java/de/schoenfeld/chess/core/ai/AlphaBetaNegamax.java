@@ -21,8 +21,8 @@ public class AlphaBetaNegamax<T extends PieceType> implements MoveSearchStrategy
     private final ExecutorService rootExecutor;
     private final ForkJoinPool branchPool;
     private final Map<Long, TranspositionEntry> transpositionTable = new ConcurrentHashMap<>();
-    private GameState<T> lastState;
     private final MoveOrderingHeuristic<T> heuristic;
+    private GameState<T> lastState;
 
     public AlphaBetaNegamax(int maxDepth, int parallelDepth, Rules<T> rules,
                             GameStateEvaluator<T> evaluator, MoveOrderingHeuristic<T> heuristic) {
@@ -67,9 +67,6 @@ public class AlphaBetaNegamax<T extends PieceType> implements MoveSearchStrategy
         return bestMove.get() != null ? bestMove.get() : legalMoves.getFirst();
     }
 
-    private record TranspositionEntry(int score, int depth) {
-    }
-
     private int moveOrderingHeuristic(Move<T> move) {
         GameState<T> newState = move.executeOn(lastState);
 
@@ -86,6 +83,9 @@ public class AlphaBetaNegamax<T extends PieceType> implements MoveSearchStrategy
         }
 
         return 0;
+    }
+
+    private record TranspositionEntry(int score, int depth) {
     }
 
     public static class Builder<T extends PieceType> {

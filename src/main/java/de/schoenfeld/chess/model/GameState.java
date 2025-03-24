@@ -19,11 +19,6 @@ public record GameState<T extends PieceType>(
         Objects.requireNonNull(moveHistory, "moveHistory cannot be null");
     }
 
-    @Override
-    public boolean isOccupied(Square square) {
-        return chessBoard.isOccupied(square);
-    }
-
     public GameState(ChessBoard<T> chessBoard) {
         this(chessBoard, new MoveHistory<>(), true);
     }
@@ -34,6 +29,11 @@ public record GameState<T extends PieceType>(
 
     public GameState(ChessBoard<T> chessBoard, MoveHistory<T> moveHistory) {
         this(chessBoard, moveHistory, true);
+    }
+
+    @Override
+    public boolean isOccupied(Square square) {
+        return chessBoard.isOccupied(square);
     }
 
     // State transition methods optimized for performance

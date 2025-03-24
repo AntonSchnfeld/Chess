@@ -19,12 +19,12 @@ public record MapChessBoard<T extends PieceType>(
         positionMap = Map.copyOf(positionMap);
     }
 
-    public boolean isOccupied(Square square) {
-        return getPieceAt(square) != null;
-    }
-
     public MapChessBoard(ChessBoardBounds chessBoardBounds) {
         this(Map.of(), chessBoardBounds);
+    }
+
+    public boolean isOccupied(Square square) {
+        return getPieceAt(square) != null;
     }
 
     @Override

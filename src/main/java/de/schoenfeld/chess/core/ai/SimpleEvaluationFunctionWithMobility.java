@@ -1,7 +1,10 @@
 package de.schoenfeld.chess.core.ai;
 
 import de.schoenfeld.chess.board.ChessBoard;
-import de.schoenfeld.chess.model.*;
+import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.PieceType;
+import de.schoenfeld.chess.model.Square;
+import de.schoenfeld.chess.model.StandardPieceType;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.rules.MoveGenerator;
 

@@ -2,7 +2,6 @@ package de.schoenfeld.chess.board;
 
 import de.schoenfeld.chess.model.*;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 

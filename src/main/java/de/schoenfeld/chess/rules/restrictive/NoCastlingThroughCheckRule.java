@@ -8,7 +8,6 @@ import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.move.components.CastlingComponent;
 import de.schoenfeld.chess.rules.MoveGenerator;
 
-import java.lang.runtime.SwitchBootstraps;
 import java.util.Iterator;
 import java.util.List;
 

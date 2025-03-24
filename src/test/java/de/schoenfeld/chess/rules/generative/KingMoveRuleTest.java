@@ -4,14 +4,13 @@ import de.schoenfeld.chess.model.*;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.move.components.CaptureComponent;
-import de.schoenfeld.chess.move.components.MoveComponent;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +47,7 @@ public class KingMoveRuleTest {
         // Then
         List<Square> expectedPositions = List.of(
                 Square.of(2, 4), Square.of(3, 4), Square.of(4, 4),
-                Square.of(2, 3)                      , Square.of(4, 3),
+                Square.of(2, 3), Square.of(4, 3),
                 Square.of(2, 2), Square.of(3, 2), Square.of(4, 2)
         );
 

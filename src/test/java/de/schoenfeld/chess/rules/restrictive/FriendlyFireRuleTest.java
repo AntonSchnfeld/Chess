@@ -1,7 +1,10 @@
 package de.schoenfeld.chess.rules.restrictive;
 
 import de.schoenfeld.chess.board.ChessBoard;
-import de.schoenfeld.chess.model.*;
+import de.schoenfeld.chess.model.ChessPiece;
+import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.Square;
+import de.schoenfeld.chess.model.StandardPieceType;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.MoveCollection;
 import org.junit.jupiter.api.BeforeEach;

@@ -33,10 +33,6 @@ public record ListChessBoard<T extends PieceType>(
         ));
     }
 
-    public boolean isOccupied(Square square) {
-        return getPieceAt(square) != null;
-    }
-
     private static <T extends PieceType> void validateBoardSize(ChessBoardBounds bounds,
                                                                 List<ChessPiece<T>> pieces) {
         int expectedSize = bounds.rows() * bounds.columns();
@@ -48,16 +44,20 @@ public record ListChessBoard<T extends PieceType>(
         }
     }
 
+    private static <T extends PieceType> String pieceToFenChar(ChessPiece<T> piece) {
+        String base = piece.pieceType().symbol();
+        return piece.isWhite() ? base.toUpperCase() : base;
+    }
+
+    public boolean isOccupied(Square square) {
+        return getPieceAt(square) != null;
+    }
+
     private int calculateIndex(Square square) {
         if (!bounds.contains(square)) {
             throw new IndexOutOfBoundsException("Position out of bounds: " + square);
         }
         return square.x() + square.y() * bounds.columns();
-    }
-
-    private static <T extends PieceType> String pieceToFenChar(ChessPiece<T> piece) {
-        String base = piece.pieceType().symbol();
-        return piece.isWhite() ? base.toUpperCase() : base;
     }
 
     @Override

@@ -1,7 +1,10 @@
 package de.schoenfeld.chess.rules.restrictive;
 
 import de.schoenfeld.chess.board.ChessBoard;
-import de.schoenfeld.chess.model.*;
+import de.schoenfeld.chess.model.ChessPiece;
+import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.Square;
+import de.schoenfeld.chess.model.StandardPieceType;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.rules.MoveGenerator;
@@ -11,7 +14,8 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class CheckRuleTest {
     private CheckRule checkRule;

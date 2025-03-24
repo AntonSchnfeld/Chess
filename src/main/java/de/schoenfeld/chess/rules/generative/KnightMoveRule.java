@@ -1,6 +1,5 @@
 package de.schoenfeld.chess.rules.generative;
 
-import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.Square;
