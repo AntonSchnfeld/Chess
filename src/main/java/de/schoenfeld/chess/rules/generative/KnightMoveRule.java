@@ -20,17 +20,15 @@ public class KnightMoveRule implements GenerativeMoveRule<StandardPieceType> {
     private static void generateKnightMoves(GameState<StandardPieceType> board,
                                             Square knightPos,
                                             MoveCollection<StandardPieceType> moves) {
+        ChessPiece<StandardPieceType> knight = board.getPieceAt(knightPos);
         for (Square offset : KNIGHT_MOVES) {
             Square to = knightPos.offset(offset.x(), offset.y());
-
             // Ensure the move stays within the board boundaries
             if (board.getBounds().contains(to)) {
-                ChessPiece<StandardPieceType> knight = board.getPieceAt(knightPos);
                 ChessPiece<StandardPieceType> targetPiece = board.getPieceAt(to);
                 // Allow the move if the destination is empty or occupied by an opponent's piece
                 if (targetPiece == null) moves.add(Move.of(knight, knightPos, to));
-                else if (targetPiece.isWhite() != knight.isWhite())
-                    moves.add(Move.of(knight, knightPos, to, new CaptureComponent<>(targetPiece)));
+                else moves.add(Move.of(knight, knightPos, to, new CaptureComponent<>(targetPiece)));
             }
         }
     }

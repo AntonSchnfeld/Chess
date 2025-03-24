@@ -39,9 +39,8 @@ public class KingMoveRule implements GenerativeMoveRule<StandardPieceType> {
     @Override
     public MoveCollection<StandardPieceType> generateMoves(GameState<StandardPieceType> gameState) {
         MoveCollection<StandardPieceType> moves = new MoveCollection<>();
-        ChessBoard<StandardPieceType> board = gameState.chessBoard();
 
-        List<Square> kings = board
+        List<Square> kings = gameState
                 .getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn())
                 .stream()
                 .toList();
