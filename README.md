@@ -1,8 +1,8 @@
-# Chess
+# ChessKit
 
 ## Description
 
-Chess is a modular and extensible chess engine built with Java. It focuses on decent performance, flexibility in board shapes, and custom game rules. This is a learning project, and large parts of the codebase are likely to be refactored as the project evolves to achieve its goals.
+ChessKit is a modular and extensible chess engine built with Java. It focuses on decent performance, flexibility in board shapes, and custom game rules. This is a learning project, and large parts of the codebase are likely to be refactored as the project evolves to achieve its goals.
 
 ## Getting Started
 
@@ -38,7 +38,7 @@ Clone the repository and build the project using Maven:
 
 ```sh
 git clone <repository_url>
-cd Chess
+cd ChessKit
 mvn clean install
 ```
 
@@ -53,7 +53,7 @@ mvn exec:java
 or
 
 ```sh
-java -jar target/Chess-1.0-SNAPSHOT.jar
+java -jar target/ChessKit-1.0-SNAPSHOT.jar
 ```
 
 ## Help
@@ -73,7 +73,7 @@ If you encounter any issues, make sure:
 
 ## License
 
-This project is licensed under the MIT License - see the `LICENSE.md` file for details.
+This project is licensed under the MIT License - see the `LICENSE` file for details.
 
 ## Acknowledgments
 
