@@ -34,10 +34,10 @@ public class CheckRule implements RestrictiveMoveRule<StandardPieceType> {
             Move<StandardPieceType> move = iterator.next();
 
             // Simulate move
-            GameState<StandardPieceType> future = move.executeOn(gameState);
+            move.executeOn(gameState);
 
             // Get the current player's king in the simulated future state
-            List<Square> kingSquares = future
+            List<Square> kingSquares = gameState
                     .getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn());
 
             if (kingSquares.isEmpty()) {
@@ -45,7 +45,7 @@ public class CheckRule implements RestrictiveMoveRule<StandardPieceType> {
                 continue;
             }
 
-            MoveCollection<StandardPieceType> opponentMoves = moveGenerator.generateMoves(future);
+            MoveCollection<StandardPieceType> opponentMoves = moveGenerator.generateMoves(gameState);
 
             for (Square square : kingSquares) {
                 // If any opponent move targets the king's position, the move is illegal
@@ -53,6 +53,8 @@ public class CheckRule implements RestrictiveMoveRule<StandardPieceType> {
                     iterator.remove();
                 }
             }
+
+            move.undoOn(gameState);
         }
     }
 }

@@ -39,7 +39,9 @@ public class AggressiveMoveOrdering implements MoveOrderingHeuristic<StandardPie
         }
 
         // 2. Prioritize Moves That Put the Opponent in Check
-        boolean isCheck = false;
+        CaptureComponent<StandardPieceType> component = move.getComponent(CaptureComponent.class);
+        boolean isCheck = component != null
+                && component.capturedPiece().pieceType() == StandardPieceType.KING;
         if (isCheck) {
             score += 500;
         }
@@ -58,7 +60,7 @@ public class AggressiveMoveOrdering implements MoveOrderingHeuristic<StandardPie
         return score;
     }
 
-    private boolean isMinorPiece(ChessPiece piece) {
+    private boolean isMinorPiece(ChessPiece<StandardPieceType> piece) {
         return piece.pieceType().equals(StandardPieceType.KNIGHT) || piece.pieceType().equals(StandardPieceType.BISHOP);
     }
 }

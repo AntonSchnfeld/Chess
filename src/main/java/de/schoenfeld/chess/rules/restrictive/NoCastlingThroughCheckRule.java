@@ -47,9 +47,8 @@ public class NoCastlingThroughCheckRule implements RestrictiveMoveRule<StandardP
 
     private boolean isAnyPositionAttacked(List<Square> squares,
                                           GameState<StandardPieceType> gameState) {
-        GameState<StandardPieceType> enemyState = gameState
-                .withIsWhiteTurn(!gameState.isWhiteTurn());
-        MoveCollection<StandardPieceType> opponentMoves = moveGenerator.generateMoves(enemyState);
+        gameState.switchTurn();
+        MoveCollection<StandardPieceType> opponentMoves = moveGenerator.generateMoves(gameState);
 
         for (Move<StandardPieceType> move : opponentMoves) {
             if (squares.contains(move.to())) {
@@ -57,6 +56,7 @@ public class NoCastlingThroughCheckRule implements RestrictiveMoveRule<StandardP
             }
         }
 
+        gameState.switchTurn();
         return false;
     }
 }

@@ -23,7 +23,7 @@ public class EnPassantRuleTest {
         gameState = mock(GameState.class);
         moveHistory = mock(MoveHistory.class);
 
-        when(gameState.moveHistory()).thenReturn(moveHistory);
+        when(gameState.getMoveHistory()).thenReturn(moveHistory);
     }
 
     @Test

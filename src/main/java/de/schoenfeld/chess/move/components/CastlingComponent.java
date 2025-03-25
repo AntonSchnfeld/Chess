@@ -1,6 +1,5 @@
 package de.schoenfeld.chess.move.components;
 
-import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.Square;
@@ -15,8 +14,14 @@ public record CastlingComponent(Move<StandardPieceType> rookMove)
     }
 
     @Override
-    public ChessBoard<StandardPieceType> executeOn(GameState<StandardPieceType> gameState,
-                                                   Move<StandardPieceType> move) {
-        return gameState.chessBoard().withPieceMoved(rookMove.from(), rookMove.to());
+    public void executeOn(GameState<StandardPieceType> gameState,
+                          Move<StandardPieceType> move) {
+        gameState.movePiece(rookMove.from(), rookMove.to());
+    }
+
+    @Override
+    public void undoOn(GameState<StandardPieceType> gameState,
+                          Move<StandardPieceType> move) {
+        gameState.movePiece(rookMove.to(), rookMove.from());
     }
 }

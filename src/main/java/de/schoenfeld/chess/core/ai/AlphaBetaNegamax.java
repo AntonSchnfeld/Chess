@@ -1,6 +1,5 @@
 package de.schoenfeld.chess.core.ai;
 
-import de.schoenfeld.chess.events.GameConclusion;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.move.Move;
@@ -22,7 +21,6 @@ public class AlphaBetaNegamax<T extends PieceType> implements MoveSearchStrategy
     private final ForkJoinPool branchPool;
     private final Map<Long, TranspositionEntry> transpositionTable = new ConcurrentHashMap<>();
     private final MoveOrderingHeuristic<T> heuristic;
-    private GameState<T> lastState;
 
     public AlphaBetaNegamax(int maxDepth, int parallelDepth, Rules<T> rules,
                             GameStateEvaluator<T> evaluator, MoveOrderingHeuristic<T> heuristic) {
@@ -41,7 +39,6 @@ public class AlphaBetaNegamax<T extends PieceType> implements MoveSearchStrategy
 
     @Override
     public Move<T> searchMove(GameState<T> gameState) {
-        lastState = gameState;
         List<Move<T>> legalMoves = rules.generateMoves(gameState);
         legalMoves.sort(Comparator.comparingInt(heuristic).reversed());
 
@@ -51,8 +48,8 @@ public class AlphaBetaNegamax<T extends PieceType> implements MoveSearchStrategy
 
         List<CompletableFuture<Void>> futures = legalMoves.stream()
                 .map(move -> CompletableFuture.runAsync(() -> {
-                    GameState<T> newState = move.executeOn(gameState);
-                    int moveValue = -branchPool.invoke(new NegamaxTask(newState, maxDepth - 1, -beta.get(), -alpha.get(), parallelDepth));
+                    move.executeOn(gameState);
+                    int moveValue = -branchPool.invoke(new NegamaxTask(gameState, maxDepth - 1, -beta.get(), -alpha.get(), parallelDepth));
 
                     synchronized (alpha) {
                         if (moveValue > alpha.get()) {
@@ -60,29 +57,13 @@ public class AlphaBetaNegamax<T extends PieceType> implements MoveSearchStrategy
                             bestMove.set(move);
                         }
                     }
+
+                    move.undoOn(gameState);
                 }, rootExecutor))
                 .toList();
 
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         return bestMove.get() != null ? bestMove.get() : legalMoves.getFirst();
-    }
-
-    private int moveOrderingHeuristic(Move<T> move) {
-        GameState<T> newState = move.executeOn(lastState);
-
-        // Check if the move wins the game
-        Optional<GameConclusion> gameConclusion = rules.detectGameEndCause(newState);
-        if (gameConclusion.isPresent()) {
-            boolean myColour = newState.isWhiteTurn();
-            GameConclusion val = gameConclusion.get();
-
-            if (val.isDraw()) return -10_000;
-            else return GameConclusion.Winner.of(myColour).equals(val.winner()) ?
-                    Integer.MAX_VALUE :
-                    Integer.MIN_VALUE;
-        }
-
-        return 0;
     }
 
     private record TranspositionEntry(int score, int depth) {
@@ -184,17 +165,18 @@ public class AlphaBetaNegamax<T extends PieceType> implements MoveSearchStrategy
 
             List<NegamaxTask> tasks = new ArrayList<>();
             for (Move<T> move : moves) {
-                GameState<T> newState = move.executeOn(state);
+                move.executeOn(state);
                 if (depth > (maxDepth - currentParallelDepth)) {
-                    int value = -new NegamaxTask(newState, depth - 1, -beta, -currentAlpha, currentParallelDepth).compute();
+                    int value = -new NegamaxTask(new GameState<>(), depth - 1, -beta, -currentAlpha, currentParallelDepth).compute();
                     bestValue = Math.max(bestValue, value);
                     currentAlpha = Math.max(currentAlpha, bestValue);
                     if (currentAlpha >= beta) break;
                 } else {
-                    NegamaxTask task = new NegamaxTask(newState, depth - 1, -beta, -currentAlpha, currentParallelDepth);
+                    NegamaxTask task = new NegamaxTask(new GameState<>(), depth - 1, -beta, -currentAlpha, currentParallelDepth);
                     tasks.add(task);
                     task.fork();
                 }
+                move.undoOn(state);
             }
 
             for (NegamaxTask task : tasks) {

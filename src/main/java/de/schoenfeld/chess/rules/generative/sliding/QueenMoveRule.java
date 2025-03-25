@@ -15,7 +15,7 @@ public class QueenMoveRule extends SlidingPieceMoveRule<StandardPieceType> {
 
     @Override
     public MoveCollection<StandardPieceType> generateMoves(GameState<StandardPieceType> gameState) {
-        List<Square> queenSquares = gameState.chessBoard()
+        List<Square> queenSquares = gameState.getChessBoard()
                 .getSquaresWithTypeAndColour(StandardPieceType.QUEEN, gameState.isWhiteTurn());
         MoveCollection<StandardPieceType> moves = new MoveCollection<>();
 

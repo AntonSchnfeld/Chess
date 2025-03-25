@@ -22,6 +22,7 @@ public class FriendlyFireRuleTest {
     private ChessBoard<StandardPieceType> board;
 
     @BeforeEach
+    @SuppressWarnings("unchecked")
     public void setup() {
         tested = new FriendlyFireRule<>();
         moves = new MoveCollection<>();
@@ -29,7 +30,7 @@ public class FriendlyFireRuleTest {
         state = mock(GameState.class);
         board = mock(ChessBoard.class);
 
-        when(state.chessBoard()).thenReturn(board);
+        when(state.getChessBoard()).thenReturn(board);
     }
 
     @Test

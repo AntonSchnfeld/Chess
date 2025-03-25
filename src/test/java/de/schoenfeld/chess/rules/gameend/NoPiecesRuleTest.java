@@ -22,12 +22,13 @@ public class NoPiecesRuleTest {
     private ChessBoard<StandardPieceType> chessBoard;
 
     @BeforeEach
+    @SuppressWarnings("unchecked")
     public void setup() {
         tested = new NoPiecesRule<>();
         gameState = mock(GameState.class);
         chessBoard = mock(ChessBoard.class);
 
-        when(gameState.chessBoard()).thenReturn(chessBoard);
+        when(gameState.getChessBoard()).thenReturn(chessBoard);
         when(gameState.isWhiteTurn()).thenReturn(true);
 
         when(chessBoard.getSquaresWithColour(true)).thenReturn(List.of());

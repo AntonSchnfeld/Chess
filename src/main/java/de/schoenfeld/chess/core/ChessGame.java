@@ -13,7 +13,7 @@ public class ChessGame<T extends PieceType> {
     private final EventBus eventBus;
     private final UUID gameId;
     private final Rules<T> rules;
-    private GameState<T> gameState;
+    private final GameState<T> gameState;
 
     public ChessGame(GameState<T> gameState, Rules<T> rules, EventBus eventBus) {
         this(UUID.randomUUID(), gameState, rules, eventBus);
@@ -54,8 +54,8 @@ public class ChessGame<T extends PieceType> {
             return;
         }
 
-        GameState<T> moveState = event.move().executeOn(gameState);
-        Optional<GameConclusion> gameEndCause = rules.detectGameEndCause(moveState);
+        event.move().executeOn(gameState);
+        Optional<GameConclusion> gameEndCause = rules.detectGameEndCause(gameState);
         if (gameEndCause.isPresent()) {
             eventBus.publish(new GameEndedEvent(gameId, gameEndCause.get()));
             return;
@@ -67,8 +67,6 @@ public class ChessGame<T extends PieceType> {
             eventBus.publish(new ErrorEvent(gameId, event.player(), "Invalid move"));
             return;
         }
-
-        gameState = event.move().executeOn(gameState);
 
         GameStateChangedEvent<T> gameStateChangedEvent = new GameStateChangedEvent<>(gameId, gameState);
         eventBus.publish(gameStateChangedEvent);

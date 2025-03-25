@@ -28,7 +28,6 @@ public class AdvancedEvaluator implements GameStateEvaluator<StandardPieceType> 
             return evaluateGameConclusion(gameState);
         }
 
-        boolean isWhite = gameState.isWhiteTurn();
         int materialScore = evaluateMaterial(gameState);
         int kingSafetyScore = evaluateKingSafety(gameState);
         int mobilityScore = evaluateMobility(gameState);
@@ -43,12 +42,12 @@ public class AdvancedEvaluator implements GameStateEvaluator<StandardPieceType> 
     }
 
     private int evaluateMaterial(GameState<StandardPieceType> gameState) {
-        int whiteValue = gameState.chessBoard().getSquaresWithColour(true)
+        int whiteValue = gameState.getChessBoard().getSquaresWithColour(true)
                 .stream()
                 .mapToInt(p -> gameState.getPieceAt(p).pieceType().value())
                 .sum();
 
-        int blackValue = gameState.chessBoard().getSquaresWithColour(false)
+        int blackValue = gameState.getChessBoard().getSquaresWithColour(false)
                 .stream()
                 .mapToInt(p -> gameState.getPieceAt(p).pieceType().value())
                 .sum();
@@ -57,7 +56,7 @@ public class AdvancedEvaluator implements GameStateEvaluator<StandardPieceType> 
     }
 
     private int evaluateKingSafety(GameState<StandardPieceType> gameState) {
-        ChessBoard<StandardPieceType> board = gameState.chessBoard();
+        ChessBoard<StandardPieceType> board = gameState.getChessBoard();
         Square whiteKingPos = findKingPosition(board, true);
         Square blackKingPos = findKingPosition(board, false);
 
@@ -108,12 +107,14 @@ public class AdvancedEvaluator implements GameStateEvaluator<StandardPieceType> 
     }
 
     private int evaluateEnemyMobility(GameState<StandardPieceType> gameState) {
-        GameState<StandardPieceType> enemyState = gameState.withTurnSwitched();
-        return rules.generateMoves(gameState).size();
+        gameState.switchTurn();
+        int eval = rules.generateMoves(gameState).size();
+        gameState.switchTurn();
+        return eval;
     }
 
     private int evaluatePawnStructure(GameState<StandardPieceType> gameState) {
-        ChessBoard<StandardPieceType> board = gameState.chessBoard();
+        ChessBoard<StandardPieceType> board = gameState.getChessBoard();
         int whitePenalty = assessPawnWeaknesses(board, true);
         int blackPenalty = assessPawnWeaknesses(board, false);
 

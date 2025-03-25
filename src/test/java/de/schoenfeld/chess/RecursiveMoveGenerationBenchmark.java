@@ -14,8 +14,8 @@ import java.util.concurrent.TimeUnit;
 @BenchmarkMode(Mode.AverageTime)  // Measure average execution time per method call
 @OutputTimeUnit(TimeUnit.MILLISECONDS) // Results in milliseconds
 @State(Scope.Thread)  // Each thread gets its own instance
-@Warmup(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)  // Pre-warm JVM
-@Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)  // Actual measurement
+@Warmup(iterations = 10, time = 500, timeUnit = TimeUnit.MILLISECONDS)  // Pre-warm JVM
+@Measurement(iterations = 10, time = 500, timeUnit = TimeUnit.MILLISECONDS)  // Actual measurement
 @Fork(1)  // Run in the same JVM
 public class RecursiveMoveGenerationBenchmark {
 
@@ -30,7 +30,7 @@ public class RecursiveMoveGenerationBenchmark {
 
     @Benchmark
     public long recursiveMoveGeneration() {
-        return generateMovesRecursively(initialGameState, 3);
+        return generateMovesRecursively(initialGameState, 5);
     }
 
     private long generateMovesRecursively(GameState<StandardPieceType> state, int depth) {
@@ -42,8 +42,9 @@ public class RecursiveMoveGenerationBenchmark {
         long totalNodes = 0;
 
         for (Move<StandardPieceType> move : moves) {
-            GameState<StandardPieceType> newState = move.executeOn(state);
-            totalNodes += generateMovesRecursively(newState, depth - 1);
+            move.executeOn(state);
+            totalNodes += generateMovesRecursively(state, depth - 1);
+            move.undoOn(state);
         }
 
         return totalNodes;

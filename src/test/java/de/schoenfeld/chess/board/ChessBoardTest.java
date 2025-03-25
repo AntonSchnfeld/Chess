@@ -12,112 +12,100 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public abstract class ChessBoardTest {
 
     protected ChessBoard<StandardPieceType> tested;
     protected ChessBoardBounds bounds;
 
-    // Abstract method to initialize the tested object
+    // Abstract method to initialize the concrete ChessBoard implementation
     protected abstract void setUpBoard();
 
     @BeforeEach
     public void setUp() {
         bounds = new ChessBoardBounds(8, 8);
         setUpBoard();
+        tested.setBounds(bounds);
     }
 
     @Test
-    public void givenNoPieces_whenGetPieceAt_thenNull() {
-        // Board is already empty
-        ChessPiece<StandardPieceType> piece = tested.getPieceAt(Square.of(0, 0));
-        assertNull(piece);
+    public void givenEmptyBoard_whenGetPieceAt_thenNull() {
+        assertNull(tested.getPieceAt(Square.of(0, 0)));
     }
 
     @Test
-    public void givenPieceAtPosition_whenGetPieceAt_thenPiece() {
+    @SuppressWarnings("unchecked")
+    public void givenPieceOnBoard_whenGetPieceAt_thenReturnsPiece() {
         ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
         Square pieceSquare = Square.of(0, 0);
-        when(piece.isWhite()).thenReturn(false);
+        tested.setPieceAt(piece, pieceSquare);
 
-        tested = tested.withPieceAt(piece, pieceSquare);
-
-        ChessPiece<StandardPieceType> result = tested.getPieceAt(pieceSquare);
-        assertSame(piece, result);
-    }
-
-    @Test
-    public void givenChessBoardBounds_whenGetBounds_thenBounds() {
-        ChessBoardBounds result = tested.getBounds();
-        assertEquals(bounds, result);
-    }
-
-    @Test
-    public void givenNoPieces_whenGetPieces_thenEmptyList() {
-        var result = tested.getOccupiedSquares();
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    public void givenPieces_whenGetPieces_thenPieces() {
-        ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
-        when(piece.isWhite()).thenReturn(false);
-        Square pieceSquare = Square.a1;
-        tested = tested.withPieceAt(piece, pieceSquare);
-
-        List<Square> result = tested.getOccupiedSquares();
-
-        assertEquals(1, result.size());
-        assertEquals(pieceSquare, result.getFirst());
-    }
-
-    @Test
-    public void givenNoPieces_whenWithPieceAt_thenPieceAtPosition() {
-        ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
-        Square pieceSquare = Square.of(0, 0);
-
-        tested = tested.withPieceAt(piece, pieceSquare);
         assertSame(piece, tested.getPieceAt(pieceSquare));
-        assertEquals(1, tested.getOccupiedSquares().size());
     }
 
     @Test
-    public void givenPieceAtPosition_whenWithoutPieceAt_thenNoPieceAtPosition() {
+    public void givenBoard_whenGetBounds_thenReturnsBounds() {
+        assertEquals(bounds, tested.getBounds());
+    }
+
+    @Test
+    public void givenEmptyBoard_whenGetOccupiedSquares_thenEmptyList() {
+        assertTrue(tested.getOccupiedSquares().isEmpty());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void givenBoardWithPiece_whenGetOccupiedSquares_thenReturnsSquares() {
         ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
         Square pieceSquare = Square.of(0, 0);
-        tested = tested.withPieceAt(piece, pieceSquare);
+        tested.setPieceAt(piece, pieceSquare);
 
-        tested = tested.withoutPieceAt(pieceSquare);
-        assertNull(tested.getPieceAt(pieceSquare));
-        assertEquals(0, tested.getOccupiedSquares().size());
+        List<Square> occupiedSquares = tested.getOccupiedSquares();
+        assertEquals(1, occupiedSquares.size());
+        assertEquals(pieceSquare, occupiedSquares.getFirst());
     }
 
     @Test
-    public void givenPieceAtPosition_whenWithPieceMoved_thenPieceAtNewPosition() {
+    @SuppressWarnings("unchecked")
+    public void givenPieceOnBoard_whenRemovePieceAt_thenSquareIsEmpty() {
+        ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
+        Square pieceSquare = Square.of(0, 0);
+        tested.setPieceAt(piece, pieceSquare);
+
+        tested.removePieceAt(pieceSquare);
+
+        assertNull(tested.getPieceAt(pieceSquare));
+        assertTrue(tested.getOccupiedSquares().isEmpty());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void givenPieceOnBoard_whenMovePiece_thenPieceMovesCorrectly() {
         ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
         Square from = Square.of(0, 0);
         Square to = Square.of(1, 1);
-        tested = tested.withPieceAt(piece, from);
+        tested.setPieceAt(piece, from);
 
-        tested = tested.withPieceMoved(from, to);
+        tested.movePiece(from, to);
+
         assertNull(tested.getPieceAt(from));
-        assertEquals(piece, tested.getPieceAt(to));
+        assertSame(piece, tested.getPieceAt(to));
     }
 
     @Test
-    public void givenPieces_whenWithAllPieces_thenAllPieces() {
+    @SuppressWarnings("unchecked")
+    public void givenMultiplePieces_whenSetAllPieces_thenBoardContainsThem() {
         ChessPiece<StandardPieceType> piece1 = mock(ChessPiece.class);
         ChessPiece<StandardPieceType> piece2 = mock(ChessPiece.class);
         Square square1 = Square.of(0, 0);
         Square square2 = Square.of(1, 1);
 
-        Map<Square, ChessPiece<StandardPieceType>> map = new HashMap<>();
-        map.put(square1, piece1);
-        map.put(square2, piece2);
+        Map<Square, ChessPiece<StandardPieceType>> pieces = new HashMap<>();
+        pieces.put(square1, piece1);
+        pieces.put(square2, piece2);
 
-        tested = tested.withAllPieces(map);
+        tested.setAllPieces(pieces);
 
         assertEquals(2, tested.getOccupiedSquares().size());
         assertSame(piece1, tested.getPieceAt(square1));
@@ -125,25 +113,28 @@ public abstract class ChessBoardTest {
     }
 
     @Test
-    public void givenPieces_whenWithoutPieces_thenNoPieces() {
+    @SuppressWarnings("unchecked")
+    public void givenBoardWithPieces_whenRemovePieces_thenBoardIsEmpty() {
         ChessPiece<StandardPieceType> piece1 = mock(ChessPiece.class);
         ChessPiece<StandardPieceType> piece2 = mock(ChessPiece.class);
         Square square1 = Square.of(0, 0);
         Square square2 = Square.of(1, 1);
 
-        tested = tested.withPieceAt(piece1, square1);
-        tested = tested.withPieceAt(piece2, square2);
+        tested.setPieceAt(piece1, square1);
+        tested.setPieceAt(piece2, square2);
 
-        tested = tested.withoutPieces();
+        tested.removePieces();
+
+        assertTrue(tested.getOccupiedSquares().isEmpty());
         assertNull(tested.getPieceAt(square1));
         assertNull(tested.getPieceAt(square2));
-        assertEquals(0, tested.getOccupiedSquares().size());
     }
 
     @Test
-    public void givenBounds_whenWithBounds_thenBounds() {
+    public void givenNewBounds_whenSetBounds_thenBoardHasNewBounds() {
         ChessBoardBounds newBounds = new ChessBoardBounds(4, 4);
-        tested = tested.withBounds(newBounds);
+        tested.setBounds(newBounds);
+
         assertEquals(newBounds, tested.getBounds());
     }
 }

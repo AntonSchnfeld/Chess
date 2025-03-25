@@ -8,11 +8,11 @@ import de.schoenfeld.chess.model.PlayerData;
 import de.schoenfeld.chess.move.Move;
 
 public class AIPlayer<T extends PieceType> extends Player<T> {
-    private final MoveSearchStrategy searchStrategy;
+    private final MoveSearchStrategy<T> searchStrategy;
 
     public AIPlayer(PlayerData playerData,
                     EventBus eventBus,
-                    MoveSearchStrategy searchStrategy) {
+                    MoveSearchStrategy<T> searchStrategy) {
         super(playerData, eventBus);
         this.searchStrategy = searchStrategy;
     }

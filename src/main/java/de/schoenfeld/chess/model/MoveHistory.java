@@ -2,31 +2,36 @@ package de.schoenfeld.chess.model;
 
 import de.schoenfeld.chess.move.Move;
 
+import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
-public record MoveHistory<T extends PieceType>(
-        List<Move<T>> moves // Immutable list
-) implements Serializable {
+public class MoveHistory<T extends PieceType> implements Serializable {
+    @Serial
+    private static final long serialVersionUID = -5209348645420429762L;
 
-    public MoveHistory {
-        moves = List.copyOf(moves); // Defensive copy
+    private final List<Move<T>> moves;
+
+    public MoveHistory(List<Move<T>> moves) {
+        this.moves = new LinkedList<>(moves);
     }
 
     public MoveHistory() {
         this(List.of());
     }
 
-    public MoveHistory<T> withMoveRecorded(Move<T> move) {
-        List<Move<T>> newMoves = new ArrayList<>(moves);
-        newMoves.add(move);
-        return new MoveHistory<>(newMoves);
+    public List<Move<T>> getMoves() {
+        return Collections.unmodifiableList(moves);
     }
 
-    public MoveHistory<T> withoutLastMove() {
-        if (moves.isEmpty()) return this;
-        return new MoveHistory<>(moves.subList(0, moves.size() - 1));
+    public void recordMove(Move<T> move) {
+        moves.add(move);
+    }
+
+    public void removeLastMove() {
+        moves.removeLast();
     }
 
     public Move<T> getLastMove() {

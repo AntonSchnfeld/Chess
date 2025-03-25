@@ -1,6 +1,5 @@
 package de.schoenfeld.chess.rules.restrictive;
 
-import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.Square;
@@ -14,8 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class CheckRuleTest {
     private CheckRule checkRule;
@@ -35,36 +33,26 @@ public class CheckRuleTest {
 
     @Test
     public void givenNoMoves_whenFilterMoves_thenNothingChanges() {
-        // Given an empty MoveCollection
         assertTrue(moves.isEmpty());
 
-        // When filtering
         checkRule.filterMoves(moves, gameState);
 
-        // Then nothing should be changed
         assertTrue(moves.isEmpty());
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void givenLegalMove_whenFilterMoves_thenMoveRemains() {
-        // Given
         Move<StandardPieceType> legalMove = mock(Move.class);
-        GameState<StandardPieceType> futureState = mock(GameState.class);
-        ChessBoard<StandardPieceType> futureBoard = mock(ChessBoard.class);
 
-        when(legalMove.executeOn(gameState)).thenReturn(futureState);
-        when(futureState.chessBoard()).thenReturn(futureBoard);
-        when(futureBoard.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
-                .thenReturn(List.of(Square.a1)); // Example square, replace with actual logic
-        when(moveGenerator.generateMoves(futureState)).thenReturn(new MoveCollection<>()); // No attacks on king
+        when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
+                .thenReturn(List.of(Square.e1)); // King's position
+        when(moveGenerator.generateMoves(gameState)).thenReturn(new MoveCollection<>()); // No checks
 
         moves.add(legalMove);
 
-        // When
         checkRule.filterMoves(moves, gameState);
 
-        // Then the move should not be removed
         assertFalse(moves.isEmpty());
         assertTrue(moves.contains(legalMove));
     }
@@ -72,83 +60,146 @@ public class CheckRuleTest {
     @Test
     @SuppressWarnings("unchecked")
     public void givenIllegalMove_whenFilterMoves_thenMoveIsRemoved() {
-        // Given
         Move<StandardPieceType> illegalMove = mock(Move.class);
-        GameState<StandardPieceType> futureState = mock(GameState.class);
-        Square kingSquare = Square.a1;
 
-        when(illegalMove.executeOn(gameState)).thenReturn(futureState);
-        when(
-                futureState.getSquaresWithTypeAndColour(StandardPieceType.KING,
-                        gameState.isWhiteTurn())
-        ).thenReturn(List.of(kingSquare)); // Check found
-        // Return check move
-        when(moveGenerator.generateMoves(futureState)).thenReturn(MoveCollection.of(
-                Move.of(mock(ChessPiece.class), Square.f3, Square.a1)
-        ));
+        when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
+                .thenReturn(List.of(Square.e1)); // King's position
+
+        MoveCollection<StandardPieceType> opponentMoves = MoveCollection.of(
+                Move.of(mock(ChessPiece.class), Square.d2, Square.e1) // Attacking the king
+        );
+        when(moveGenerator.generateMoves(gameState)).thenReturn(opponentMoves);
 
         moves.add(illegalMove);
 
-        // When
         checkRule.filterMoves(moves, gameState);
 
-        // Then the move should be removed
         assertTrue(moves.isEmpty());
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void givenMixedMoves_whenFilterMoves_thenOnlyIllegalMovesAreRemoved() {
-        // Given
         Move<StandardPieceType> legalMove = mock(Move.class);
         Move<StandardPieceType> illegalMove = mock(Move.class);
 
-        GameState<StandardPieceType> futureStateLegal = mock(GameState.class);
-        GameState<StandardPieceType> futureStateIllegal = mock(GameState.class);
+        when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
+                .thenReturn(List.of(Square.e1));
 
-        Square kingPos = Square.a1;
+        MoveCollection<StandardPieceType> opponentMoves = mock(MoveCollection.class);
+        when(opponentMoves.containsMoveTo(Square.e1)).thenReturn(true);
+        when(moveGenerator.generateMoves(gameState)).thenReturn(opponentMoves);
 
-        // Set up the legal move scenario
-        setupLegalMoveScenario(legalMove, futureStateLegal, kingPos);
+        doAnswer(invocation -> {
+            when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
+                    .thenReturn(List.of(Square.e2)); // Move king to a safe square
+            return null;
+        }).when(legalMove).executeOn(gameState);
 
-        // Set up the illegal move scenario
-        setupIllegalMoveScenario(illegalMove, futureStateIllegal, kingPos);
+        doAnswer(invocation -> {
+            when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
+                    .thenReturn(List.of(Square.e1)); // King stays in check
+            return null;
+        }).when(illegalMove).executeOn(gameState);
 
-        // Add moves to collection
+        doAnswer(invocation -> {
+            when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
+                    .thenReturn(List.of(Square.e1)); // Restore original state
+            return null;
+        }).when(legalMove).undoOn(gameState);
+
+        doAnswer(invocation -> {
+            when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
+                    .thenReturn(List.of(Square.e1));
+            return null;
+        }).when(illegalMove).undoOn(gameState);
+
         moves.add(legalMove);
         moves.add(illegalMove);
 
-        // When
         checkRule.filterMoves(moves, gameState);
 
-        // Then only the illegal move should be removed
         assertEquals(1, moves.size());
         assertTrue(moves.contains(legalMove));
         assertFalse(moves.contains(illegalMove));
     }
 
-    private void setupLegalMoveScenario(Move<StandardPieceType> move,
-                                        GameState<StandardPieceType> futureState,
-                                        Square kingPos) {
-        when(move.executeOn(gameState)).thenReturn(futureState);
-        when(futureState.chessBoard()).thenReturn(futureState);
-        when(futureState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
-                .thenReturn(List.of(kingPos)); // Legal move, king is not under attack
-        when(moveGenerator.generateMoves(futureState)).thenReturn(MoveCollection.of()); // No attack on king
+    @Test
+    @SuppressWarnings("unchecked")
+    public void givenPinnedPieceMove_whenFilterMoves_thenPinnedMoveIsRemoved() {
+        Move<StandardPieceType> pinnedMove = mock(Move.class);
+
+        when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
+                .thenReturn(List.of(Square.e1));
+
+        MoveCollection<StandardPieceType> opponentMoves = mock(MoveCollection.class);
+        when(opponentMoves.containsMoveTo(Square.e1)).thenReturn(true);
+        when(moveGenerator.generateMoves(gameState)).thenReturn(opponentMoves);
+
+        doAnswer(invocation -> {
+            when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
+                    .thenReturn(List.of(Square.e1)); // King remains in danger (pinned piece moves)
+            return null;
+        }).when(pinnedMove).executeOn(gameState);
+
+        doAnswer(invocation -> {
+            when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
+                    .thenReturn(List.of(Square.e1)); // Restore original state
+            return null;
+        }).when(pinnedMove).undoOn(gameState);
+
+        moves.add(pinnedMove);
+
+        checkRule.filterMoves(moves, gameState);
+
+        assertTrue(moves.isEmpty()); // Pinned move should be removed
     }
 
+    @Test
     @SuppressWarnings("unchecked")
-    private void setupIllegalMoveScenario(Move<StandardPieceType> move,
-                                          GameState<StandardPieceType> futureState,
-                                          Square kingPos) {
-        when(move.executeOn(gameState)).thenReturn(futureState);
-        when(futureState.chessBoard()).thenReturn(futureState);
-        when(futureState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
-                .thenReturn(List.of(kingPos)); // King is present, simulate check scenario
+    public void givenKingMoves_whenFilterMoves_thenOnlySafeKingMovesRemain() {
+        Move<StandardPieceType> safeKingMove = mock(Move.class);
+        Move<StandardPieceType> unsafeKingMove = mock(Move.class);
 
-        // Add a move that attacks the king
-        ChessPiece<StandardPieceType> attackingPiece = mock(ChessPiece.class);
-        Move<StandardPieceType> attackMove = Move.of(attackingPiece, Square.f3, kingPos);  // Simulate attack on king
-        when(moveGenerator.generateMoves(futureState)).thenReturn(MoveCollection.of(attackMove)); // Attack on king
+        when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
+                .thenReturn(List.of(Square.e1));
+
+        MoveCollection<StandardPieceType> opponentMoves = mock(MoveCollection.class);
+        when(opponentMoves.containsMoveTo(Square.e2)).thenReturn(false); // e2 is safe
+        when(opponentMoves.containsMoveTo(Square.d1)).thenReturn(true);  // d1 is attacked
+        when(moveGenerator.generateMoves(gameState)).thenReturn(opponentMoves);
+
+        doAnswer(invocation -> {
+            when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
+                    .thenReturn(List.of(Square.e2)); // Move king to e2
+            return null;
+        }).when(safeKingMove).executeOn(gameState);
+
+        doAnswer(invocation -> {
+            when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
+                    .thenReturn(List.of(Square.d1)); // Move king to d1 (unsafe)
+            return null;
+        }).when(unsafeKingMove).executeOn(gameState);
+
+        doAnswer(invocation -> {
+            when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
+                    .thenReturn(List.of(Square.e1)); // Restore original state
+            return null;
+        }).when(safeKingMove).undoOn(gameState);
+
+        doAnswer(invocation -> {
+            when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
+                    .thenReturn(List.of(Square.e1));
+            return null;
+        }).when(unsafeKingMove).undoOn(gameState);
+
+        moves.add(safeKingMove);
+        moves.add(unsafeKingMove);
+
+        checkRule.filterMoves(moves, gameState);
+
+        assertEquals(1, moves.size());
+        assertTrue(moves.contains(safeKingMove));
+        assertFalse(moves.contains(unsafeKingMove));
     }
 }

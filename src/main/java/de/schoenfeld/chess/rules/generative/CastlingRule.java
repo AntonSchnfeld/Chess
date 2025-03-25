@@ -15,7 +15,7 @@ public class CastlingRule implements GenerativeMoveRule<StandardPieceType> {
     @Override
     public MoveCollection<StandardPieceType> generateMoves(GameState<StandardPieceType> gameState) {
         MoveCollection<StandardPieceType> moves = new MoveCollection<>();
-        ChessBoard<StandardPieceType> board = gameState.chessBoard(); // Immutable board
+        ChessBoard<StandardPieceType> board = gameState.getChessBoard(); // Immutable board
         boolean isWhite = gameState.isWhiteTurn();
 
         // Get all kings of the current player

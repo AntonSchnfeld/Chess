@@ -26,15 +26,15 @@ public interface ChessBoard<T extends PieceType> extends Serializable {
 
     String toFen();
 
-    ChessBoard<T> withPieceAt(ChessPiece<T> piece, Square square);
+    void setPieceAt(ChessPiece<T> piece, Square square);
 
-    ChessBoard<T> withoutPieceAt(Square square);
+    void removePieceAt(Square square);
 
-    ChessBoard<T> withPieceMoved(Square from, Square to);
+    void movePiece(Square from, Square to);
 
-    ChessBoard<T> withAllPieces(Map<Square, ChessPiece<T>> pieces);
+    void setAllPieces(Map<Square, ChessPiece<T>> pieces);
 
-    ChessBoard<T> withoutPieces();
+    void removePieces();
 
-    ChessBoard<T> withBounds(ChessBoardBounds bounds);
+    void setBounds(ChessBoardBounds bounds);
 }

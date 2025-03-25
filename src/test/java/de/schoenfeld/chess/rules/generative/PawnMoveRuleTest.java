@@ -28,7 +28,7 @@ public class PawnMoveRuleTest {
         board = mock(ChessBoard.class);
         ChessBoardBounds bounds = new ChessBoardBounds(8, 8);
 
-        when(gameState.chessBoard()).thenReturn(board);
+        when(gameState.getChessBoard()).thenReturn(board);
         when(gameState.getBounds()).thenReturn(bounds);
         // Assume white's turn for these tests.
         when(gameState.isWhiteTurn()).thenReturn(true);

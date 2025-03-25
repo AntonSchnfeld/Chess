@@ -11,7 +11,7 @@ public class InsufficientMaterialRule implements GameConclusionRule<StandardPiec
 
     @Override
     public Optional<GameConclusion> detectGameEndCause(GameState<StandardPieceType> gameState) {
-        ChessBoard<StandardPieceType> board = gameState.chessBoard();
+        ChessBoard<StandardPieceType> board = gameState.getChessBoard();
 
         // Check for sufficient material according to FIDE rules
         if (hasSufficientMaterialForWin(board)) {

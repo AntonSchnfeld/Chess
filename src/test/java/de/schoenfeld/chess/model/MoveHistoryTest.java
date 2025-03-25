@@ -19,35 +19,36 @@ public class MoveHistoryTest {
     public void givenEmptyHistory_whenCreated_thenHasNoMoves() {
         assertEquals(0, tested.getMoveCount());
         assertNull(tested.getLastMove());
-        assertTrue(tested.moves().isEmpty());
+        assertTrue(tested.getMoves().isEmpty());
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void givenMoveHistory_whenMoveRecorded_thenNewHistoryHasMove() {
         Move<StandardPieceType> move = mock(Move.class);
-        MoveHistory<StandardPieceType> newHistory = tested.withMoveRecorded(move);
+        tested.recordMove(move);
 
-        assertNotSame(tested, newHistory);
-        assertEquals(1, newHistory.getMoveCount());
-        assertEquals(move, newHistory.getLastMove());
+        assertEquals(1, tested.getMoveCount());
+        assertEquals(move, tested.getLastMove());
     }
 
     @Test
     public void givenMoveHistory_when_thenNewMoveHist() {
-        tested = tested.withMoveRecorded(Move.of(null, null, null));
+        tested.recordMove(Move.of(null, null, null));
         assertEquals(1, tested.getMoveCount());
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void givenMoveHistoryWithMoves_whenLastMoveRemoved_thenNewHistoryHasOneLessMove() {
         Move<StandardPieceType> move1 = mock(Move.class);
         Move<StandardPieceType> move2 = mock(Move.class);
         MoveHistory<StandardPieceType> history = new MoveHistory<>();
-        history = history.withMoveRecorded(move1).withMoveRecorded(move2);
-        MoveHistory<StandardPieceType> reducedHistory = history.withoutLastMove();
+        history.recordMove(move1);
+        history.recordMove(move2);
+        history.removeLastMove();
 
-        assertNotSame(history, reducedHistory);
-        assertEquals(1, reducedHistory.getMoveCount());
-        assertEquals(move1, reducedHistory.getLastMove());
+        assertEquals(1, history.getMoveCount());
+        assertEquals(move1, history.getLastMove());
     }
 }

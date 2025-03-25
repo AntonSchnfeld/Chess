@@ -35,7 +35,7 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<
             throw new NullPointerException("GameState must not be null");
         }
 
-        ChessBoard<StandardPieceType> board = gameState.chessBoard();
+        ChessBoard<StandardPieceType> board = gameState.getChessBoard();
 
         // Check for win conditions.
         // If the opponent's king is missing, return a huge win bonus.
@@ -58,8 +58,12 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<
         int captureBonus = (int) (materialScore * CAPTURE_BONUS_FACTOR);
 
         // Mobility evaluation.
-        MoveCollection<StandardPieceType> whiteMoves = moveGenerator.generateMoves(gameState.withIsWhiteTurn(true));
-        MoveCollection<StandardPieceType> blackMoves = moveGenerator.generateMoves(gameState.withIsWhiteTurn(false));
+        boolean isWhite = gameState.isWhiteTurn();
+        gameState.setIsWhiteTurn(true);
+        MoveCollection<StandardPieceType> whiteMoves = moveGenerator.generateMoves(gameState);
+        gameState.setIsWhiteTurn(false);
+        MoveCollection<StandardPieceType> blackMoves = moveGenerator.generateMoves(gameState);
+        gameState.setIsWhiteTurn(isWhite);
         int mobilityScore = MOBILITY_BONUS * (whiteMoves.size() - blackMoves.size());
 
         // Pawn structure evaluation.
@@ -81,6 +85,10 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<
             fileCounts.put(file, fileCounts.getOrDefault(file, 0) + 1);
         }
 
+        return getPenalty(fileCounts, pawnSquares);
+    }
+
+    private static int getPenalty(Map<Integer, Integer> fileCounts, List<Square> pawnSquares) {
         int penalty = 0;
         // Penalize doubled pawns: for each extra pawn in a file, apply a penalty.
         for (Integer count : fileCounts.values()) {
@@ -98,7 +106,6 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<
                 penalty += ISOLATED_PAWN_PENALTY;
             }
         }
-
         return penalty;
     }
 

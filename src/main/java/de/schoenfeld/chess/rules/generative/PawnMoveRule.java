@@ -93,7 +93,7 @@ public class PawnMoveRule implements GenerativeMoveRule<StandardPieceType> {
         MoveCollection<StandardPieceType> moves = new MoveCollection<>();
 
         var pawns = gameState
-                .chessBoard()
+                .getChessBoard()
                 .getSquaresWithTypeAndColour(StandardPieceType.PAWN, gameState.isWhiteTurn());
 
         for (var pawn : pawns) {

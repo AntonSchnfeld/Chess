@@ -5,22 +5,30 @@ import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.model.Square;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public record MapChessBoard<T extends PieceType>(
-        Map<Square, ChessPiece<T>> positionMap,
-        ChessBoardBounds bounds
-) implements ChessBoard<T> {
+public class MapChessBoard<T extends PieceType> implements ChessBoard<T> {
+    @Serial
+    private static final long serialVersionUID = -3408361097786300767L;
 
-    public MapChessBoard {
-        positionMap = Map.copyOf(positionMap);
+    private Map<Square, ChessPiece<T>> positionMap;
+    private ChessBoardBounds bounds;
+
+    public MapChessBoard(Map<Square, ChessPiece<T>> positionMap, ChessBoardBounds bounds) {
+        this.positionMap = new HashMap<>(positionMap);
+        this.bounds = bounds;
     }
 
-    public MapChessBoard(ChessBoardBounds chessBoardBounds) {
-        this(Map.of(), chessBoardBounds);
+    public MapChessBoard(ChessBoardBounds bounds) {
+        this(Map.of(), bounds);
+    }
+
+    public MapChessBoard() {
+        this(new ChessBoardBounds(8, 8));
     }
 
     public boolean isOccupied(Square square) {
@@ -81,46 +89,49 @@ public record MapChessBoard<T extends PieceType>(
         return pieces;
     }
 
-    public MapChessBoard<T> withPieceAt(ChessPiece<T> piece, Square square) {
+    public void setPieceAt(ChessPiece<T> piece, Square square) {
         if (!bounds.contains(square))
             throw new IllegalArgumentException("position must be in bounds");
 
-        if (piece.equals(positionMap.get(square))) return this;
+        if (piece.equals(positionMap.get(square))) return;
 
-        Map<Square, ChessPiece<T>> newPositions = new HashMap<>(positionMap);
-        newPositions.put(square, piece);
-        return new MapChessBoard<>(newPositions, bounds);
+        positionMap.put(square, piece);
     }
 
-    public MapChessBoard<T> withoutPieceAt(Square square) {
+    public void removePieceAt(Square square) {
         if (!bounds.contains(square))
             throw new IllegalArgumentException("position must be in bounds");
-        if (!positionMap.containsKey(square)) return this;
+        if (!positionMap.containsKey(square)) return;
 
-        Map<Square, ChessPiece<T>> newPositions = new HashMap<>(positionMap);
-        newPositions.remove(square);
-        return new MapChessBoard<>(newPositions, bounds);
+        positionMap.remove(square);
     }
 
-    public MapChessBoard<T> withPieceMoved(Square from, Square to) {
-        if (from.equals(to)) return this;
-        ChessPiece<T> piece = getPieceAt(from);
-        if (piece == null) return this;
-        return withoutPieceAt(from).withPieceAt(piece, to);
+    public void movePiece(Square from, Square to) {
+        if (!bounds.contains(from))
+            throw new IllegalArgumentException("from must be in bounds");
+        if (!bounds.contains(to))
+            throw new IllegalArgumentException("to must be in bounds");
+
+        if (from.equals(to)) return;
+
+        ChessPiece<T> piece = positionMap.get(from);
+        if (piece == null) return;
+
+        positionMap.remove(from);
+        positionMap.put(to, piece);
     }
 
-    public MapChessBoard<T> withAllPieces(Map<Square, ChessPiece<T>> newPieces) {
-        if (newPieces.isEmpty()) return this;
-        return new MapChessBoard<>(newPieces, bounds);
+    public void setAllPieces(Map<Square, ChessPiece<T>> newPieces) {
+        positionMap = new HashMap<>(newPieces);
     }
 
-    public MapChessBoard<T> withoutPieces() {
-        return new MapChessBoard<>(Map.of(), bounds);
+    public void removePieces() {
+        positionMap.clear();
     }
 
-    public MapChessBoard<T> withBounds(ChessBoardBounds newBounds) {
-        if (newBounds.equals(bounds)) return this;
-        return new MapChessBoard<>(positionMap, newBounds);
+    public void setBounds(ChessBoardBounds newBounds) {
+        if (newBounds.equals(bounds)) return;
+        bounds = newBounds;
     }
 
     @Override

@@ -35,7 +35,7 @@ class InsufficientMaterialRuleTest {
     private void testInsufficientMaterial(StandardPieceType... pieceTypes) {
         ChessBoard<StandardPieceType> board = mock(ChessBoard.class);
         GameState<StandardPieceType> gameState = mock(GameState.class);
-        when(gameState.chessBoard()).thenReturn(board);
+        when(gameState.getChessBoard()).thenReturn(board);
         setupBoardMock(board, pieceTypes);
 
         InsufficientMaterialRule rule = new InsufficientMaterialRule();
@@ -50,7 +50,7 @@ class InsufficientMaterialRuleTest {
     private void testSufficientMaterial(StandardPieceType... pieceTypes) {
         ChessBoard<StandardPieceType> board = mock(ChessBoard.class);
         GameState<StandardPieceType> gameState = mock(GameState.class);
-        when(gameState.chessBoard()).thenReturn(board);
+        when(gameState.getChessBoard()).thenReturn(board);
         setupBoardMock(board, pieceTypes);
 
         InsufficientMaterialRule rule = new InsufficientMaterialRule();

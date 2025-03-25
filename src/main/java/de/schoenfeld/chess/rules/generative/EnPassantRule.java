@@ -8,7 +8,7 @@ import de.schoenfeld.chess.move.components.CaptureComponent;
 public class EnPassantRule implements GenerativeMoveRule<StandardPieceType> {
     @Override
     public MoveCollection<StandardPieceType> generateMoves(GameState<StandardPieceType> gameState) {
-        MoveHistory<StandardPieceType> history = gameState.moveHistory();
+        MoveHistory<StandardPieceType> history = gameState.getMoveHistory();
 
         // Check if there are any moves
         if (history.getMoveCount() == 0) return new MoveCollection<>();

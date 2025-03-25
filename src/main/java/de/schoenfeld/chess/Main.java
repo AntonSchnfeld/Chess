@@ -55,18 +55,18 @@ public class Main {
                 new MoveHistory<>(), true);
 
         MoveOrderingHeuristic<StandardPieceType> heuristic = new AggressiveMoveOrdering();
-        GameStateEvaluator<StandardPieceType> advancedEvaluator = new PieceValueEvaluator<>();
+        GameStateEvaluator<StandardPieceType> advancedEvaluator = new AdvancedEvaluator(rules);
         GameStateEvaluator<StandardPieceType> otherEvaluator =
                 new SimpleEvaluationFunctionWithMobility(rules);
         MoveSearchStrategy<StandardPieceType> whiteStrategy = AlphaBetaNegamax.<StandardPieceType>builder()
-                .maxDepth(1)
+                .maxDepth(3)
                 .parallelDepth(Runtime.getRuntime().availableProcessors())
                 .rules(rules)
                 .evaluator(advancedEvaluator)
                 .heuristic(heuristic)
                 .build();
         MoveSearchStrategy<StandardPieceType> blackStrategy = AlphaBetaNegamax.<StandardPieceType>builder()
-                .maxDepth(1)
+                .maxDepth(3)
                 .parallelDepth(Runtime.getRuntime().availableProcessors())
                 .rules(rules)
                 .evaluator(otherEvaluator)

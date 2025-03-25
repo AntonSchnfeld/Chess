@@ -29,12 +29,15 @@ public class CheckMateRule implements GameConclusionRule<StandardPieceType> {
         // prevent check since checking fewer moves is faster
         for (Move<StandardPieceType> move : moves) {
             // Simulate move
-            GameState<StandardPieceType> newState = move.executeOn(gameState);
+            move.executeOn(gameState);
+            gameState.switchTurn();
             // Use withTurnSwitched to reverse turn change in move.executeOn(GameState)
-            if (allKingsSafe(newState.withTurnSwitched())) {
+            if (allKingsSafe(gameState)) {
                 // Found a move that prevents check
                 return Optional.empty();
             }
+            gameState.switchTurn();
+            move.undoOn(gameState);
         }
         // No safe moves found :(
         return Optional.of(new GameConclusion(
@@ -44,15 +47,16 @@ public class CheckMateRule implements GameConclusionRule<StandardPieceType> {
     }
 
     private boolean allKingsSafe(GameState<StandardPieceType> gameState) {
-        ChessBoard<StandardPieceType> board = gameState.chessBoard();
+        ChessBoard<StandardPieceType> board = gameState.getChessBoard();
         boolean isWhiteTurn = gameState.isWhiteTurn();
         // Get all kings
         List<Square> kingSquares = board
                 .getSquaresWithTypeAndColour(StandardPieceType.KING, isWhiteTurn);
         if (kingSquares.isEmpty()) return true; // No kings => no check
         // withTurnSwitched to generate moves for the opposite player
-        MoveCollection<StandardPieceType> opponentMoves = moveGenerator
-                .generateMoves(gameState.withTurnSwitched());
+        gameState.switchTurn();
+        MoveCollection<StandardPieceType> opponentMoves = moveGenerator.generateMoves(gameState);
+        gameState.switchTurn();
 
         for (Square square : kingSquares) {
             // Get king pos and check if opponent has any move to that square

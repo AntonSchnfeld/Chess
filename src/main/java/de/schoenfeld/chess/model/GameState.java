@@ -3,20 +3,27 @@ package de.schoenfeld.chess.model;
 import de.schoenfeld.chess.board.ChessBoard;
 import de.schoenfeld.chess.board.MapChessBoard;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-public record GameState<T extends PieceType>(
-        ChessBoard<T> chessBoard,
-        MoveHistory<T> moveHistory,
-        boolean isWhiteTurn
-) implements ChessBoard<T>, Serializable {
+public class GameState<T extends PieceType> implements ChessBoard<T>, Serializable {
+    @Serial
+    private static final long serialVersionUID = 4583658841385236346L;
 
-    public GameState {
-        Objects.requireNonNull(chessBoard, "chessBoard cannot be null");
-        Objects.requireNonNull(moveHistory, "moveHistory cannot be null");
+    private ChessBoard<T> chessBoard;
+    private MoveHistory<T> moveHistory;
+    private boolean isWhiteTurn;
+
+    public GameState(ChessBoard<T> chessBoard, MoveHistory<T> moveHistory, boolean isWhiteTurn) {
+        if (chessBoard == null)
+            throw new NullPointerException("chessBoard");
+        if (moveHistory == null)
+            throw new NullPointerException("moveHistory");
+        this.chessBoard = chessBoard;
+        this.moveHistory = moveHistory;
+        this.isWhiteTurn = isWhiteTurn;
     }
 
     public GameState(ChessBoard<T> chessBoard) {
@@ -24,11 +31,23 @@ public record GameState<T extends PieceType>(
     }
 
     public GameState() {
-        this(new MapChessBoard<>(new ChessBoardBounds(8, 8)), new MoveHistory<>());
+        this(new MapChessBoard<T>(new ChessBoardBounds(8, 8)), new MoveHistory<>());
     }
 
     public GameState(ChessBoard<T> chessBoard, MoveHistory<T> moveHistory) {
         this(chessBoard, moveHistory, true);
+    }
+
+    public ChessBoard<T> getChessBoard() {
+        return chessBoard;
+    }
+
+    public MoveHistory<T> getMoveHistory() {
+        return moveHistory;
+    }
+
+    public boolean isWhiteTurn() {
+        return isWhiteTurn;
     }
 
     @Override
@@ -37,25 +56,20 @@ public record GameState<T extends PieceType>(
     }
 
     // State transition methods optimized for performance
-    public GameState<T> withIsWhiteTurn(boolean newTurn) {
-        return (this.isWhiteTurn == newTurn) ?
-                this : new GameState<>(chessBoard, moveHistory, newTurn);
+    public void setIsWhiteTurn(boolean newTurn) {
+        this.isWhiteTurn = newTurn;
     }
 
-    public GameState<T> withTurnSwitched() {
-        return new GameState<>(chessBoard, moveHistory, !isWhiteTurn);
+    public void switchTurn() {
+        isWhiteTurn = !isWhiteTurn;
     }
 
-    public GameState<T> withChessBoard(ChessBoard<T> newBoard) {
-        return (this.chessBoard == newBoard) ? this : new GameState<>(newBoard, moveHistory, isWhiteTurn);
+    public void setChessBoard(ChessBoard<T> newBoard) {
+        this.chessBoard = newBoard;
     }
 
-    public GameState<T> withMoveHistory(MoveHistory<T> newHistory) {
-        return (this.moveHistory == newHistory) ? this : new GameState<>(chessBoard, newHistory, isWhiteTurn);
-    }
-
-    public GameState<T> previousState() {
-        return moveHistory.getMoveCount() == 0 ? this : new GameState<>(chessBoard, moveHistory.withoutLastMove(), isWhiteTurn);
+    public void setMoveHistory(MoveHistory<T> newHistory) {
+        this.moveHistory = newHistory;
     }
 
     @Override
@@ -94,32 +108,32 @@ public record GameState<T extends PieceType>(
     }
 
     @Override
-    public GameState<T> withPieceAt(ChessPiece<T> piece, Square square) {
-        return withChessBoard(chessBoard.withPieceAt(piece, square));
+    public void setPieceAt(ChessPiece<T> piece, Square square) {
+        chessBoard.setPieceAt(piece, square);
     }
 
     @Override
-    public ChessBoard<T> withoutPieceAt(Square square) {
-        return withChessBoard(chessBoard.withoutPieceAt(square));
+    public void removePieceAt(Square square) {
+        chessBoard.removePieceAt(square);
     }
 
     @Override
-    public ChessBoard<T> withPieceMoved(Square from, Square to) {
-        return withChessBoard(chessBoard.withPieceMoved(from, to));
+    public void movePiece(Square from, Square to) {
+        chessBoard.movePiece(from, to);
     }
 
     @Override
-    public ChessBoard<T> withAllPieces(Map<Square, ChessPiece<T>> pieces) {
-        return withChessBoard(chessBoard.withAllPieces(pieces));
+    public void setAllPieces(Map<Square, ChessPiece<T>> pieces) {
+        chessBoard.setAllPieces(pieces);
     }
 
     @Override
-    public ChessBoard<T> withoutPieces() {
-        return withChessBoard(chessBoard.withoutPieces());
+    public void removePieces() {
+        chessBoard.removePieces();
     }
 
     @Override
-    public ChessBoard<T> withBounds(ChessBoardBounds bounds) {
-        return withChessBoard(chessBoard.withBounds(bounds));
+    public void setBounds(ChessBoardBounds bounds) {
+        chessBoard.setBounds(bounds);
     }
 }
