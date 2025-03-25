@@ -303,4 +303,25 @@ public class MoveCollection<T extends PieceType> implements List<Move<T>> {
             addToMaps(e);
         }
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        MoveCollection<?> that = (MoveCollection<?>) object;
+        return Objects.equals(moves, that.moves) && Objects.equals(moveMap, that.moveMap) && Objects.equals(pieceMap, that.pieceMap);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(moves, moveMap, pieceMap);
+    }
+
+    @Override
+    public String toString() {
+        return "MoveCollection{" +
+                "moves=" + moves +
+                ", moveMap=" + moveMap +
+                ", pieceMap=" + pieceMap +
+                '}';
+    }
 }

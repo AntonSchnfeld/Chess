@@ -20,30 +20,30 @@ public class StaleMateRule implements GameConclusionRule<StandardPieceType> {
 
     @Override
     public Optional<GameConclusion> detectGameEndCause(GameState<StandardPieceType> gameState) {
-        // If the current player has no legal moves and is NOT in check, it's a stalemate
-        if (moveGenerator.generateMoves(gameState).isEmpty() && allKingsSafe(gameState))
+        MoveCollection<StandardPieceType> legalMoves = moveGenerator.generateMoves(gameState);
+        if (legalMoves.isEmpty() && allKingsSafe(gameState)) {
             return Optional.of(
                     new GameConclusion(GameConclusion.Winner.NONE, "Stalemate")
             );
+        }
         return Optional.empty();
     }
 
     private boolean allKingsSafe(GameState<StandardPieceType> gameState) {
         ChessBoard<StandardPieceType> board = gameState.getChessBoard();
         boolean isWhiteTurn = gameState.isWhiteTurn();
-        // Get all kings
         List<Square> kingSquares = board
                 .getSquaresWithTypeAndColour(StandardPieceType.KING, isWhiteTurn);
-        if (kingSquares.isEmpty()) return true; // No kings => no check
-        // withTurnSwitched to generate moves for the opposite player
+        if (kingSquares.isEmpty()) return true;
+
+        // Check if the opponent can move to any of the king's squares
         gameState.switchTurn();
         MoveCollection<StandardPieceType> opponentMoves = moveGenerator.generateMoves(gameState);
         gameState.switchTurn();
 
         for (Square square : kingSquares) {
-            // Get king pos and check if opponent has any move to that square
             if (opponentMoves.containsMoveTo(square)) return false;
         }
-        return true; // No check found, everyone is happy
+        return true;
     }
 }

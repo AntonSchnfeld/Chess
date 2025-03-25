@@ -45,7 +45,9 @@ public class CheckRule implements RestrictiveMoveRule<StandardPieceType> {
                 continue;
             }
 
+            gameState.switchTurn();
             MoveCollection<StandardPieceType> opponentMoves = moveGenerator.generateMoves(gameState);
+            gameState.switchTurn();
 
             for (Square square : kingSquares) {
                 // If any opponent move targets the king's position, the move is illegal

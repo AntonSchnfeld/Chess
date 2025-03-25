@@ -31,7 +31,6 @@ public class ChessGame<T extends PieceType> {
 
     public void start() {
         eventBus.publish(new GameStartedEvent(gameId));
-
         Optional<GameConclusion> gameConclusion = rules.detectGameEndCause(gameState);
         if (gameConclusion.isPresent()) {
             eventBus.publish(new GameEndedEvent(gameId, gameConclusion.get()));
@@ -54,17 +53,23 @@ public class ChessGame<T extends PieceType> {
             return;
         }
 
+        MoveCollection<T> currentValidMoves = rules.generateMoves(gameState);
+
+        if (!currentValidMoves.contains(event.move())) {
+            eventBus.publish(
+                    new ErrorEvent(
+                        gameId,
+                        event.player(),
+                        "Invalid move: " + event.move()
+                    )
+            );
+            return;
+        }
+
         event.move().executeOn(gameState);
         Optional<GameConclusion> gameEndCause = rules.detectGameEndCause(gameState);
         if (gameEndCause.isPresent()) {
             eventBus.publish(new GameEndedEvent(gameId, gameEndCause.get()));
-            return;
-        }
-
-        MoveCollection<T> currentValidMoves = rules.generateMoves(gameState);
-
-        if (!currentValidMoves.contains(event.move())) {
-            eventBus.publish(new ErrorEvent(gameId, event.player(), "Invalid move"));
             return;
         }
 

@@ -12,8 +12,7 @@ public class RestrictiveMoveGenerator<T extends PieceType> implements MoveGenera
     private final List<RestrictiveMoveRule<T>> restrictiveMoveRules;
     private final List<GenerativeMoveRule<T>> generativeMoveRules;
 
-    public RestrictiveMoveGenerator(List<RestrictiveMoveRule<T>> restrictiveMoveRules,
-                                    List<GenerativeMoveRule<T>> generativeMoveRules) {
+    public RestrictiveMoveGenerator(List<GenerativeMoveRule<T>> generativeMoveRules, List<RestrictiveMoveRule<T>> restrictiveMoveRules) {
         this.restrictiveMoveRules = List.copyOf(restrictiveMoveRules);
         this.generativeMoveRules = List.copyOf(generativeMoveRules);
     }
