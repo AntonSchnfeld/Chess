@@ -1,7 +1,9 @@
 package de.schoenfeld.chess.rules.generative;
 
-import de.schoenfeld.chess.board.ChessBoard;
-import de.schoenfeld.chess.model.*;
+import de.schoenfeld.chess.model.ChessPiece;
+import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.Square;
+import de.schoenfeld.chess.model.StandardPieceType;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.MoveCollection;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,53 +14,34 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
 
 public class PawnMoveRuleTest {
 
-    private PawnMoveRule pawnMoveRule;
+    private PawnMoveRule<StandardPieceType> pawnMoveRule;
     private GameState<StandardPieceType> gameState;
-    private ChessBoard<StandardPieceType> board;
 
     @BeforeEach
-    @SuppressWarnings("unchecked")
     public void setup() {
-        pawnMoveRule = new PawnMoveRule();
-        gameState = mock(GameState.class);
-        board = mock(ChessBoard.class);
-        ChessBoardBounds bounds = new ChessBoardBounds(8, 8);
-
-        when(gameState.getChessBoard()).thenReturn(board);
-        when(gameState.getBounds()).thenReturn(bounds);
-        // Assume white's turn for these tests.
-        when(gameState.isWhiteTurn()).thenReturn(true);
+        pawnMoveRule = PawnMoveRule.standard();
+        gameState = new GameState<>(); // White's turn
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void givenWhitePawnNotOnPromotionRank_whenGenerateMoves_thenNormalOneAndTwoStepMoves() {
         // Pawn position: (4,1)
         Square pawnSquare = Square.of(4, 1);
-        // Set up board: pawn at (4,1)
-        when(board.getSquaresWithTypeAndColour(StandardPieceType.PAWN, true))
-                .thenReturn(List.of(pawnSquare));
-        // For any square not occupied, gameState.getPieceAt returns null.
-        when(gameState.getPieceAt(any(Square.class))).thenReturn(null);
 
-        // Create a white pawn that has not moved.
-        ChessPiece<StandardPieceType> pawn = mock(ChessPiece.class);
-        when(pawn.pieceType()).thenReturn(StandardPieceType.PAWN);
-        when(pawn.isWhite()).thenReturn(true);
-        when(pawn.hasMoved()).thenReturn(false);
+        // Create a white pawn that has not moved
+        ChessPiece<StandardPieceType> pawn = new ChessPiece<>(StandardPieceType.PAWN, true, false);
 
-        // When: The pawn is retrieved from the game state.
-        // For our test, simulate that getPieceAt returns the pawn at pawnSquare.
-        when(gameState.getPieceAt(pawnSquare)).thenReturn(pawn);
+        // Add to game state
+        gameState.setPieceAt(pawnSquare, pawn);
 
         MoveCollection<StandardPieceType> moves = pawnMoveRule.generateMoves(gameState);
 
         // Expected: one-step to (4,2) and two-step to (4,3)
         assertEquals(2, moves.size(), "Expected two non-promotion moves for a pawn at (4,1)");
+
         Iterator<Move<StandardPieceType>> iterator = moves.iterator();
         Move<StandardPieceType> move1 = iterator.next();
         Move<StandardPieceType> move2 = iterator.next();
@@ -69,26 +52,19 @@ public class PawnMoveRuleTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void givenWhitePawnOnPromotionRow_whenGenerateMoves_thenPromotionMovesGenerated() {
         // Pawn position: (4,6)
         Square pawnSquare = Square.of(4, 6);
-        when(board.getSquaresWithTypeAndColour(StandardPieceType.PAWN, true))
-                .thenReturn(List.of(pawnSquare));
-        when(gameState.getPieceAt(any(Square.class))).thenReturn(null);
 
         // Create a white pawn that has moved already (so no two-step move).
-        ChessPiece<StandardPieceType> pawn = mock(ChessPiece.class);
-        when(pawn.pieceType()).thenReturn(StandardPieceType.PAWN);
-        when(pawn.isWhite()).thenReturn(true);
-        when(pawn.hasMoved()).thenReturn(true);
-        when(gameState.getPieceAt(pawnSquare)).thenReturn(pawn);
+        ChessPiece<StandardPieceType> pawn = new ChessPiece<>(StandardPieceType.PAWN, true, true);
+
+        // Add to game state
+        gameState.setPieceAt(pawnSquare, pawn);
 
         MoveCollection<StandardPieceType> moves = pawnMoveRule.generateMoves(gameState);
 
         // Expected: one move that is a promotion with 4 promotion options.
-        // Since addPromotionMoves adds one move per promotion type.
-        // Default promotion types: QUEEN, ROOK, BISHOP, KNIGHT => 4 moves.
         assertEquals(4, moves.size(), "Expected four promotion moves for a pawn reaching promotion rank");
 
         // Check that all moves lead to promotion target (4,7)
@@ -99,28 +75,22 @@ public class PawnMoveRuleTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void givenWhitePawnCaptureAvailable_whenGenerateMoves_thenCaptureMoveGenerated() {
         Square pawnSquare = Square.of(4, 1);
-        when(board.getSquaresWithTypeAndColour(StandardPieceType.PAWN, true))
-                .thenReturn(List.of(pawnSquare));
-        // Default: empty squares except for capture square.
-        when(gameState.getPieceAt(any(Square.class))).thenReturn(null);
 
         // Create a white pawn at (4,1)
-        ChessPiece<StandardPieceType> pawn = mock(ChessPiece.class);
-        when(pawn.pieceType()).thenReturn(StandardPieceType.PAWN);
-        when(pawn.isWhite()).thenReturn(true);
-        when(pawn.hasMoved()).thenReturn(true);
-        when(gameState.getPieceAt(pawnSquare)).thenReturn(pawn);
+        ChessPiece<StandardPieceType> pawn = new ChessPiece<>(StandardPieceType.PAWN, true, true);
+
+        // Add to game state
+        gameState.setPieceAt(pawnSquare, pawn);
 
         // Place an enemy pawn at left capture square.
         // For white pawn, direction = 1; left capture: offset(-1, 1)
         Square captureSquare = pawnSquare.offset(-1, 1); // (3,2)
-        ChessPiece<StandardPieceType> enemyPawn = mock(ChessPiece.class);
-        when(enemyPawn.pieceType()).thenReturn(StandardPieceType.PAWN);
-        when(enemyPawn.isWhite()).thenReturn(false);
-        when(gameState.getPieceAt(captureSquare)).thenReturn(enemyPawn);
+        ChessPiece<StandardPieceType> enemyPawn = new ChessPiece<>(StandardPieceType.PAWN, false, false);
+
+        // Add to game state
+        gameState.setPieceAt(captureSquare, enemyPawn);
 
         MoveCollection<StandardPieceType> moves = pawnMoveRule.generateMoves(gameState);
 
@@ -130,27 +100,22 @@ public class PawnMoveRuleTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void givenWhitePawnCapturePromotion_whenGenerateMoves_thenPromotionCaptureMovesGenerated() {
         Square pawnSquare = Square.of(4, 6);
-        when(board.getSquaresWithTypeAndColour(StandardPieceType.PAWN, true))
-                .thenReturn(List.of(pawnSquare));
-        when(gameState.getPieceAt(any(Square.class))).thenReturn(null);
 
         // Create a white pawn at (4,6)
-        ChessPiece<StandardPieceType> pawn = mock(ChessPiece.class);
-        when(pawn.pieceType()).thenReturn(StandardPieceType.PAWN);
-        when(pawn.isWhite()).thenReturn(true);
-        when(pawn.hasMoved()).thenReturn(true);
-        when(gameState.getPieceAt(pawnSquare)).thenReturn(pawn);
+        ChessPiece<StandardPieceType> pawn = new ChessPiece<>(StandardPieceType.PAWN, true, true);
+
+        // Add to game state
+        gameState.setPieceAt(pawnSquare, pawn);
 
         // For a white pawn, one-step move from (4,6) goes to (4,7) - promotion rank.
         // Let's test capture from left: left capture is pawnSquare.offset(-1,1) = (3,7)
         Square captureSquare = pawnSquare.offset(-1, 1); // (3,7)
-        ChessPiece<StandardPieceType> enemyPawn = mock(ChessPiece.class);
-        when(enemyPawn.pieceType()).thenReturn(StandardPieceType.PAWN);
-        when(enemyPawn.isWhite()).thenReturn(false);
-        when(gameState.getPieceAt(captureSquare)).thenReturn(enemyPawn);
+        ChessPiece<StandardPieceType> enemyPawn = new ChessPiece<>(StandardPieceType.PAWN, false, false);
+
+        // Add to game state
+        gameState.setPieceAt(captureSquare, enemyPawn);
 
         MoveCollection<StandardPieceType> moves = pawnMoveRule.generateMoves(gameState);
 

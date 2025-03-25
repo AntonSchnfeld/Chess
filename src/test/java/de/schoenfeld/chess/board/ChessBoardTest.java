@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 public abstract class ChessBoardTest {
 
@@ -39,7 +39,7 @@ public abstract class ChessBoardTest {
     public void givenPieceOnBoard_whenGetPieceAt_thenReturnsPiece() {
         ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
         Square pieceSquare = Square.of(0, 0);
-        tested.setPieceAt(piece, pieceSquare);
+        tested.setPieceAt(pieceSquare, piece);
 
         assertSame(piece, tested.getPieceAt(pieceSquare));
     }
@@ -59,7 +59,7 @@ public abstract class ChessBoardTest {
     public void givenBoardWithPiece_whenGetOccupiedSquares_thenReturnsSquares() {
         ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
         Square pieceSquare = Square.of(0, 0);
-        tested.setPieceAt(piece, pieceSquare);
+        tested.setPieceAt(pieceSquare, piece);
 
         List<Square> occupiedSquares = tested.getOccupiedSquares();
         assertEquals(1, occupiedSquares.size());
@@ -71,7 +71,7 @@ public abstract class ChessBoardTest {
     public void givenPieceOnBoard_whenRemovePieceAt_thenSquareIsEmpty() {
         ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
         Square pieceSquare = Square.of(0, 0);
-        tested.setPieceAt(piece, pieceSquare);
+        tested.setPieceAt(pieceSquare, piece);
 
         tested.removePieceAt(pieceSquare);
 
@@ -85,7 +85,7 @@ public abstract class ChessBoardTest {
         ChessPiece<StandardPieceType> piece = mock(ChessPiece.class);
         Square from = Square.of(0, 0);
         Square to = Square.of(1, 1);
-        tested.setPieceAt(piece, from);
+        tested.setPieceAt(from, piece);
 
         tested.movePiece(from, to);
 
@@ -120,8 +120,8 @@ public abstract class ChessBoardTest {
         Square square1 = Square.of(0, 0);
         Square square2 = Square.of(1, 1);
 
-        tested.setPieceAt(piece1, square1);
-        tested.setPieceAt(piece2, square2);
+        tested.setPieceAt(square1, piece1);
+        tested.setPieceAt(square2, piece2);
 
         tested.removePieces();
 

@@ -1,12 +1,16 @@
 package de.schoenfeld.chess.move;
 
-import de.schoenfeld.chess.model.*;
+import de.schoenfeld.chess.model.ChessPiece;
+import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.Square;
+import de.schoenfeld.chess.model.StandardPieceType;
 import de.schoenfeld.chess.move.components.MoveComponent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 class MoveTest {
     private GameState<StandardPieceType> gameState;
@@ -23,7 +27,7 @@ class MoveTest {
         piece = new ChessPiece<>(StandardPieceType.PAWN, true);
         from = Square.a1;
         to = Square.b1;
-        gameState.setPieceAt(piece, from);
+        gameState.setPieceAt(from, piece);
         mockComponent = mock(MoveComponent.class);
     }
 

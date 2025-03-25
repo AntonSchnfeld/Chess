@@ -24,13 +24,13 @@ public class RecursiveMoveGenerationBenchmark {
 
     @Setup(Level.Trial)  // Setup only once per benchmark trial
     public void setup() {
-        moveGenerator = Rules.DEFAULT;
+        moveGenerator = Rules.standard();
         initialGameState = new GameState<>(BoardUtility.getDefaultBoard());
     }
 
     @Benchmark
     public long recursiveMoveGeneration() {
-        return generateMovesRecursively(initialGameState, 5);
+        return generateMovesRecursively(initialGameState, 3);
     }
 
     private long generateMovesRecursively(GameState<StandardPieceType> state, int depth) {

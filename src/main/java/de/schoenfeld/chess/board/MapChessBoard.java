@@ -6,10 +6,7 @@ import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.model.Square;
 
 import java.io.Serial;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MapChessBoard<T extends PieceType> implements ChessBoard<T> {
     @Serial
@@ -43,6 +40,11 @@ public class MapChessBoard<T extends PieceType> implements ChessBoard<T> {
     @Override
     public ChessBoardBounds getBounds() {
         return bounds;
+    }
+
+    public void setBounds(ChessBoardBounds newBounds) {
+        if (newBounds.equals(bounds)) return;
+        bounds = newBounds;
     }
 
     @Override
@@ -89,7 +91,7 @@ public class MapChessBoard<T extends PieceType> implements ChessBoard<T> {
         return pieces;
     }
 
-    public void setPieceAt(ChessPiece<T> piece, Square square) {
+    public void setPieceAt(Square square, ChessPiece<T> piece) {
         if (!bounds.contains(square))
             throw new IllegalArgumentException("position must be in bounds");
 
@@ -129,13 +131,66 @@ public class MapChessBoard<T extends PieceType> implements ChessBoard<T> {
         positionMap.clear();
     }
 
-    public void setBounds(ChessBoardBounds newBounds) {
-        if (newBounds.equals(bounds)) return;
-        bounds = newBounds;
+    @Override
+    public String toFen() {
+        StringBuilder fen = new StringBuilder();
+
+        // For each rank (8 to 1 in standard chess boards)
+        for (int rank = bounds.rows() - 1; rank >= 0; rank--) {
+            int emptyCount = 0;
+
+            // Iterate over each file (0 to 7 in standard chess boards)
+            for (int file = 0; file < bounds.columns(); file++) {
+                Square square = Square.of(file, rank);
+                ChessPiece<T> piece = positionMap.get(square);
+
+                if (piece == null) {
+                    // Increment empty square counter if the square is empty
+                    emptyCount++;
+                } else {
+                    // If we were counting empty squares, add that number to the FEN string
+                    if (emptyCount > 0) {
+                        fen.append(emptyCount);
+                        emptyCount = 0;
+                    }
+
+                    // Append the piece to the FEN string (capitalize for white, lowercase for black)
+                    fen.append(piece.isWhite() ? piece.pieceType().symbol() : piece.pieceType().symbol().toLowerCase());
+                }
+            }
+
+            // Append the empty square count (if any) at the end of the rank
+            if (emptyCount > 0) {
+                fen.append(emptyCount);
+            }
+
+            // If it's not the last rank, add a separator
+            if (rank > 0) {
+                fen.append('/');
+            }
+        }
+
+        // For now, we'll just return the piece placement. You can add the rest of the FEN string later.
+        return fen.toString();
     }
 
     @Override
-    public String toFen() {
-        return "";
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        MapChessBoard<?> that = (MapChessBoard<?>) object;
+        return Objects.equals(positionMap, that.positionMap) && Objects.equals(bounds, that.bounds);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(positionMap, bounds);
+    }
+
+    @Override
+    public String toString() {
+        return "MapChessBoard{" +
+                "positionMap=" + positionMap +
+                ", bounds=" + bounds +
+                '}';
     }
 }

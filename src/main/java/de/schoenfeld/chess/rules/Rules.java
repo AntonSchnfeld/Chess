@@ -25,32 +25,36 @@ public record Rules<T extends PieceType>(List<GenerativeMoveRule<T>> generativeM
                                          List<RestrictiveMoveRule<T>> restrictiveMoveRules,
                                          List<GameConclusionRule<T>> gameConclusionRules)
         implements MoveGenerator<T> {
-    public static final Rules<StandardPieceType> DEFAULT;
+    private static final Rules<StandardPieceType> STANDARD = createStandard();
 
-    static {
-        var generativeMoveRules = List.of(
-                new PawnMoveRule(),
-                new KnightMoveRule(),
-                new BishopMoveRule(),
-                new RookMoveRule(),
-                new QueenMoveRule(),
-                new KingMoveRule()
+    public static Rules<StandardPieceType> standard() {
+        return STANDARD;
+    }
+
+    private static Rules<StandardPieceType> createStandard() {
+        List<GenerativeMoveRule<StandardPieceType>> generativeMoveRules = List.of(
+                PawnMoveRule.standard(),
+                KnightMoveRule.standard(),
+                BishopMoveRule.standard(),
+                RookMoveRule.standard(),
+                QueenMoveRule.standard(),
+                KingMoveRule.standard()
         );
         MoveGenerator<StandardPieceType> moveGenerator = new SimpleMoveGenerator<>(generativeMoveRules);
-        var restrictiveMoveRules = List.of(
-                new FriendlyFireRule<StandardPieceType>(),
+        List<RestrictiveMoveRule<StandardPieceType>> restrictiveMoveRules = List.of(
+                new FriendlyFireRule<>(),
                 new CheckRule(moveGenerator),
                 new NoCastlingThroughCheckRule(moveGenerator)
         );
         MoveGenerator<StandardPieceType> gameEndMoveGenerator =
                 new RestrictiveMoveGenerator<>(restrictiveMoveRules, generativeMoveRules);
-        var gameEndRules = List.of(
+        List<GameConclusionRule<StandardPieceType>> gameEndRules = List.of(
                 new NoPiecesRule<StandardPieceType>(),
                 new InsufficientMaterialRule(),
                 new StaleMateRule(gameEndMoveGenerator),
                 new CheckMateRule(gameEndMoveGenerator)
         );
-        DEFAULT = new Rules<>(generativeMoveRules, restrictiveMoveRules, gameEndRules);
+        return new Rules<>(generativeMoveRules, restrictiveMoveRules, gameEndRules);
     }
 
     public Rules(List<GenerativeMoveRule<T>> generativeMoveRules,

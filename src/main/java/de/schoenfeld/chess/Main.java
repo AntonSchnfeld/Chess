@@ -49,10 +49,12 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        Rules<StandardPieceType> rules = Rules.DEFAULT;
+        Rules<StandardPieceType> rules = Rules.standard();
         GameState<StandardPieceType> gameState = new GameState<>(
                 BoardUtility.getDefaultBoard(),
                 new MoveHistory<>(), true);
+
+        System.out.println(gameState.toFen());
 
         MoveOrderingHeuristic<StandardPieceType> heuristic = new AggressiveMoveOrdering();
         GameStateEvaluator<StandardPieceType> advancedEvaluator = new AdvancedEvaluator(rules);

@@ -8,11 +8,11 @@ import de.schoenfeld.chess.model.Square;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.move.components.CaptureComponent;
-import de.schoenfeld.chess.rules.generative.GenerativeMoveRule;
+import de.schoenfeld.chess.rules.generative.AbstractGenerativeMoveRule;
 
 import java.util.List;
 
-public abstract class SlidingPieceMoveRule<T extends PieceType> implements GenerativeMoveRule<T> {
+public abstract class SlidingPieceMoveRule<T extends PieceType> extends AbstractGenerativeMoveRule<T> {
 
     public static final List<Square> STRAIGHT_DIRECTIONS = List.of(
             Square.of(1, 0),  // Right
@@ -38,11 +38,13 @@ public abstract class SlidingPieceMoveRule<T extends PieceType> implements Gener
 
     private final List<Square> directions;
 
-    public SlidingPieceMoveRule(List<Square> directions) {
+    public SlidingPieceMoveRule(T type, List<Square> directions) {
+        super(type);
         this.directions = directions;
     }
 
-    protected void generateMoves(GameState<T> gameState,
+    @Override
+    protected void generatePieceMoves(GameState<T> gameState,
                                  Square position,
                                  MoveCollection<T> moves) {
         ChessBoard<T> board = gameState.getChessBoard();

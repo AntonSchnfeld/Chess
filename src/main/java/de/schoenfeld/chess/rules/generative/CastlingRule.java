@@ -58,7 +58,7 @@ public class CastlingRule implements GenerativeMoveRule<StandardPieceType> {
 
         // Create the castling move
         moves.add(Move.of(gameState.getPieceAt(kingPos), kingPos, kingTarget,
-                new CastlingComponent(gameState.getPieceAt(rookPos), rookPos, rookTarget)));
+                new CastlingComponent(rookPos, rookTarget)));
     }
 
     private boolean areIntermediateSquaresEmpty(ChessBoard<StandardPieceType> board, Square from, Square to) {

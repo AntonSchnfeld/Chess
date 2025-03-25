@@ -1,10 +1,14 @@
 package de.schoenfeld.chess.move.components;
 
-import de.schoenfeld.chess.model.*;
+import de.schoenfeld.chess.model.ChessPiece;
+import de.schoenfeld.chess.model.GameState;
+import de.schoenfeld.chess.model.Square;
+import de.schoenfeld.chess.model.StandardPieceType;
 import de.schoenfeld.chess.move.Move;
 import org.junit.jupiter.api.BeforeEach;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class CastlingComponentTest extends MoveComponentTest<StandardPieceType> {
     private ChessPiece<StandardPieceType> rook;
@@ -27,12 +31,12 @@ class CastlingComponentTest extends MoveComponentTest<StandardPieceType> {
         rookTo = Square.of(5, 0);   // Rook's destination after castling
 
         // Place pieces on board
-        gameState.setPieceAt(piece, from);
-        gameState.setPieceAt(rook, rookFrom);
+        gameState.setPieceAt(from, piece);
+        gameState.setPieceAt(rookFrom, rook);
 
         // Create the move and component
-        move = Move.of(piece, from, to);
-        moveComponent = new CastlingComponent(rook, rookFrom, rookTo);
+        moveComponent = new CastlingComponent(rookFrom, rookTo);
+        move = Move.of(piece, from, to, moveComponent);
     }
 
     @Override
@@ -41,7 +45,7 @@ class CastlingComponentTest extends MoveComponentTest<StandardPieceType> {
         assertEquals(piece, gameState.getPieceAt(to), "King should be at the target position.");
         assertEquals(rook, gameState.getPieceAt(rookTo), "Rook should have moved to its castling position.");
 
-        // Ensure original squares are now empty
+        // Ensure the original squares are now empty
         assertNull(gameState.getPieceAt(from), "King's original square should be empty.");
         assertNull(gameState.getPieceAt(rookFrom), "Rook's original square should be empty.");
     }

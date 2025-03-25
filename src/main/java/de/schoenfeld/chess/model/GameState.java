@@ -7,6 +7,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class GameState<T extends PieceType> implements ChessBoard<T>, Serializable {
     @Serial
@@ -31,7 +32,7 @@ public class GameState<T extends PieceType> implements ChessBoard<T>, Serializab
     }
 
     public GameState() {
-        this(new MapChessBoard<T>(new ChessBoardBounds(8, 8)), new MoveHistory<>());
+        this(new MapChessBoard<>(new ChessBoardBounds(8, 8)), new MoveHistory<>());
     }
 
     public GameState(ChessBoard<T> chessBoard, MoveHistory<T> moveHistory) {
@@ -42,8 +43,16 @@ public class GameState<T extends PieceType> implements ChessBoard<T>, Serializab
         return chessBoard;
     }
 
+    public void setChessBoard(ChessBoard<T> newBoard) {
+        this.chessBoard = newBoard;
+    }
+
     public MoveHistory<T> getMoveHistory() {
         return moveHistory;
+    }
+
+    public void setMoveHistory(MoveHistory<T> newHistory) {
+        this.moveHistory = newHistory;
     }
 
     public boolean isWhiteTurn() {
@@ -64,14 +73,6 @@ public class GameState<T extends PieceType> implements ChessBoard<T>, Serializab
         isWhiteTurn = !isWhiteTurn;
     }
 
-    public void setChessBoard(ChessBoard<T> newBoard) {
-        this.chessBoard = newBoard;
-    }
-
-    public void setMoveHistory(MoveHistory<T> newHistory) {
-        this.moveHistory = newHistory;
-    }
-
     @Override
     public ChessPiece<T> getPieceAt(Square square) {
         return chessBoard.getPieceAt(square);
@@ -80,6 +81,11 @@ public class GameState<T extends PieceType> implements ChessBoard<T>, Serializab
     @Override
     public ChessBoardBounds getBounds() {
         return chessBoard.getBounds();
+    }
+
+    @Override
+    public void setBounds(ChessBoardBounds bounds) {
+        chessBoard.setBounds(bounds);
     }
 
     @Override
@@ -108,8 +114,8 @@ public class GameState<T extends PieceType> implements ChessBoard<T>, Serializab
     }
 
     @Override
-    public void setPieceAt(ChessPiece<T> piece, Square square) {
-        chessBoard.setPieceAt(piece, square);
+    public void setPieceAt(Square square, ChessPiece<T> piece) {
+        chessBoard.setPieceAt(square, piece);
     }
 
     @Override
@@ -133,7 +139,23 @@ public class GameState<T extends PieceType> implements ChessBoard<T>, Serializab
     }
 
     @Override
-    public void setBounds(ChessBoardBounds bounds) {
-        chessBoard.setBounds(bounds);
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        GameState<?> gameState = (GameState<?>) object;
+        return isWhiteTurn == gameState.isWhiteTurn && Objects.equals(chessBoard, gameState.chessBoard) && Objects.equals(moveHistory, gameState.moveHistory);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(chessBoard, moveHistory, isWhiteTurn);
+    }
+
+    @Override
+    public String toString() {
+        return "GameState{" +
+                "chessBoard=" + chessBoard +
+                ", moveHistory=" + moveHistory +
+                ", isWhiteTurn=" + isWhiteTurn +
+                '}';
     }
 }

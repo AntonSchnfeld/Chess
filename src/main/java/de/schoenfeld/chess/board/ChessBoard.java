@@ -14,6 +14,8 @@ public interface ChessBoard<T extends PieceType> extends Serializable {
 
     ChessBoardBounds getBounds();
 
+    void setBounds(ChessBoardBounds bounds);
+
     List<Square> getSquaresWithColour(boolean isWhite);
 
     List<Square> getOccupiedSquares();
@@ -26,7 +28,7 @@ public interface ChessBoard<T extends PieceType> extends Serializable {
 
     String toFen();
 
-    void setPieceAt(ChessPiece<T> piece, Square square);
+    void setPieceAt(Square square, ChessPiece<T> piece);
 
     void removePieceAt(Square square);
 
@@ -35,6 +37,4 @@ public interface ChessBoard<T extends PieceType> extends Serializable {
     void setAllPieces(Map<Square, ChessPiece<T>> pieces);
 
     void removePieces();
-
-    void setBounds(ChessBoardBounds bounds);
 }

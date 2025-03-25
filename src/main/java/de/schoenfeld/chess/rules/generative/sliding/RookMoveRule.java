@@ -1,28 +1,17 @@
 package de.schoenfeld.chess.rules.generative.sliding;
 
-import de.schoenfeld.chess.model.GameState;
-import de.schoenfeld.chess.model.Square;
+import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.model.StandardPieceType;
-import de.schoenfeld.chess.move.MoveCollection;
 
-import java.util.List;
+public class RookMoveRule<T extends PieceType> extends SlidingPieceMoveRule<T> {
+    private final static RookMoveRule<StandardPieceType> STANDARD =
+            new RookMoveRule<>(StandardPieceType.ROOK);
 
-public class RookMoveRule extends SlidingPieceMoveRule<StandardPieceType> {
-
-    public RookMoveRule() {
-        super(SlidingPieceMoveRule.STRAIGHT_DIRECTIONS);
+    public RookMoveRule(T rookType) {
+        super(rookType, SlidingPieceMoveRule.STRAIGHT_DIRECTIONS);
     }
 
-    @Override
-    public MoveCollection<StandardPieceType> generateMoves(GameState<StandardPieceType> gameState) {
-        List<Square> rookSquares = gameState
-                .getSquaresWithTypeAndColour(StandardPieceType.ROOK, gameState.isWhiteTurn());
-        MoveCollection<StandardPieceType> moves = new MoveCollection<>();
-
-        for (Square square : rookSquares) {
-            generateMoves(gameState, square, moves);
-        }
-
-        return moves;
+    public static RookMoveRule<StandardPieceType> standard() {
+        return STANDARD;
     }
 }

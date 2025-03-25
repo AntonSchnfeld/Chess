@@ -1,7 +1,7 @@
 package de.schoenfeld.chess.model;
 
 public enum StandardPieceType implements PieceType {
-    PAWN("", 1),
+    PAWN("P", 100),
     KNIGHT("N", 320),
     BISHOP("B", 330),
     ROOK("R", 500),

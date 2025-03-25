@@ -77,6 +77,24 @@ public class ListChessBoard<T extends PieceType> implements ChessBoard<T> {
     }
 
     @Override
+    public void setBounds(ChessBoardBounds newBounds) {
+        List<ChessPiece<T>> newPieces = new ArrayList<>(
+                Collections.nCopies(newBounds.rows() * newBounds.columns(), null)
+        );
+
+        IntStream.range(0, Math.min(bounds.rows(), newBounds.rows()))
+                .forEach(y -> IntStream.range(0, Math.min(bounds.columns(), newBounds.columns()))
+                        .forEach(x -> {
+                            Square pos = new Square(x, y);
+                            if (newBounds.contains(pos)) {
+                                newPieces.set(pos.x() + pos.y() * newBounds.columns(), getPieceAt(pos));
+                            }
+                        }));
+        pieces = newPieces;
+        this.bounds = newBounds;
+    }
+
+    @Override
     public List<Square> getSquaresWithColour(boolean isWhite) {
         List<Square> squares = new ArrayList<>();
 
@@ -137,9 +155,8 @@ public class ListChessBoard<T extends PieceType> implements ChessBoard<T> {
         return Square.of(column, row); // Swap row and column
     }
 
-
     @Override
-    public void setPieceAt(ChessPiece<T> piece, Square square) {
+    public void setPieceAt(Square square, ChessPiece<T> piece) {
         pieces.set(calculateIndex(square), piece);
     }
 
@@ -177,24 +194,6 @@ public class ListChessBoard<T extends PieceType> implements ChessBoard<T> {
     }
 
     @Override
-    public void setBounds(ChessBoardBounds newBounds) {
-        List<ChessPiece<T>> newPieces = new ArrayList<>(
-                Collections.nCopies(newBounds.rows() * newBounds.columns(), null)
-        );
-
-        IntStream.range(0, Math.min(bounds.rows(), newBounds.rows()))
-                .forEach(y -> IntStream.range(0, Math.min(bounds.columns(), newBounds.columns()))
-                        .forEach(x -> {
-                            Square pos = new Square(x, y);
-                            if (newBounds.contains(pos)) {
-                                newPieces.set(pos.x() + pos.y() * newBounds.columns(), getPieceAt(pos));
-                            }
-                        }));
-        pieces = newPieces;
-        this.bounds = newBounds;
-    }
-
-    @Override
     public String toFen() {
         StringBuilder fen = new StringBuilder();
         for (int y = bounds.rows() - 1; y >= 0; y--) {
@@ -218,5 +217,25 @@ public class ListChessBoard<T extends PieceType> implements ChessBoard<T> {
             if (y > 0) fen.append('/');
         }
         return fen.toString();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        ListChessBoard<?> that = (ListChessBoard<?>) object;
+        return Objects.equals(pieces, that.pieces) && Objects.equals(bounds, that.bounds);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieces, bounds);
+    }
+
+    @Override
+    public String toString() {
+        return "ListChessBoard{" +
+                "pieces=" + pieces +
+                ", bounds=" + bounds +
+                '}';
     }
 }

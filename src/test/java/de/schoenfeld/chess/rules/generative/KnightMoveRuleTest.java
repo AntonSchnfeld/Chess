@@ -15,7 +15,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class KnightMoveRuleTest {
-    private KnightMoveRule tested;
+    private KnightMoveRule<StandardPieceType> tested;
     private GameState<StandardPieceType> gameState;
     private ChessBoardBounds bounds;
     private ChessPiece<StandardPieceType> knight;
@@ -24,7 +24,7 @@ public class KnightMoveRuleTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        tested = new KnightMoveRule();
+        tested = KnightMoveRule.standard();
         bounds = new ChessBoardBounds(8, 8);
         knight = new ChessPiece<>(StandardPieceType.KNIGHT, true);
         knightSquare = Square.of(3, 3);

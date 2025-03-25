@@ -22,7 +22,7 @@ abstract class MoveComponentTest<T extends PieceType> {
     @Test
     void givenMove_whenExecuteOn_thenComponentAppliesEffect() {
         // When
-        moveComponent.executeOn(gameState, move);
+        move.executeOn(gameState);
 
         // Then
         verifyComponentExecuted(gameState, move);
@@ -31,8 +31,8 @@ abstract class MoveComponentTest<T extends PieceType> {
     @Test
     void givenExecutedMove_whenUndoOn_thenComponentReversesEffect() {
         // When
-        moveComponent.executeOn(gameState, move);
-        moveComponent.undoOn(gameState, move);
+        move.executeOn(gameState);
+        move.undoOn(gameState);
 
         // Then
         verifyComponentUndone(gameState, move);

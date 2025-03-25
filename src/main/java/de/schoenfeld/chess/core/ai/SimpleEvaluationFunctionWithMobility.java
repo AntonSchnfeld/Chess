@@ -29,6 +29,27 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<
         this.moveGenerator = moveGenerator;
     }
 
+    private static int getPenalty(Map<Integer, Integer> fileCounts, List<Square> pawnSquares) {
+        int penalty = 0;
+        // Penalize doubled pawns: for each extra pawn in a file, apply a penalty.
+        for (Integer count : fileCounts.values()) {
+            if (count > 1) {
+                penalty += (count - 1) * DOUBLED_PAWN_PENALTY;
+            }
+        }
+
+        // Penalize isolated pawns: if a pawn's file has no adjacent friendly pawn.
+        for (Square pawnPos : pawnSquares) {
+            int file = pawnPos.x();
+            boolean hasLeft = fileCounts.containsKey(file - 1);
+            boolean hasRight = fileCounts.containsKey(file + 1);
+            if (!hasLeft && !hasRight) {
+                penalty += ISOLATED_PAWN_PENALTY;
+            }
+        }
+        return penalty;
+    }
+
     @Override
     public int evaluate(GameState<StandardPieceType> gameState) {
         if (gameState == null) {
@@ -86,27 +107,6 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<
         }
 
         return getPenalty(fileCounts, pawnSquares);
-    }
-
-    private static int getPenalty(Map<Integer, Integer> fileCounts, List<Square> pawnSquares) {
-        int penalty = 0;
-        // Penalize doubled pawns: for each extra pawn in a file, apply a penalty.
-        for (Integer count : fileCounts.values()) {
-            if (count > 1) {
-                penalty += (count - 1) * DOUBLED_PAWN_PENALTY;
-            }
-        }
-
-        // Penalize isolated pawns: if a pawn's file has no adjacent friendly pawn.
-        for (Square pawnPos : pawnSquares) {
-            int file = pawnPos.x();
-            boolean hasLeft = fileCounts.containsKey(file - 1);
-            boolean hasRight = fileCounts.containsKey(file + 1);
-            if (!hasLeft && !hasRight) {
-                penalty += ISOLATED_PAWN_PENALTY;
-            }
-        }
-        return penalty;
     }
 
     private int getPieceValue(PieceType type) {
