@@ -37,9 +37,7 @@ public class KingMoveRule<T extends PieceType> extends AbstractGenerativeMoveRul
                 ChessPiece<T> targetPiece = gameState.getPieceAt(to);
                 // Check if the target position is empty or contains an enemy piece
                 if (targetPiece == null) moves.add(Move.of(king, kingPos, to));
-                    // Capture
-                else if (targetPiece.isWhite() != king.isWhite())
-                    moves.add(Move.of(king, kingPos, to, new CaptureComponent<>(targetPiece)));
+                else moves.add(Move.of(king, kingPos, to, new CaptureComponent<>(targetPiece)));
             }
         }
     }

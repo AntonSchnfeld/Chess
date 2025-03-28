@@ -47,13 +47,13 @@ public record Square(int x, int y) {
     }
 
     public Square offset(int dx, int dy) {
-        return new Square(x + dx, y + dy);
+        return Square.of(x + dx, y + dy);
     }
 
     public Square offset(Square square) {
         if (square == null)
             throw new IllegalArgumentException("position must not be null");
-        return new Square(square.x + x, square.y + y);
+        return Square.of(square.x + x, square.y + y);
     }
 
     public String toAlgebraic() {

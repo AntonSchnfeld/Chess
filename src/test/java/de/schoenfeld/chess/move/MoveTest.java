@@ -1,5 +1,6 @@
 package de.schoenfeld.chess.move;
 
+import de.schoenfeld.chess.board.BoardUtility;
 import de.schoenfeld.chess.model.ChessPiece;
 import de.schoenfeld.chess.model.GameState;
 import de.schoenfeld.chess.model.Square;
@@ -79,5 +80,36 @@ class MoveTest {
         assertEquals(piece, gameState.getPieceAt(from));
         assertEquals(0, gameState.getMoveHistory().getMoveCount());
         verify(mockComponent).undoOn(gameState, tested);
+    }
+
+    @Test
+    public void givenValidMoveWithComponent_whenUndoOn_thenUndoesProperly() {
+        gameState = new GameState<>(BoardUtility.getDefaultBoard());
+        piece = new ChessPiece<>(StandardPieceType.PAWN, true);
+        from = Square.of(4, 1);
+        to = Square.of(4, 2);
+        tested = Move.of(piece, from, to, mockComponent);
+
+        tested.executeOn(gameState);
+
+        assertFalse(gameState.isWhiteTurn());
+        assertEquals(piece, gameState.getPieceAt(to));
+        assertNull(gameState.getPieceAt(from));
+        assertEquals(1, gameState.getMoveHistory().getMoveCount());
+        assertEquals(tested, gameState.getMoveHistory().getLastMove());
+        verify(mockComponent).executeOn(gameState, tested);
+
+        tested.undoOn(gameState);
+
+        assertTrue(gameState.isWhiteTurn());
+        assertEquals(piece, gameState.getPieceAt(from));
+        assertNull(gameState.getPieceAt(to));
+        assertEquals(0, gameState.getMoveHistory().getMoveCount());
+        assertNull(gameState.getMoveHistory().getLastMove());
+        verify(mockComponent).undoOn(gameState, tested);
+    }
+
+    public void givenAFewMoves_whenExecutingAndUndoing_thenWorksProperly() {
+
     }
 }

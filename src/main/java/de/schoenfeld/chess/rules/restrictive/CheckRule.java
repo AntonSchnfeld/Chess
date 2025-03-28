@@ -29,25 +29,23 @@ public class CheckRule implements RestrictiveMoveRule<StandardPieceType> {
         // 6. Check if any opponent move targets any king
 
         Iterator<Move<StandardPieceType>> iterator = moves.iterator();
-
+        boolean isWhiteTurn = gameState.isWhiteTurn();
         while (iterator.hasNext()) {
             Move<StandardPieceType> move = iterator.next();
 
-            // Simulate move
+            // Simulate move, gameState now has opponent as turn
             move.executeOn(gameState);
 
             // Get the current player's king in the simulated future state
             List<Square> kingSquares = gameState
-                    .getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn());
+                    .getSquaresWithTypeAndColour(StandardPieceType.KING, isWhiteTurn);
 
             if (kingSquares.isEmpty()) {
                 // This should never happen in a normal game, but we guard against it
                 continue;
             }
 
-            gameState.switchTurn();
             MoveCollection<StandardPieceType> opponentMoves = moveGenerator.generateMoves(gameState);
-            gameState.switchTurn();
 
             for (Square square : kingSquares) {
                 // If any opponent move targets the king's position, the move is illegal

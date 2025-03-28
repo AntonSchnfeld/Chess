@@ -3,6 +3,7 @@ package de.schoenfeld.chess.rules.generative;
 import de.schoenfeld.chess.model.*;
 import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.move.MoveCollection;
+import de.schoenfeld.chess.move.components.CaptureComponent;
 import de.schoenfeld.chess.move.components.PromotionComponent;
 
 import java.util.List;
@@ -22,15 +23,6 @@ public class PawnMoveRule<T extends PieceType> extends AbstractGenerativeMoveRul
 
     public static PawnMoveRule<StandardPieceType> standard() {
         return STANDARD;
-    }
-
-    private static <T extends PieceType> void addPromotionMoves(MoveCollection<T> moves,
-                                                                ChessPiece<T> pawn,
-                                                                Square from,
-                                                                Square to,
-                                                                List<T> promotionTypes) {
-        for (T promotionType : promotionTypes)
-            moves.add(Move.of(pawn, from, to, new PromotionComponent<>(promotionType)));
     }
 
     private static <T extends PieceType> boolean isPromotionRank(ChessPiece<T> pawn,
@@ -53,19 +45,23 @@ public class PawnMoveRule<T extends PieceType> extends AbstractGenerativeMoveRul
                 gameState.getPieceAt(oneForward) == null) {
             // Check if the one-step move is a promotion
             if (isPromotionRank(pawn, oneForward.y(), gameState.getBounds()))
-                addPromotionMoves(moves, pawn, pawnSquare, oneForward, promotionTypes);
+                for (T pieceType : promotionTypes)
+                    moves.add(Move.of(pawn, pawnSquare, oneForward, new PromotionComponent<>(pieceType)));
                 // Otherwise, add a normal one-step move
             else moves.add(Move.of(pawn, pawnSquare, oneForward));
 
+            int advanceRank = pawn.isWhite() ? 1 : 6;
+
             // Add a two-step move if pawn hasn't moved yet
-            if (!pawn.hasMoved()) {
+            if (pawnSquare.y() == advanceRank) {
                 Square twoForward = oneForward.offset(0, direction);
                 // Check if the two-step move is possible
                 if (gameState.getBounds().contains(twoForward) &&
                         gameState.getPieceAt(twoForward) == null) {
                     // Check if the two-step move is a promotion
                     if (isPromotionRank(pawn, twoForward.y(), gameState.getBounds()))
-                        addPromotionMoves(moves, pawn, pawnSquare, twoForward, promotionTypes);
+                        for (T pieceType : promotionTypes)
+                            moves.add(Move.of(pawn, pawnSquare, twoForward, new PromotionComponent<>(pieceType)));
                         // Otherwise, add a normal two-step move
                     else moves.add(Move.of(pawn, pawnSquare, twoForward));
                 }
@@ -82,9 +78,10 @@ public class PawnMoveRule<T extends PieceType> extends AbstractGenerativeMoveRul
                 if (capturePiece != null && capturePiece.isWhite() != pawn.isWhite()) {
                     // Check if the capture is a promotion
                     if (isPromotionRank(pawn, capturePosition.y(), gameState.getBounds()))
-                        addPromotionMoves(moves, pawn, pawnSquare, capturePosition, promotionTypes);
+                        for (T pieceType : promotionTypes)
+                            moves.add(Move.of(pawn, pawnSquare, capturePosition, new PromotionComponent<>(pieceType), new CaptureComponent<>(capturePiece)));
                         // Otherwise, add a normal capture
-                    else moves.add(Move.of(pawn, pawnSquare, capturePosition));
+                    else moves.add(Move.of(pawn, pawnSquare, capturePosition, new CaptureComponent<>(capturePiece)));
                 }
             }
         }

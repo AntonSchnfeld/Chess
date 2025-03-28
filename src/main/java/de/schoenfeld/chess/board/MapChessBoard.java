@@ -189,8 +189,7 @@ public class MapChessBoard<T extends PieceType> implements ChessBoard<T> {
     @Override
     public String toString() {
         return "MapChessBoard{" +
-                "positionMap=" + positionMap +
-                ", bounds=" + bounds +
+                toFen() +
                 '}';
     }
 }

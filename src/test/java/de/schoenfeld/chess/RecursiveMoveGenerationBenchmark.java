@@ -7,6 +7,7 @@ import de.schoenfeld.chess.move.Move;
 import de.schoenfeld.chess.rules.MoveGenerator;
 import de.schoenfeld.chess.rules.Rules;
 import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.infra.Blackhole;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -29,8 +30,9 @@ public class RecursiveMoveGenerationBenchmark {
     }
 
     @Benchmark
-    public long recursiveMoveGeneration() {
-        return generateMovesRecursively(initialGameState, 3);
+    public void recursiveMoveGeneration(Blackhole blackhole) {
+        long nodes = generateMovesRecursively(initialGameState, 3);
+        blackhole.consume(nodes);
     }
 
     private long generateMovesRecursively(GameState<StandardPieceType> state, int depth) {

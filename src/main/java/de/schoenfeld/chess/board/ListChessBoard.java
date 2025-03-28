@@ -196,11 +196,12 @@ public class ListChessBoard<T extends PieceType> implements ChessBoard<T> {
     @Override
     public String toFen() {
         StringBuilder fen = new StringBuilder();
+
         for (int y = bounds.rows() - 1; y >= 0; y--) {
             int emptyCounter = 0;
 
             for (int x = 0; x < bounds.columns(); x++) {
-                ChessPiece<T> piece = getPieceAt(new Square(x, y));
+                ChessPiece<T> piece = getPieceAt(Square.of(x, y));
 
                 if (piece == null) {
                     emptyCounter++;
@@ -213,11 +214,18 @@ public class ListChessBoard<T extends PieceType> implements ChessBoard<T> {
                 }
             }
 
-            if (emptyCounter > 0) fen.append(emptyCounter);
-            if (y > 0) fen.append('/');
+            if (emptyCounter > 0) {
+                fen.append(emptyCounter);
+            }
+
+            if (y > 0) {
+                fen.append('/');
+            }
         }
+
         return fen.toString();
     }
+
 
     @Override
     public boolean equals(Object object) {
@@ -234,8 +242,7 @@ public class ListChessBoard<T extends PieceType> implements ChessBoard<T> {
     @Override
     public String toString() {
         return "ListChessBoard{" +
-                "pieces=" + pieces +
-                ", bounds=" + bounds +
+                toFen() +
                 '}';
     }
 }

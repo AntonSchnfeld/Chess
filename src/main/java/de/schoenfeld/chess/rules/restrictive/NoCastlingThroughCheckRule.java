@@ -21,7 +21,7 @@ public class NoCastlingThroughCheckRule implements RestrictiveMoveRule<StandardP
     @Override
     public void filterMoves(MoveCollection<StandardPieceType> moves, GameState<StandardPieceType> gameState) {
         Iterator<Move<StandardPieceType>> iterator = moves.iterator();
-
+        boolean isWhiteTurn = gameState.isWhiteTurn();
         while (iterator.hasNext()) {
             Move<StandardPieceType> move = iterator.next();
 
@@ -31,7 +31,7 @@ public class NoCastlingThroughCheckRule implements RestrictiveMoveRule<StandardP
             Square kingTo = move.to();
             List<Square> intermediatePositions = getIntermediateKingPositions(kingFrom, kingTo);
 
-            if (isAnyPositionAttacked(intermediatePositions, gameState)) {
+            if (isAnyPositionAttacked(intermediatePositions, gameState, isWhiteTurn)) {
                 iterator.remove();
             }
         }
@@ -46,8 +46,8 @@ public class NoCastlingThroughCheckRule implements RestrictiveMoveRule<StandardP
     }
 
     private boolean isAnyPositionAttacked(List<Square> squares,
-                                          GameState<StandardPieceType> gameState) {
-        gameState.switchTurn();
+                                          GameState<StandardPieceType> gameState,
+                                          boolean isWhiteTurn) {
         MoveCollection<StandardPieceType> opponentMoves = moveGenerator.generateMoves(gameState);
 
         for (Move<StandardPieceType> move : opponentMoves) {
@@ -56,7 +56,6 @@ public class NoCastlingThroughCheckRule implements RestrictiveMoveRule<StandardP
             }
         }
 
-        gameState.switchTurn();
         return false;
     }
 }

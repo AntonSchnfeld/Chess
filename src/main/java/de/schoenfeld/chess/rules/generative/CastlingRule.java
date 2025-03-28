@@ -19,19 +19,16 @@ public class CastlingRule implements GenerativeMoveRule<StandardPieceType> {
         boolean isWhite = gameState.isWhiteTurn();
 
         // Get all kings of the current player
-        List<Square> kings = board.getSquaresWithType(StandardPieceType.KING)
-                .stream()
-                .filter(square -> board.getPieceAt(square).isWhite() == isWhite)
-                .toList();
+        List<Square> kings = board.getSquaresWithTypeAndColour(StandardPieceType.KING, isWhite);
 
         for (Square kingPos : kings) {
             // Standard chess castling positions
-            Square kingSideRookPos = isWhite ? Square.of(7, 0) : Square.of(7, 7);
-            Square queenSideRookPos = isWhite ? Square.of(0, 0) : Square.of(0, 7);
-            Square kingSideCastlingTarget = isWhite ? Square.of(6, 0) : Square.of(6, 7);
+            Square kingSideRookPos = !isWhite ? Square.of(7, 0) : Square.of(7, 7);
+            Square queenSideRookPos = !isWhite ? Square.of(0, 0) : Square.of(0, 7);
+            Square kingSideCastlingTarget = !isWhite ? Square.of(6, 0) : Square.of(6, 7);
             Square queenSideCastlingTarget = isWhite ? Square.of(2, 0) : Square.of(2, 7);
-            Square kingSideRookTarget = isWhite ? Square.of(5, 0) : Square.of(5, 7);
-            Square queenSideRookTarget = isWhite ? Square.of(3, 0) : Square.of(3, 7);
+            Square kingSideRookTarget = !isWhite ? Square.of(5, 0) : Square.of(5, 7);
+            Square queenSideRookTarget = !isWhite ? Square.of(3, 0) : Square.of(3, 7);
 
             // Try adding castling moves
             checkAndAddCastlingMove(gameState, kingPos, kingSideRookPos, kingSideCastlingTarget, kingSideRookTarget, moves);
@@ -58,7 +55,7 @@ public class CastlingRule implements GenerativeMoveRule<StandardPieceType> {
 
         // Create the castling move
         moves.add(Move.of(gameState.getPieceAt(kingPos), kingPos, kingTarget,
-                new CastlingComponent(rookPos, rookTarget)));
+                new CastlingComponent<>(rookPos, rookTarget)));
     }
 
     private boolean areIntermediateSquaresEmpty(ChessBoard<StandardPieceType> board, Square from, Square to) {

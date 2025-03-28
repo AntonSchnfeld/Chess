@@ -13,5 +13,6 @@ public record CaptureComponent<T extends PieceType>(ChessPiece<T> capturedPiece)
 
     @Override
     public void undoOn(GameState<T> gameState, Move<T> move) {
+        gameState.setPieceAt(move.to(), capturedPiece);
     }
 }

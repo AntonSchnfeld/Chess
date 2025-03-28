@@ -6,10 +6,11 @@ import de.schoenfeld.chess.model.PieceType;
 import de.schoenfeld.chess.move.MoveCollection;
 import de.schoenfeld.chess.rules.Rules;
 
-import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public class ChessGame<T extends PieceType> {
+
     private final EventBus eventBus;
     private final UUID gameId;
     private final Rules<T> rules;
@@ -25,23 +26,23 @@ public class ChessGame<T extends PieceType> {
         this.eventBus = eventBus;
         this.gameId = gameId;
 
-        // Register for move proposals
         eventBus.subscribe(MoveProposedEvent.class, this::handleMoveProposed);
     }
 
     public void start() {
         eventBus.publish(new GameStartedEvent(gameId));
-        Optional<GameConclusion> gameConclusion = rules.detectGameEndCause(gameState);
-        if (gameConclusion.isPresent()) {
-            eventBus.publish(new GameEndedEvent(gameId, gameConclusion.get()));
-            return;
-        }
+
+        rules.detectGameEndCause(gameState).ifPresent(gameConclusion -> {
+            eventBus.publish(new GameEndedEvent(gameId, gameConclusion));
+        });
 
         eventBus.publish(new GameStateChangedEvent<>(gameId, gameState));
     }
 
     private void handleMoveProposed(MoveProposedEvent<T> event) {
-        if (!event.gameId().equals(gameId)) return;
+        if (!event.gameId().equals(gameId)) {
+            return;
+        }
 
         if (event.player().isWhite() != gameState.isWhiteTurn()) {
             eventBus.publish(new ErrorEvent(gameId, event.player(), "Not your turn"));
@@ -56,25 +57,19 @@ public class ChessGame<T extends PieceType> {
         MoveCollection<T> currentValidMoves = rules.generateMoves(gameState);
 
         if (!currentValidMoves.contains(event.move())) {
-            eventBus.publish(
-                    new ErrorEvent(
-                        gameId,
-                        event.player(),
-                        "Invalid move: " + event.move()
-                    )
-            );
+            eventBus.publish(new ErrorEvent(gameId, event.player(), "Invalid move: " + event.move()));
             return;
         }
 
         event.move().executeOn(gameState);
-        Optional<GameConclusion> gameEndCause = rules.detectGameEndCause(gameState);
-        if (gameEndCause.isPresent()) {
-            eventBus.publish(new GameEndedEvent(gameId, gameEndCause.get()));
-            return;
-        }
-
-        GameStateChangedEvent<T> gameStateChangedEvent = new GameStateChangedEvent<>(gameId, gameState);
-        eventBus.publish(gameStateChangedEvent);
+        rules.detectGameEndCause(gameState).ifPresentOrElse(
+                gameConclusion -> {
+                    eventBus.publish(new GameEndedEvent(gameId, gameConclusion));
+                },
+                () -> {
+                    eventBus.publish(new GameStateChangedEvent<>(gameId, gameState));
+                }
+        );
     }
 
     public GameState<T> getGameState() {

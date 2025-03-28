@@ -36,10 +36,11 @@ public class MoveCollection<T extends PieceType> implements List<Move<T>> {
         );
     }
 
-    public MoveCollection<T> getMovesForPiece(ChessPiece<T> piece) {
-        return MoveCollection.of(
-                pieceMap.getOrDefault(piece, Collections.emptyList())
-        );
+    public MoveCollection<T> getMovesFromSquare(Square from) {
+        MoveCollection<T> movesFromSquare = new MoveCollection<>();
+        for (Move<T> move : moves)
+            if (move.from().equals(from)) movesFromSquare.add(move);
+        return movesFromSquare;
     }
 
     @Override
@@ -91,7 +92,7 @@ public class MoveCollection<T extends PieceType> implements List<Move<T>> {
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        return new HashSet<>(moves).containsAll(c);
+        return moves.containsAll(c);
     }
 
     @Override
@@ -106,13 +107,12 @@ public class MoveCollection<T extends PieceType> implements List<Move<T>> {
 
     @Override
     public boolean addAll(int index, Collection<? extends Move<T>> c) {
-        boolean modified = false;
-        for (Move<T> move : c) {
-            add(index++, move);
-            modified = true;
-        }
-        return modified;
+        if (c.isEmpty()) return false;
+        moves.addAll(index, c);  // ✅ Single bulk insert
+        c.forEach(this::addToMaps);  // ✅ Efficient batch map update
+        return true;
     }
+
 
     @Override
     public boolean removeAll(Collection<?> c) {
@@ -194,19 +194,17 @@ public class MoveCollection<T extends PieceType> implements List<Move<T>> {
     private void removeFromMaps(Move<T> move) {
         if (move == null) return;
 
-        synchronized (this) {
-            Optional.ofNullable(moveMap.get(move.to()))
-                    .ifPresent(list -> {
-                        list.remove(move);
-                        if (list.isEmpty()) moveMap.remove(move.to());
-                    });
+        Optional.ofNullable(moveMap.get(move.to()))
+                .ifPresent(list -> {
+                    list.remove(move);
+                    if (list.isEmpty()) moveMap.remove(move.to());
+                });
 
-            Optional.ofNullable(pieceMap.get(move.movedPiece()))
-                    .ifPresent(list -> {
-                        list.remove(move);
-                        if (list.isEmpty()) pieceMap.remove(move.movedPiece());
-                    });
-        }
+        Optional.ofNullable(pieceMap.get(move.movedPiece()))
+                .ifPresent(list -> {
+                    list.remove(move);
+                    if (list.isEmpty()) pieceMap.remove(move.movedPiece());
+                });
     }
 
     private boolean bulkModify(Collection<?> c, boolean remove) {
@@ -279,7 +277,7 @@ public class MoveCollection<T extends PieceType> implements List<Move<T>> {
             listIterator.set(e);
             removeFromMaps(lastReturned);
             addToMaps(e);
-            lastReturned = null;
+            lastReturned = e;
         }
 
         @Override

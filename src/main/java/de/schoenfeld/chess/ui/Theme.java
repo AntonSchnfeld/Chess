@@ -22,4 +22,6 @@ public interface Theme {
     Color titleBarText();
 
     Color titleBarButton();
+
+    Color squareHighlight();
 }

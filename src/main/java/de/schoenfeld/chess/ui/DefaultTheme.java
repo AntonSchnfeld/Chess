@@ -55,4 +55,9 @@ public class DefaultTheme implements Theme {
     public Color titleBarButton() {
         return Color.WHITE;
     }
+
+    @Override
+    public Color squareHighlight() {
+        return new Color(0, 255, 103);
+    }
 }

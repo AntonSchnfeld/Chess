@@ -9,10 +9,12 @@ import java.awt.event.*;
 public class ChessSquare extends JLabel {
     private final Square position;
     private final Theme theme;
+    private boolean highlight;
 
     public ChessSquare(Square position, Theme theme) {
         this.position = position;
         this.theme = theme;
+        highlight = false;
         initialize();
     }
 
@@ -54,6 +56,10 @@ public class ChessSquare extends JLabel {
         });
     }
 
+    public void setHighlight(boolean highlight) {
+        this.highlight = highlight;
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         // Paint the background
@@ -68,7 +74,10 @@ public class ChessSquare extends JLabel {
                 0, 0, baseColor.brighter(),
                 getWidth(), getHeight(), baseColor.darker()
         );
-        g2d.setPaint(gradient);
+        if (highlight) {
+            g2d.setColor(theme.squareHighlight());
+        }
+        else g2d.setPaint(gradient);
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
         // Add a border

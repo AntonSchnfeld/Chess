@@ -6,6 +6,7 @@ import de.schoenfeld.chess.model.Square;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +32,23 @@ public class ChessBoardPanel extends JPanel {
                 add(square);
             }
         }
+    }
+
+    public Map<Square, ChessSquare> getSquares() {
+        return squares;
+    }
+
+    public void setSquareHighlight(Square square, boolean enabled) {
+        squares.get(square).setHighlight(enabled);
+        repaint();
+        updateUI();
+    }
+
+    public void clearHighlights() {
+        for (Map.Entry<Square, ChessSquare> entry : squares.entrySet())
+            entry.getValue().setHighlight(false);
+        repaint();
+        updateUI();
     }
 
     public <T extends PieceType> void updateBoard(Map<Square, ChessPiece<T>> positions) {

@@ -8,7 +8,6 @@ import de.schoenfeld.chess.model.Square;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,28 +21,31 @@ public class ChessUIClient {
         this.theme = theme;
         this.eventBus = eventBus;
         this.boardPanel = new ChessBoardPanel(renderer, theme);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         initializeUI();
         registerEventHandlers();
     }
 
+    public ChessBoardPanel getBoardPanel() {
+        return boardPanel;
+    }
+
     private void initializeUI() {
-        frame.setUndecorated(true);
-        frame.setShape(new RoundRectangle2D.Double(0, 0, 800, 800, 30, 30));
+        //frame.setUndecorated(true);
+        //frame.setShape(new RoundRectangle2D.Double(0, 0, 800, 800, 30, 30));
         frame.setSize(800, 800);
         frame.setLocationRelativeTo(null);
         frame.setLayout(new BorderLayout());
 
+        boardPanel.setFocusable(true);
+        boardPanel.setOpaque(true);
+
         JPanel contentPane = getJPanel();
         contentPane.setFont(Font.getFont(Font.SANS_SERIF));
 
-        JPanel wrapper = new JPanel(new BorderLayout());
-        wrapper.add(new CoordinatesPanel(true, theme), BorderLayout.EAST);
-        wrapper.add(new CoordinatesPanel(false, theme), BorderLayout.SOUTH);
-        wrapper.add(boardPanel, BorderLayout.CENTER);
-
-        contentPane.add(wrapper, BorderLayout.CENTER);
-        frame.add(contentPane);
-        frame.add(new CustomTitleBar(theme), BorderLayout.NORTH);
+        contentPane.add(boardPanel, BorderLayout.CENTER);
+        frame.setContentPane(contentPane);
+        boardPanel.requestFocusInWindow();
     }
 
     private JPanel getJPanel() {
@@ -81,12 +83,26 @@ public class ChessUIClient {
                 frame.revalidate();
                 frame.repaint();
             } catch (Exception e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         });
     }
 
     public void show() {
         frame.setVisible(true);
+    }
+
+    public Square getSquareAt(int x, int y) {
+        int boardSize = boardPanel.getWidth(); // Assuming square board
+        int squareSize = boardSize / 8; // Each square's size
+
+        int col = (x - boardPanel.getX()) / squareSize;
+        int row = (y - boardPanel.getY()) / squareSize;
+
+        if (col < 0 || col >= 8 || row < 0 || row >= 8) {
+            return null; // Click is outside the board
+        }
+
+        return Square.of(col, 7 - row); // Convert to chess coordinates
     }
 }
