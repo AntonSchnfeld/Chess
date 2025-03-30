@@ -38,17 +38,19 @@ public class NoCastlingThroughCheckRule implements RestrictiveMoveRule<StandardP
     }
 
     private List<Square> getIntermediateKingPositions(Square from, Square to) {
-        int direction = Integer.compare(to.x(), from.x()); // Only horizontal movement
+        int direction = Integer.compare(to.x(), from.x());
         return List.of(
-                new Square(from.x() + direction, from.y()),
-                new Square(from.x() + 2 * direction, from.y()) // King's destination
+                new Square(from.x() + direction, from.y()), // Feld, das König überquert
+                to // direktes Zielfeld
         );
     }
 
     private boolean isAnyPositionAttacked(List<Square> squares,
                                           GameState<StandardPieceType> gameState,
                                           boolean isWhiteTurn) {
+        gameState.switchTurn(); // zum Gegner wechseln
         MoveCollection<StandardPieceType> opponentMoves = moveGenerator.generateMoves(gameState);
+        gameState.switchTurn(); // zurückwechseln zur ursprünglichen Partei
 
         for (Move<StandardPieceType> move : opponentMoves) {
             if (squares.contains(move.to())) {

@@ -3,7 +3,9 @@ package de.schoenfeld.chesskit.core;
 import de.schoenfeld.chesskit.events.*;
 import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.PieceType;
+import de.schoenfeld.chesskit.move.Move;
 import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.components.EnPassantComponent;
 import de.schoenfeld.chesskit.rules.Rules;
 
 import java.util.UUID;
@@ -33,6 +35,7 @@ public class ChessGame<T extends PieceType> {
 
         rules.detectGameEndCause(gameState).ifPresent(gameConclusion -> {
             eventBus.publish(new GameEndedEvent(gameId, gameConclusion));
+            eventBus.publish(new GameStateChangedEvent<>(gameId, gameState));
         });
 
         eventBus.publish(new GameStateChangedEvent<>(gameId, gameState));
@@ -54,6 +57,11 @@ public class ChessGame<T extends PieceType> {
         }
 
         MoveCollection<T> currentValidMoves = rules.generateMoves(gameState);
+        for (var move : currentValidMoves) {
+            if (move.hasComponent(EnPassantComponent.class)) {
+                System.out.println(move);
+            }
+        }
 
         if (!currentValidMoves.contains(event.move())) {
             eventBus.publish(new ErrorEvent(gameId, event.player(), "Invalid move: " + event.move()));
@@ -64,6 +72,7 @@ public class ChessGame<T extends PieceType> {
         rules.detectGameEndCause(gameState).ifPresentOrElse(
                 gameConclusion -> {
                     eventBus.publish(new GameEndedEvent(gameId, gameConclusion));
+                    eventBus.publish(new GameStateChangedEvent<>(gameId, gameState));
                 },
                 () -> {
                     eventBus.publish(new GameStateChangedEvent<>(gameId, gameState));

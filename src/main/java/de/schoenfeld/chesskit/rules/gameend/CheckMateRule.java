@@ -34,6 +34,8 @@ public class CheckMateRule implements GameConclusionRule<StandardPieceType> {
             // Use withTurnSwitched to reverse turn change in move.executeOn(GameState)
             if (allKingsSafe(gameState)) {
                 // Found a move that prevents check
+                gameState.switchTurn();
+                move.undoOn(gameState);
                 return Optional.empty();
             }
             gameState.switchTurn();
@@ -47,10 +49,9 @@ public class CheckMateRule implements GameConclusionRule<StandardPieceType> {
     }
 
     private boolean allKingsSafe(GameState<StandardPieceType> gameState) {
-        ChessBoard<StandardPieceType> board = gameState.getChessBoard();
         boolean isWhiteTurn = gameState.isWhiteTurn();
         // Get all kings
-        List<Square> kingSquares = board
+        List<Square> kingSquares = gameState
                 .getSquaresWithTypeAndColour(StandardPieceType.KING, isWhiteTurn);
         if (kingSquares.isEmpty()) return true; // No kings => no check
         // withTurnSwitched to generate moves for the opposite player

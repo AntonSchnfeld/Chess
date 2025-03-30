@@ -2,6 +2,7 @@ package de.schoenfeld.chesskit.ui;
 
 import de.schoenfeld.chesskit.model.ChessPiece;
 import de.schoenfeld.chesskit.model.PieceType;
+import de.schoenfeld.chesskit.model.StandardPieceType;
 
 import java.awt.*;
 
@@ -14,18 +15,20 @@ public class PieceRenderer {
         this.theme = theme;
     }
 
-    public String getSymbol(ChessPiece piece) {
+    public String getSymbol(ChessPiece<?> piece) {
         PieceType type = piece.pieceType();
-        if (type.equals(KING)) return "♚";
-        if (type.equals(QUEEN)) return "♛";
-        if (type.equals(ROOK)) return "♜";
-        if (type.equals(BISHOP)) return "♝";
-        if (type.equals(KNIGHT)) return "♞";
-        if (type.equals(PAWN)) return "♟";
-        return piece.pieceType().symbol();
+        return switch (type) {
+            case StandardPieceType.KING -> "♚";
+            case StandardPieceType.QUEEN -> "♛";
+            case StandardPieceType.ROOK -> "♜";
+            case StandardPieceType.BISHOP -> "♝";
+            case StandardPieceType.KNIGHT -> "♞";
+            case StandardPieceType.PAWN -> "♟";
+            default -> piece.pieceType().symbol();
+        };
     }
 
-    public Color getPieceColor(ChessPiece piece) {
+    public Color getPieceColor(ChessPiece<?> piece) {
         return piece.isWhite() ? theme.whitePiece() : theme.blackPiece();
     }
 }

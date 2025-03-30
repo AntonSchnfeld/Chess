@@ -47,7 +47,8 @@ public class Move<T extends PieceType> implements Serializable {
     }
 
     public <C extends MoveComponent<T>> C getComponent(Class<C> clazz) {
-        for (MoveComponent<T> comp : components) {
+        for (int i = 0; i < components.length; i++) {
+            MoveComponent<T> comp = components[i];
             if (clazz.isInstance(comp)) {
                 // The cast is safe because of the check above.
                 return clazz.cast(comp);
@@ -57,16 +58,16 @@ public class Move<T extends PieceType> implements Serializable {
     }
 
     public boolean hasComponent(Class<? extends MoveComponent> clazz) {
-        for (MoveComponent<T> comp : components)
-            if (clazz.isInstance(comp))
+        for (int i = 0; i < components.length; i++)
+            if (clazz.isInstance(components[i]))
                 return true;
         return false;
     }
 
     public void executeOn(GameState<T> gameState) {
         gameState.getMoveHistory().recordMove(this);
-        for (MoveComponent<T> component : components)
-            component.executeOn(gameState, this);
+        for (int i = 0; i < components.length; i++)
+            components[i].executeOn(gameState, this);
         gameState.movePiece(from, to);
         gameState.switchTurn();
     }
@@ -74,8 +75,8 @@ public class Move<T extends PieceType> implements Serializable {
     public void undoOn(GameState<T> gameState) {
         gameState.switchTurn();
         gameState.movePiece(to, from);
-        for (MoveComponent<T> component : components)
-            component.undoOn(gameState, this);
+        for (int i = 0; i < components.length; i++)
+            components[i].undoOn(gameState, this);
         gameState.getMoveHistory().removeLastMove();
     }
 

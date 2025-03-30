@@ -45,10 +45,7 @@ public final class BoardUtility {
             );
         }
 
-        return new MapChessBoard<>(
-                positions,
-                new ChessBoardBounds(8, 8)
-        );
+        return new MapChessBoard<>(positions, new ChessBoardBounds(8, 8));
     }
 
     private static ChessPiece<StandardPieceType> createPieceFromFenChar(char c) {

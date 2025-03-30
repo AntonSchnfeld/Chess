@@ -81,13 +81,16 @@ public class UIPlayer<T extends PieceType> extends Player<T> {
     @Override
     protected void onGameStateChanged(GameStateChangedEvent<T> event) {
         gameState = event.newState();
-        legalMoves = rules.generateMoves(gameState);
+        if (event.newState().isWhiteTurn() == playerData.isWhite()) legalMoves = rules.generateMoves(event.newState());
         clearSelection();
     }
 
     @Override
     protected void onError(ErrorEvent event) {
-        JOptionPane.showMessageDialog(null, "Error: " + event.errorMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        if (event.player().equals(playerData))
+            JOptionPane.showMessageDialog(uiClient.getBoardPanel(),
+                    "Error: " + event.errorMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     private void clearSelection() {

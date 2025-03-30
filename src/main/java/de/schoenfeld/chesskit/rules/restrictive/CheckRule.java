@@ -42,6 +42,7 @@ public class CheckRule implements RestrictiveMoveRule<StandardPieceType> {
 
             if (kingSquares.isEmpty()) {
                 // This should never happen in a normal game, but we guard against it
+                move.undoOn(gameState);
                 continue;
             }
 

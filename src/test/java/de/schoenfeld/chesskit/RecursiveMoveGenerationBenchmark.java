@@ -31,8 +31,8 @@ public class RecursiveMoveGenerationBenchmark {
 
     @Benchmark
     public void recursiveMoveGeneration(Blackhole blackhole) {
-        long nodes = generateMovesRecursively(initialGameState, 3);
-        blackhole.consume(nodes);
+        long nodes = generateMovesRecursively(initialGameState, 4);
+        System.out.println(nodes);
     }
 
     private long generateMovesRecursively(GameState<StandardPieceType> state, int depth) {
