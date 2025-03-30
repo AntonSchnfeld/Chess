@@ -2,7 +2,7 @@ package de.schoenfeld.chesskit.rules;
 
 import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.PieceType;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.rules.generative.GenerativeMoveRule;
 
 import java.util.List;
@@ -17,8 +17,8 @@ public record SimpleMoveGenerator<T extends PieceType>(List<GenerativeMoveRule<T
     }
 
     @Override
-    public MoveCollection<T> generateMoves(GameState<T> gameState) {
-        MoveCollection<T> moves = new MoveCollection<>();
+    public MoveLookup<T> generateMoves(GameState<T> gameState) {
+        MoveLookup<T> moves = new MoveLookup<>();
         for (GenerativeMoveRule<T> rule : rules) {
             moves.addAll(rule.generateMoves(gameState));
         }

@@ -4,11 +4,7 @@ import de.schoenfeld.chesskit.events.GameConclusion;
 import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.PieceType;
 import de.schoenfeld.chesskit.model.StandardPieceType;
-import de.schoenfeld.chesskit.move.Move;
-import de.schoenfeld.chesskit.move.MoveCollection;
-import de.schoenfeld.chesskit.move.components.CaptureComponent;
-import de.schoenfeld.chesskit.move.components.CastlingComponent;
-import de.schoenfeld.chesskit.move.components.EnPassantComponent;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.rules.gameend.*;
 import de.schoenfeld.chesskit.rules.generative.*;
 import de.schoenfeld.chesskit.rules.generative.sliding.BishopMoveRule;
@@ -80,8 +76,8 @@ public record Rules<T extends PieceType>(List<GenerativeMoveRule<T>> generativeM
         return Optional.empty();
     }
 
-    public MoveCollection<T> generateMoves(GameState<T> gameState) {
-        MoveCollection<T> moves = new MoveCollection<>();
+    public MoveLookup<T> generateMoves(GameState<T> gameState) {
+        MoveLookup<T> moves = new MoveLookup<>();
         // Check if the game has ended
         if (detectGameEndCause(gameState).isPresent()) return moves;
 

@@ -6,7 +6,7 @@ import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.PieceType;
 import de.schoenfeld.chesskit.model.Square;
 import de.schoenfeld.chesskit.move.Move;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.move.components.CaptureComponent;
 import de.schoenfeld.chesskit.rules.generative.AbstractGenerativeMoveRule;
 
@@ -46,7 +46,7 @@ public abstract class SlidingPieceMoveRule<T extends PieceType> extends Abstract
     @Override
     protected void generatePieceMoves(GameState<T> gameState,
                                  Square position,
-                                 MoveCollection<T> moves) {
+                                 MoveLookup<T> moves) {
         ChessBoard<T> board = gameState.getChessBoard();
         ChessPiece<T> piece = gameState.getPieceAt(position);
 

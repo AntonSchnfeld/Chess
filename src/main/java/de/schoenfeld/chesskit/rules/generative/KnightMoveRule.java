@@ -2,7 +2,7 @@ package de.schoenfeld.chesskit.rules.generative;
 
 import de.schoenfeld.chesskit.model.*;
 import de.schoenfeld.chesskit.move.Move;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.move.components.CaptureComponent;
 
 import java.util.List;
@@ -27,7 +27,7 @@ public class KnightMoveRule<T extends PieceType> extends AbstractGenerativeMoveR
     @Override
     protected void generatePieceMoves(GameState<T> board,
                                       Square knightPos,
-                                      MoveCollection<T> moves) {
+                                      MoveLookup<T> moves) {
         ChessPiece<T> knight = board.getPieceAt(knightPos);
         for (Square offset : KNIGHT_MOVES) {
             Square to = knightPos.offset(offset.x(), offset.y());

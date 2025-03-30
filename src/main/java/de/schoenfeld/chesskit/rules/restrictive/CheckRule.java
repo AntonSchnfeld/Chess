@@ -4,7 +4,7 @@ import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.Square;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.Move;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.rules.MoveGenerator;
 
 import java.util.Iterator;
@@ -18,7 +18,7 @@ public class CheckRule implements RestrictiveMoveRule<StandardPieceType> {
     }
 
     @Override
-    public void filterMoves(MoveCollection<StandardPieceType> moves,
+    public void filterMoves(MoveLookup<StandardPieceType> moves,
                             GameState<StandardPieceType> gameState) {
         // Approach to calculating check:
         // 1. Loop through all moves
@@ -46,7 +46,7 @@ public class CheckRule implements RestrictiveMoveRule<StandardPieceType> {
                 continue;
             }
 
-            MoveCollection<StandardPieceType> opponentMoves = moveGenerator.generateMoves(gameState);
+            MoveLookup<StandardPieceType> opponentMoves = moveGenerator.generateMoves(gameState);
 
             for (Square square : kingSquares) {
                 // If any opponent move targets the king's position, the move is illegal

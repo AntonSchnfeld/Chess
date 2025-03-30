@@ -1,33 +1,55 @@
 package de.schoenfeld.chesskit.move;
 
-import de.schoenfeld.chesskit.model.ChessPiece;
 import de.schoenfeld.chesskit.model.PieceType;
 import de.schoenfeld.chesskit.model.Square;
 
 import java.util.*;
 
-public class MoveCollection<T extends PieceType> implements List<Move<T>> {
+public class MoveLookup<T extends PieceType> implements List<Move<T>> {
     private final List<Move<T>> moves;
     private final Map<Square, List<Move<T>>> moveMap;
-    private final Map<ChessPiece<T>, List<Move<T>>> pieceMap;
 
-    public MoveCollection() {
+    public MoveLookup() {
         moves = new ArrayList<>();
         moveMap = new HashMap<>();
-        pieceMap = new HashMap<>();
+    }
+
+    public MoveLookup(List<Move<T>> moves) {
+        this.moves = new ArrayList<>(moves);
+        moveMap = new HashMap<>();
+        for (Move<T> move : moves)
+            addToMaps(move);
+    }
+
+    public void removeAllMovesFrom(Square from) {
+        if (!moveMap.containsKey(from)) return;
+        List<Move<T>> movesToRemove = moveMap.get(from);
+        moves.removeAll(movesToRemove);
+        moveMap.remove(from);
+    }
+
+    public void replaceAllMovesFrom(Square from, List<Move<T>> replacement) {
+        if (!moveMap.containsKey(from)) return;
+        List<Move<T>> movesToRemove = moveMap.get(from);
+        moves.removeAll(movesToRemove);
+        moveMap.remove(from);
+        moves.addAll(replacement);
+        for (Move<T> move : replacement)
+            addToMaps(move);
     }
 
     @SafeVarargs
-    public static <T extends PieceType> MoveCollection<T> of(Move<T>... moves) {
-        MoveCollection<T> mc = new MoveCollection<>();
-        mc.addAll(Arrays.asList(moves));
-        return mc;
+    public static <T extends PieceType> MoveLookup<T> of(Move<T>... moves) {
+        return new ImmutableMoveLookup<>(Arrays.asList(moves));
     }
 
-    public static <T extends PieceType> MoveCollection<T> of(Collection<Move<T>> moves) {
-        MoveCollection<T> mc = new MoveCollection<>();
-        mc.addAll(moves);
-        return mc;
+    @SuppressWarnings("unchecked")
+    public static <T extends PieceType> MoveLookup<T> of() {
+        return (MoveLookup<T>) ImmutableMoveLookup.EMPTY;
+    }
+
+    public static <T extends PieceType> MoveLookup<T> of(Collection<Move<T>> moves) {
+        return new ImmutableMoveLookup<>(new ArrayList<>(moves));
     }
 
     public List<Move<T>> getMovesTo(Square square) {
@@ -36,8 +58,8 @@ public class MoveCollection<T extends PieceType> implements List<Move<T>> {
         );
     }
 
-    public MoveCollection<T> getMovesFromSquare(Square from) {
-        MoveCollection<T> movesFromSquare = new MoveCollection<>();
+    public MoveLookup<T> getMovesFromSquare(Square from) {
+        MoveLookup<T> movesFromSquare = new MoveLookup<>();
         for (Move<T> move : moves)
             if (move.from().equals(from)) movesFromSquare.add(move);
         return movesFromSquare;
@@ -128,7 +150,6 @@ public class MoveCollection<T extends PieceType> implements List<Move<T>> {
     public void clear() {
         moves.clear();
         moveMap.clear();
-        pieceMap.clear();
     }
 
     @Override
@@ -188,7 +209,6 @@ public class MoveCollection<T extends PieceType> implements List<Move<T>> {
 
     private void addToMaps(Move<T> move) {
         moveMap.computeIfAbsent(move.to(), k -> new ArrayList<>()).add(move);
-        pieceMap.computeIfAbsent(move.movedPiece(), k -> new ArrayList<>()).add(move);
     }
 
     private void removeFromMaps(Move<T> move) {
@@ -198,12 +218,6 @@ public class MoveCollection<T extends PieceType> implements List<Move<T>> {
                 .ifPresent(list -> {
                     list.remove(move);
                     if (list.isEmpty()) moveMap.remove(move.to());
-                });
-
-        Optional.ofNullable(pieceMap.get(move.movedPiece()))
-                .ifPresent(list -> {
-                    list.remove(move);
-                    if (list.isEmpty()) pieceMap.remove(move.movedPiece());
                 });
     }
 
@@ -305,13 +319,13 @@ public class MoveCollection<T extends PieceType> implements List<Move<T>> {
     @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;
-        MoveCollection<?> that = (MoveCollection<?>) object;
-        return Objects.equals(moves, that.moves) && Objects.equals(moveMap, that.moveMap) && Objects.equals(pieceMap, that.pieceMap);
+        MoveLookup<?> that = (MoveLookup<?>) object;
+        return Objects.equals(moves, that.moves) && Objects.equals(moveMap, that.moveMap);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(moves, moveMap, pieceMap);
+        return Objects.hash(moves, moveMap);
     }
 
     @Override
@@ -319,7 +333,6 @@ public class MoveCollection<T extends PieceType> implements List<Move<T>> {
         return "MoveCollection{" +
                 "moves=" + moves +
                 ", moveMap=" + moveMap +
-                ", pieceMap=" + pieceMap +
                 '}';
     }
 }

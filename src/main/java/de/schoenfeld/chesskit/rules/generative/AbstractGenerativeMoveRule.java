@@ -3,7 +3,7 @@ package de.schoenfeld.chesskit.rules.generative;
 import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.PieceType;
 import de.schoenfeld.chesskit.model.Square;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 
 import java.util.List;
 
@@ -16,11 +16,11 @@ public abstract class AbstractGenerativeMoveRule<T extends PieceType> implements
 
     protected abstract void generatePieceMoves(GameState<T> gameState,
                                                Square square,
-                                               MoveCollection<T> moves);
+                                               MoveLookup<T> moves);
 
     @Override
-    public MoveCollection<T> generateMoves(GameState<T> gameState) {
-        MoveCollection<T> moves = new MoveCollection<>();
+    public MoveLookup<T> generateMoves(GameState<T> gameState) {
+        MoveLookup<T> moves = new MoveLookup<>();
 
         // Retrieve all knights belonging to the current player
         List<Square> knightSquares = gameState

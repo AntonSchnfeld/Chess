@@ -5,14 +5,14 @@ import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.Square;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.Move;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.move.components.CastlingComponent;
 
 public class CastlingRule implements GenerativeMoveRule<StandardPieceType> {
 
     @Override
-    public MoveCollection<StandardPieceType> generateMoves(GameState<StandardPieceType> gameState) {
-        MoveCollection<StandardPieceType> moves = new MoveCollection<>();
+    public MoveLookup<StandardPieceType> generateMoves(GameState<StandardPieceType> gameState) {
+        MoveLookup<StandardPieceType> moves = new MoveLookup<>();
 
         Square kingPositionForCastling = !gameState.isWhiteTurn() ?
                 Square.of(4, 7) : Square.of(4, 0);
@@ -36,7 +36,7 @@ public class CastlingRule implements GenerativeMoveRule<StandardPieceType> {
     private void checkAndAddCastlingMove(GameState<StandardPieceType> gameState,
                                          Square kingPosition,
                                          Square rookPosition,
-                                         MoveCollection<StandardPieceType> moves) {
+                                         MoveLookup<StandardPieceType> moves) {
         ChessPiece<StandardPieceType> rook = gameState.getPieceAt(rookPosition);
         if (rook == null || rook.pieceType() != StandardPieceType.ROOK
                 || rook.isWhite() != gameState.isWhiteTurn()) return;

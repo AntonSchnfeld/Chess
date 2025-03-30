@@ -2,7 +2,7 @@ package de.schoenfeld.chesskit.rules.generative;
 
 import de.schoenfeld.chesskit.model.*;
 import de.schoenfeld.chesskit.move.Move;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.move.components.CaptureComponent;
 
 import java.util.List;
@@ -27,7 +27,7 @@ public class KingMoveRule<T extends PieceType> extends AbstractGenerativeMoveRul
     @Override
     protected void generatePieceMoves(GameState<T> gameState,
                                       Square kingPos,
-                                      MoveCollection<T> moves) {
+                                      MoveLookup<T> moves) {
         ChessPiece<T> king = gameState.getPieceAt(kingPos);
         // Generate moves in all directions
         for (Square direction : KING_DIRECTIONS) {

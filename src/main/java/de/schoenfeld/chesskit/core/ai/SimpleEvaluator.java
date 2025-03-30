@@ -4,7 +4,7 @@ import de.schoenfeld.chesskit.model.ChessPiece;
 import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.Square;
 import de.schoenfeld.chesskit.model.StandardPieceType;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.rules.Rules;
 
 import java.util.List;
@@ -20,9 +20,9 @@ public class SimpleEvaluator implements GameStateEvaluator<StandardPieceType> {
     public int evaluate(GameState<StandardPieceType> gameState) {
         int evaluation = 0;
 
-        MoveCollection<StandardPieceType> validMoves = rules.generateMoves(gameState);
+        MoveLookup<StandardPieceType> validMoves = rules.generateMoves(gameState);
         gameState.switchTurn();
-        MoveCollection<StandardPieceType> enemyMoves = rules.generateMoves(gameState);
+        MoveLookup<StandardPieceType> enemyMoves = rules.generateMoves(gameState);
         gameState.switchTurn();
 
         // Mobilität

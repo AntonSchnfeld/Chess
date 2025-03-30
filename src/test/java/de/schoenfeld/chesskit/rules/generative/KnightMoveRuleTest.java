@@ -2,7 +2,7 @@ package de.schoenfeld.chesskit.rules.generative;
 
 import de.schoenfeld.chesskit.model.*;
 import de.schoenfeld.chesskit.move.Move;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.move.components.CaptureComponent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,7 @@ public class KnightMoveRuleTest {
         // Given
         // Already setup
         // When
-        MoveCollection<StandardPieceType> moves = tested.generateMoves(gameState);
+        MoveLookup<StandardPieceType> moves = tested.generateMoves(gameState);
         // Then
         List<Square> expectedPositions = List.of(
                 Square.of(5, 4), Square.of(5, 2),
@@ -69,7 +69,7 @@ public class KnightMoveRuleTest {
         when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KNIGHT, true))
                 .thenReturn(List.of(knightSquare));
         // When
-        MoveCollection<StandardPieceType> moves = tested.generateMoves(gameState);
+        MoveLookup<StandardPieceType> moves = tested.generateMoves(gameState);
 
         // Then
         assertTrue(moves.isEmpty());
@@ -84,7 +84,7 @@ public class KnightMoveRuleTest {
 
         when(gameState.getPieceAt(captureCandidateSquare)).thenReturn(captureCandidate);
         // When
-        MoveCollection<StandardPieceType> moves = tested.generateMoves(gameState);
+        MoveLookup<StandardPieceType> moves = tested.generateMoves(gameState);
 
         // Then
         assertTrue(moves.containsMoveTo(captureCandidateSquare));

@@ -5,7 +5,7 @@ import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.Square;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.Move;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.rules.MoveGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,7 @@ public class CheckRuleTest {
     private CheckRule checkRule;
     private MoveGenerator<StandardPieceType> moveGenerator;
     private GameState<StandardPieceType> gameState;
-    private MoveCollection<StandardPieceType> moves;
+    private MoveLookup<StandardPieceType> moves;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
@@ -28,7 +28,7 @@ public class CheckRuleTest {
         checkRule = new CheckRule(moveGenerator);
 
         gameState = mock(GameState.class);
-        moves = new MoveCollection<>();
+        moves = new MoveLookup<>();
     }
 
     @Test
@@ -47,7 +47,7 @@ public class CheckRuleTest {
 
         when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                 .thenReturn(List.of(Square.e1)); // King's position
-        when(moveGenerator.generateMoves(gameState)).thenReturn(new MoveCollection<>()); // No checks
+        when(moveGenerator.generateMoves(gameState)).thenReturn(new MoveLookup<>()); // No checks
 
         moves.add(legalMove);
 
@@ -65,7 +65,7 @@ public class CheckRuleTest {
         when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                 .thenReturn(List.of(Square.e1)); // King's position
 
-        MoveCollection<StandardPieceType> opponentMoves = MoveCollection.of(
+        MoveLookup<StandardPieceType> opponentMoves = MoveLookup.of(
                 Move.of(mock(ChessPiece.class), Square.d2, Square.e1) // Attacking the king
         );
         when(moveGenerator.generateMoves(gameState)).thenReturn(opponentMoves);
@@ -86,7 +86,7 @@ public class CheckRuleTest {
         when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                 .thenReturn(List.of(Square.e1));
 
-        MoveCollection<StandardPieceType> opponentMoves = mock(MoveCollection.class);
+        MoveLookup<StandardPieceType> opponentMoves = mock(MoveLookup.class);
         when(opponentMoves.containsMoveTo(Square.e1)).thenReturn(true);
         when(moveGenerator.generateMoves(gameState)).thenReturn(opponentMoves);
 
@@ -132,7 +132,7 @@ public class CheckRuleTest {
         when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                 .thenReturn(List.of(Square.e1));
 
-        MoveCollection<StandardPieceType> opponentMoves = mock(MoveCollection.class);
+        MoveLookup<StandardPieceType> opponentMoves = mock(MoveLookup.class);
         when(opponentMoves.containsMoveTo(Square.e1)).thenReturn(true);
         when(moveGenerator.generateMoves(gameState)).thenReturn(opponentMoves);
 
@@ -164,7 +164,7 @@ public class CheckRuleTest {
         when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                 .thenReturn(List.of(Square.e1));
 
-        MoveCollection<StandardPieceType> opponentMoves = mock(MoveCollection.class);
+        MoveLookup<StandardPieceType> opponentMoves = mock(MoveLookup.class);
         when(opponentMoves.containsMoveTo(Square.e2)).thenReturn(false); // e2 is safe
         when(opponentMoves.containsMoveTo(Square.d1)).thenReturn(true);  // d1 is attacked
         when(moveGenerator.generateMoves(gameState)).thenReturn(opponentMoves);

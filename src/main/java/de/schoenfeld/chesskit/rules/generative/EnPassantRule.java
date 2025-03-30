@@ -2,16 +2,16 @@ package de.schoenfeld.chesskit.rules.generative;
 
 import de.schoenfeld.chesskit.model.*;
 import de.schoenfeld.chesskit.move.Move;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.move.components.EnPassantComponent;
 
 public class EnPassantRule implements GenerativeMoveRule<StandardPieceType> {
     @Override
-    public MoveCollection<StandardPieceType> generateMoves(GameState<StandardPieceType> gameState) {
+    public MoveLookup<StandardPieceType> generateMoves(GameState<StandardPieceType> gameState) {
         MoveHistory<StandardPieceType> history = gameState.getMoveHistory();
 
         // Ensure that there is at least one move
-        if (history.getMoveCount() == 0) return new MoveCollection<>();
+        if (history.getMoveCount() == 0) return new MoveLookup<>();
 
         // Retrieve the last move
         Move<StandardPieceType> lastMove = history.getLastMove();
@@ -21,14 +21,14 @@ public class EnPassantRule implements GenerativeMoveRule<StandardPieceType> {
         if (lastMovedPiece == null
                 || !lastMovedPiece.pieceType().equals(StandardPieceType.PAWN)
                 || Math.abs(lastMove.from().y() - lastMove.to().y()) != 2) {
-            return new MoveCollection<>();
+            return new MoveLookup<>();
         }
 
         // The en passant capture square (where the capturing pawn lands)
         int enPassantRow = lastMove.from().y() + (lastMovedPiece.isWhite() ? 1 : -1);
         Square enPassantTarget = Square.of(lastMove.to().x(), enPassantRow);
 
-        MoveCollection<StandardPieceType> moves = new MoveCollection<>();
+        MoveLookup<StandardPieceType> moves = new MoveLookup<>();
 
         // The current player's color (only their pawns can capture en passant)
         boolean currentTurnIsWhite = gameState.isWhiteTurn();
@@ -48,7 +48,7 @@ public class EnPassantRule implements GenerativeMoveRule<StandardPieceType> {
             GameState<StandardPieceType> gameState,
             Square capturedPawnSquare,
             Square enPassantTarget,
-            MoveCollection<StandardPieceType> moves,
+            MoveLookup<StandardPieceType> moves,
             Square adjacentPawnPos,
             boolean currentTurnIsWhite) {
 

@@ -2,7 +2,7 @@ package de.schoenfeld.chesskit.rules.generative;
 
 import de.schoenfeld.chesskit.model.*;
 import de.schoenfeld.chesskit.move.Move;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.move.components.CaptureComponent;
 import de.schoenfeld.chesskit.move.components.PromotionComponent;
 
@@ -35,7 +35,7 @@ public class PawnMoveRule<T extends PieceType> extends AbstractGenerativeMoveRul
     @Override
     protected void generatePieceMoves(GameState<T> gameState,
                                       Square pawnSquare,
-                                      MoveCollection<T> moves) {
+                                      MoveLookup<T> moves) {
         int direction = gameState.isWhiteTurn() ? 1 : -1;
         ChessPiece<T> pawn = gameState.getPieceAt(pawnSquare);
         // Add one-step move

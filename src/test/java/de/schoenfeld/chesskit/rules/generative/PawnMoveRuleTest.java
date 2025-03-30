@@ -5,7 +5,7 @@ import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.Square;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.Move;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -37,7 +37,7 @@ public class PawnMoveRuleTest {
         // Add to game state
         gameState.setPieceAt(pawnSquare, pawn);
 
-        MoveCollection<StandardPieceType> moves = pawnMoveRule.generateMoves(gameState);
+        MoveLookup<StandardPieceType> moves = pawnMoveRule.generateMoves(gameState);
 
         // Expected: one-step to (4,2) and two-step to (4,3)
         assertEquals(2, moves.size(), "Expected two non-promotion moves for a pawn at (4,1)");
@@ -62,7 +62,7 @@ public class PawnMoveRuleTest {
         // Add to game state
         gameState.setPieceAt(pawnSquare, pawn);
 
-        MoveCollection<StandardPieceType> moves = pawnMoveRule.generateMoves(gameState);
+        MoveLookup<StandardPieceType> moves = pawnMoveRule.generateMoves(gameState);
 
         // Expected: one move that is a promotion with 4 promotion options.
         assertEquals(4, moves.size(), "Expected four promotion moves for a pawn reaching promotion rank");
@@ -92,7 +92,7 @@ public class PawnMoveRuleTest {
         // Add to game state
         gameState.setPieceAt(captureSquare, enemyPawn);
 
-        MoveCollection<StandardPieceType> moves = pawnMoveRule.generateMoves(gameState);
+        MoveLookup<StandardPieceType> moves = pawnMoveRule.generateMoves(gameState);
 
         // Expect at least one capture move (non-promotion since target rank is 2, not 7)
         boolean captureFound = moves.stream().anyMatch(m -> m.to().equals(captureSquare));
@@ -117,7 +117,7 @@ public class PawnMoveRuleTest {
         // Add to game state
         gameState.setPieceAt(captureSquare, enemyPawn);
 
-        MoveCollection<StandardPieceType> moves = pawnMoveRule.generateMoves(gameState);
+        MoveLookup<StandardPieceType> moves = pawnMoveRule.generateMoves(gameState);
 
         // Expect promotion capture moves: one per promotion type (4 moves) that capture on (3,7)
         long promoCaptureCount = moves.stream().filter(m -> m.to().equals(captureSquare)).count();

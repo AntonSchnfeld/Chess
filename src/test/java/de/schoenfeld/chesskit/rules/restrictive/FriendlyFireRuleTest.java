@@ -6,7 +6,7 @@ import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.Square;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.Move;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 
 public class FriendlyFireRuleTest {
     private FriendlyFireRule<StandardPieceType> tested;
-    private MoveCollection<StandardPieceType> moves;
+    private MoveLookup<StandardPieceType> moves;
     private GameState<StandardPieceType> state;
     private ChessBoard<StandardPieceType> board;
 
@@ -25,7 +25,7 @@ public class FriendlyFireRuleTest {
     @SuppressWarnings("unchecked")
     public void setup() {
         tested = new FriendlyFireRule<>();
-        moves = new MoveCollection<>();
+        moves = new MoveLookup<>();
 
         state = mock(GameState.class);
         board = mock(ChessBoard.class);

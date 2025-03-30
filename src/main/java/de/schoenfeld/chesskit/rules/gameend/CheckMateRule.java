@@ -1,12 +1,11 @@
 package de.schoenfeld.chesskit.rules.gameend;
 
-import de.schoenfeld.chesskit.board.ChessBoard;
 import de.schoenfeld.chesskit.events.GameConclusion;
 import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.Square;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.Move;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.rules.MoveGenerator;
 
 import java.util.List;
@@ -24,7 +23,7 @@ public class CheckMateRule implements GameConclusionRule<StandardPieceType> {
         // No need for further computation if no king is in check
         if (allKingsSafe(gameState)) return Optional.empty();
         // Detect all possible moves for the checked player
-        MoveCollection<StandardPieceType> moves = moveGenerator.generateMoves(gameState);
+        MoveLookup<StandardPieceType> moves = moveGenerator.generateMoves(gameState);
         // Could perhaps be faster to sort moves according to which ones are most likely to
         // prevent check since checking fewer moves is faster
         for (Move<StandardPieceType> move : moves) {
@@ -56,7 +55,7 @@ public class CheckMateRule implements GameConclusionRule<StandardPieceType> {
         if (kingSquares.isEmpty()) return true; // No kings => no check
         // withTurnSwitched to generate moves for the opposite player
         gameState.switchTurn();
-        MoveCollection<StandardPieceType> opponentMoves = moveGenerator.generateMoves(gameState);
+        MoveLookup<StandardPieceType> opponentMoves = moveGenerator.generateMoves(gameState);
         gameState.switchTurn();
 
         for (Square square : kingSquares) {

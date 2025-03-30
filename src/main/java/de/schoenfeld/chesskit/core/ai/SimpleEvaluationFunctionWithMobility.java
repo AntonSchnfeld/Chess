@@ -5,7 +5,7 @@ import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.PieceType;
 import de.schoenfeld.chesskit.model.Square;
 import de.schoenfeld.chesskit.model.StandardPieceType;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.rules.MoveGenerator;
 
 import java.util.HashMap;
@@ -81,9 +81,9 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<
         // Mobility evaluation.
         boolean isWhite = gameState.isWhiteTurn();
         gameState.setIsWhiteTurn(true);
-        MoveCollection<StandardPieceType> whiteMoves = moveGenerator.generateMoves(gameState);
+        MoveLookup<StandardPieceType> whiteMoves = moveGenerator.generateMoves(gameState);
         gameState.setIsWhiteTurn(false);
-        MoveCollection<StandardPieceType> blackMoves = moveGenerator.generateMoves(gameState);
+        MoveLookup<StandardPieceType> blackMoves = moveGenerator.generateMoves(gameState);
         gameState.setIsWhiteTurn(isWhite);
         int mobilityScore = MOBILITY_BONUS * (whiteMoves.size() - blackMoves.size());
 

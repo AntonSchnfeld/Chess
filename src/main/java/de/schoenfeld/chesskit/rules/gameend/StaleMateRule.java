@@ -5,7 +5,7 @@ import de.schoenfeld.chesskit.events.GameConclusion;
 import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.Square;
 import de.schoenfeld.chesskit.model.StandardPieceType;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.rules.MoveGenerator;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public class StaleMateRule implements GameConclusionRule<StandardPieceType> {
 
     @Override
     public Optional<GameConclusion> detectGameEndCause(GameState<StandardPieceType> gameState) {
-        MoveCollection<StandardPieceType> legalMoves = moveGenerator.generateMoves(gameState);
+        MoveLookup<StandardPieceType> legalMoves = moveGenerator.generateMoves(gameState);
         if (legalMoves.isEmpty() && allKingsSafe(gameState)) {
             return Optional.of(
                     new GameConclusion(GameConclusion.Winner.NONE, "Stalemate")
@@ -38,7 +38,7 @@ public class StaleMateRule implements GameConclusionRule<StandardPieceType> {
 
         // Check if the opponent can move to any of the king's squares
         gameState.switchTurn();
-        MoveCollection<StandardPieceType> opponentMoves = moveGenerator.generateMoves(gameState);
+        MoveLookup<StandardPieceType> opponentMoves = moveGenerator.generateMoves(gameState);
         gameState.switchTurn();
 
         for (Square square : kingSquares) {

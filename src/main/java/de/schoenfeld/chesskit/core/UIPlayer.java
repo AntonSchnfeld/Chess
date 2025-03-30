@@ -3,7 +3,7 @@ package de.schoenfeld.chesskit.core;
 import de.schoenfeld.chesskit.events.*;
 import de.schoenfeld.chesskit.model.*;
 import de.schoenfeld.chesskit.move.Move;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.rules.Rules;
 import de.schoenfeld.chesskit.ui.ChessBoardPanel;
 import de.schoenfeld.chesskit.ui.ChessSquare;
@@ -16,7 +16,7 @@ import java.util.Map;
 public class UIPlayer<T extends PieceType> extends Player<T> {
     private final ChessUIClient uiClient;
     private Square selectedSquare;
-    private MoveCollection<T> legalMoves;
+    private MoveLookup<T> legalMoves;
     private final Rules<T> rules;
     private GameState<T> gameState;
 
@@ -24,7 +24,7 @@ public class UIPlayer<T extends PieceType> extends Player<T> {
         super(playerData, eventBus);
         this.uiClient = uiClient;
         this.selectedSquare = null;
-        this.legalMoves = MoveCollection.of();
+        this.legalMoves = MoveLookup.of();
         this.rules = rules;
 
         registerClickListener();
@@ -54,7 +54,7 @@ public class UIPlayer<T extends PieceType> extends Player<T> {
             // Select our piece and highlight its moves
             if (piece != null && piece.isWhite() == playerData.isWhite()) {
                 selectedSquare = clickedSquare;
-                MoveCollection<T> movesForPiece = legalMoves.getMovesFromSquare(clickedSquare);
+                MoveLookup<T> movesForPiece = legalMoves.getMovesFromSquare(clickedSquare);
                 for (Move<T> move : movesForPiece)
                     uiClient.getBoardPanel().setSquareHighlight(move.to(), true);
             } else {
@@ -64,7 +64,7 @@ public class UIPlayer<T extends PieceType> extends Player<T> {
             return;
         }
 
-        MoveCollection<T> movesForSelectedPiece = legalMoves.getMovesFromSquare(selectedSquare);
+        MoveLookup<T> movesForSelectedPiece = legalMoves.getMovesFromSquare(selectedSquare);
         // Publish move if legal
         if (movesForSelectedPiece.containsMoveTo(clickedSquare)) {
             Move<T> theMove = movesForSelectedPiece.getMovesTo(clickedSquare).getFirst();

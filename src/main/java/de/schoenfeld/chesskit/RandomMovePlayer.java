@@ -5,7 +5,7 @@ import de.schoenfeld.chesskit.events.*;
 import de.schoenfeld.chesskit.model.PieceType;
 import de.schoenfeld.chesskit.model.PlayerData;
 import de.schoenfeld.chesskit.move.Move;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.rules.MoveGenerator;
 
 import java.util.Random;
@@ -29,7 +29,7 @@ public class RandomMovePlayer<T extends PieceType> extends Player<T> {
     @Override
     protected void onGameStateChanged(GameStateChangedEvent<T> event) {
         if (event.newState().isWhiteTurn() == playerData.isWhite()) {
-            MoveCollection<T> moves = rules.generateMoves(event.newState());
+            MoveLookup<T> moves = rules.generateMoves(event.newState());
 
             int randomMoveIdx = random.nextInt(moves.size());
             Move<T> randomMove = null;

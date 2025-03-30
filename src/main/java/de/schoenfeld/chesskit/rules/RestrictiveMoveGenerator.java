@@ -2,7 +2,7 @@ package de.schoenfeld.chesskit.rules;
 
 import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.PieceType;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.rules.generative.GenerativeMoveRule;
 import de.schoenfeld.chesskit.rules.restrictive.RestrictiveMoveRule;
 
@@ -18,8 +18,8 @@ public class RestrictiveMoveGenerator<T extends PieceType> implements MoveGenera
     }
 
     @Override
-    public MoveCollection<T> generateMoves(GameState<T> gameState) {
-        MoveCollection<T> moves = new MoveCollection<>();
+    public MoveLookup<T> generateMoves(GameState<T> gameState) {
+        MoveLookup<T> moves = new MoveLookup<>();
 
         for (GenerativeMoveRule<T> rule : generativeMoveRules)
             moves.addAll(rule.generateMoves(gameState));

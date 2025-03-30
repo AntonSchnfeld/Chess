@@ -4,7 +4,7 @@ import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.Square;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.Move;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.move.components.CastlingComponent;
 import de.schoenfeld.chesskit.rules.MoveGenerator;
 
@@ -19,7 +19,7 @@ public class NoCastlingThroughCheckRule implements RestrictiveMoveRule<StandardP
     }
 
     @Override
-    public void filterMoves(MoveCollection<StandardPieceType> moves, GameState<StandardPieceType> gameState) {
+    public void filterMoves(MoveLookup<StandardPieceType> moves, GameState<StandardPieceType> gameState) {
         Iterator<Move<StandardPieceType>> iterator = moves.iterator();
         boolean isWhiteTurn = gameState.isWhiteTurn();
         while (iterator.hasNext()) {
@@ -49,7 +49,7 @@ public class NoCastlingThroughCheckRule implements RestrictiveMoveRule<StandardP
                                           GameState<StandardPieceType> gameState,
                                           boolean isWhiteTurn) {
         gameState.switchTurn(); // zum Gegner wechseln
-        MoveCollection<StandardPieceType> opponentMoves = moveGenerator.generateMoves(gameState);
+        MoveLookup<StandardPieceType> opponentMoves = moveGenerator.generateMoves(gameState);
         gameState.switchTurn(); // zurückwechseln zur ursprünglichen Partei
 
         for (Move<StandardPieceType> move : opponentMoves) {

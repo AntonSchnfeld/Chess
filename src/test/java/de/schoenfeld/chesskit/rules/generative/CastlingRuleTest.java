@@ -5,7 +5,7 @@ import de.schoenfeld.chesskit.model.ChessPiece;
 import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.Square;
 import de.schoenfeld.chesskit.model.StandardPieceType;
-import de.schoenfeld.chesskit.move.MoveCollection;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.move.components.CastlingComponent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,11 +31,11 @@ class CastlingRuleTest {
         Square queenSideRookPos = Square.of(0, 0);
 
         // Place pieces on the board
-        board.setPieceAt(kingPos, new ChessPiece<>(StandardPieceType.KING, false));
-        board.setPieceAt(kingSideRookPos, new ChessPiece<>(StandardPieceType.ROOK, false));
-        board.setPieceAt(queenSideRookPos, new ChessPiece<>(StandardPieceType.ROOK, false));
+        board.setPieceAt(kingPos, new ChessPiece<>(StandardPieceType.KING, true));
+        board.setPieceAt(kingSideRookPos, new ChessPiece<>(StandardPieceType.ROOK, true));
+        board.setPieceAt(queenSideRookPos, new ChessPiece<>(StandardPieceType.ROOK, true));
 
-        MoveCollection<StandardPieceType> moves = castlingRule.generateMoves(gameState);
+        MoveLookup<StandardPieceType> moves = castlingRule.generateMoves(gameState);
 
         assertEquals(2, moves.size()); // Both king-side and queen-side castling should be possible
         assertTrue(moves.stream().anyMatch(m -> m.hasComponent(CastlingComponent.class)));
@@ -50,7 +50,7 @@ class CastlingRuleTest {
         board.setPieceAt(kingPos, new ChessPiece<>(StandardPieceType.KING, true)); // King has moved
         board.setPieceAt(rookPos, new ChessPiece<>(StandardPieceType.ROOK, false));
 
-        MoveCollection<StandardPieceType> moves = castlingRule.generateMoves(gameState);
+        MoveLookup<StandardPieceType> moves = castlingRule.generateMoves(gameState);
 
         assertTrue(moves.isEmpty()); // Castling should be blocked
     }
@@ -66,7 +66,7 @@ class CastlingRuleTest {
         board.setPieceAt(rookPos, new ChessPiece<>(StandardPieceType.ROOK, false));
         board.setPieceAt(blockingPiecePos, new ChessPiece<>(StandardPieceType.PAWN, false)); // Blocked path
 
-        MoveCollection<StandardPieceType> moves = castlingRule.generateMoves(gameState);
+        MoveLookup<StandardPieceType> moves = castlingRule.generateMoves(gameState);
 
         assertTrue(moves.isEmpty()); // Castling should not be allowed
     }
