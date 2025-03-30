@@ -77,8 +77,8 @@ public class SimpleEvaluator implements GameStateEvaluator<StandardPieceType> {
         int penalty = 0;
         List<Square> pawnSquares = state.getSquaresWithTypeAndColour(StandardPieceType.PAWN, isWhite);
         for (Square pawn : pawnSquares) {
-            boolean leftFilePawn   = pawnSquares.contains(Square.of(pawn.x() - 1, pawn.y()));
-            boolean rightFilePawn  = pawnSquares.contains(Square.of(pawn.x() + 1, pawn.y()));
+            boolean leftFilePawn = pawnSquares.contains(Square.of(pawn.x() - 1, pawn.y()));
+            boolean rightFilePawn = pawnSquares.contains(Square.of(pawn.x() + 1, pawn.y()));
             if (!leftFilePawn && !rightFilePawn) penalty += 15; // isolierter Bauer
         }
         return penalty;

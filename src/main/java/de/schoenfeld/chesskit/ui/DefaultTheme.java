@@ -30,7 +30,7 @@ public class DefaultTheme implements Theme {
 
     @Override
     public Color[] backgroundGradient() {
-        return new Color[] {
+        return new Color[]{
                 new Color(23, 32, 42),
                 new Color(44, 62, 80)
         };

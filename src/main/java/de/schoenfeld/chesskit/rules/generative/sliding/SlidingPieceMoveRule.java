@@ -45,8 +45,8 @@ public abstract class SlidingPieceMoveRule<T extends PieceType> extends Abstract
 
     @Override
     protected void generatePieceMoves(GameState<T> gameState,
-                                 Square position,
-                                 MoveLookup<T> moves) {
+                                      Square position,
+                                      MoveLookup<T> moves) {
         ChessBoard<T> board = gameState.getChessBoard();
         ChessPiece<T> piece = gameState.getPieceAt(position);
 

@@ -4,7 +4,8 @@ import de.schoenfeld.chesskit.model.Square;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class ChessSquare extends JLabel {
     private final Square position;
@@ -76,8 +77,7 @@ public class ChessSquare extends JLabel {
         );
         if (highlight) {
             g2d.setColor(theme.squareHighlight());
-        }
-        else g2d.setPaint(gradient);
+        } else g2d.setPaint(gradient);
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
         // Add a border

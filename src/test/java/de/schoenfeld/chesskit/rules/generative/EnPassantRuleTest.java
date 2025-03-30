@@ -1,14 +1,17 @@
 package de.schoenfeld.chesskit.rules.generative;
 
-import de.schoenfeld.chesskit.model.*;
+import de.schoenfeld.chesskit.model.ChessPiece;
+import de.schoenfeld.chesskit.model.GameState;
+import de.schoenfeld.chesskit.model.Square;
+import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.Move;
 import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.move.components.EnPassantComponent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EnPassantRuleTest {
     private EnPassantRule tested;
@@ -86,7 +89,7 @@ public class EnPassantRuleTest {
         MoveLookup<StandardPieceType> moves = tested.generateMoves(gameState);
 
         assertEquals(1, moves.size(), "Ein En-Passant-Zug muss generiert werden.");
-        Move<StandardPieceType> move = moves.iterator().next();
+        Move<StandardPieceType> move = moves.getFirst();
         assertTrue(move.hasComponent(EnPassantComponent.class), "Zug sollte eine EnPassantComponent haben.");
         assertEquals(Square.of(3, 5), move.to(), "Zielposition für En-Passant ist falsch.");
     }

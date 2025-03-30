@@ -24,6 +24,18 @@ public record Rules<T extends PieceType>(List<GenerativeMoveRule<T>> generativeM
         implements MoveGenerator<T> {
     private static final Rules<StandardPieceType> STANDARD = createStandard();
 
+    public Rules(List<GenerativeMoveRule<T>> generativeMoveRules,
+                 List<RestrictiveMoveRule<T>> restrictiveMoveRules,
+                 List<GameConclusionRule<T>> gameConclusionRules) {
+        if (generativeMoveRules == null) throw new NullPointerException("generativeMoveRules");
+        if (restrictiveMoveRules == null) throw new NullPointerException("restrictiveMoveRules");
+        if (gameConclusionRules == null) throw new NullPointerException("gameEndRules");
+
+        this.generativeMoveRules = List.copyOf(generativeMoveRules);
+        this.restrictiveMoveRules = List.copyOf(restrictiveMoveRules);
+        this.gameConclusionRules = List.copyOf(gameConclusionRules);
+    }
+
     public static Rules<StandardPieceType> standard() {
         return STANDARD;
     }
@@ -54,18 +66,6 @@ public record Rules<T extends PieceType>(List<GenerativeMoveRule<T>> generativeM
                 new CheckMateRule(gameEndMoveGenerator)
         );
         return new Rules<>(generativeMoveRules, restrictiveMoveRules, gameEndRules);
-    }
-
-    public Rules(List<GenerativeMoveRule<T>> generativeMoveRules,
-                 List<RestrictiveMoveRule<T>> restrictiveMoveRules,
-                 List<GameConclusionRule<T>> gameConclusionRules) {
-        if (generativeMoveRules == null) throw new NullPointerException("generativeMoveRules");
-        if (restrictiveMoveRules == null) throw new NullPointerException("restrictiveMoveRules");
-        if (gameConclusionRules == null) throw new NullPointerException("gameEndRules");
-
-        this.generativeMoveRules = List.copyOf(generativeMoveRules);
-        this.restrictiveMoveRules = List.copyOf(restrictiveMoveRules);
-        this.gameConclusionRules = List.copyOf(gameConclusionRules);
     }
 
     public Optional<GameConclusion> detectGameEndCause(GameState<T> gameState) {

@@ -21,6 +21,20 @@ public class MoveLookup<T extends PieceType> implements List<Move<T>> {
             addToMaps(move);
     }
 
+    @SafeVarargs
+    public static <T extends PieceType> MoveLookup<T> of(Move<T>... moves) {
+        return new ImmutableMoveLookup<>(Arrays.asList(moves));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends PieceType> MoveLookup<T> of() {
+        return (MoveLookup<T>) ImmutableMoveLookup.EMPTY;
+    }
+
+    public static <T extends PieceType> MoveLookup<T> of(Collection<Move<T>> moves) {
+        return new ImmutableMoveLookup<>(new ArrayList<>(moves));
+    }
+
     public void removeAllMovesFrom(Square from) {
         if (!moveMap.containsKey(from)) return;
         List<Move<T>> movesToRemove = moveMap.get(from);
@@ -36,20 +50,6 @@ public class MoveLookup<T extends PieceType> implements List<Move<T>> {
         moves.addAll(replacement);
         for (Move<T> move : replacement)
             addToMaps(move);
-    }
-
-    @SafeVarargs
-    public static <T extends PieceType> MoveLookup<T> of(Move<T>... moves) {
-        return new ImmutableMoveLookup<>(Arrays.asList(moves));
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T extends PieceType> MoveLookup<T> of() {
-        return (MoveLookup<T>) ImmutableMoveLookup.EMPTY;
-    }
-
-    public static <T extends PieceType> MoveLookup<T> of(Collection<Move<T>> moves) {
-        return new ImmutableMoveLookup<>(new ArrayList<>(moves));
     }
 
     public List<Move<T>> getMovesTo(Square square) {
@@ -236,6 +236,26 @@ public class MoveLookup<T extends PieceType> implements List<Move<T>> {
         return modified;
     }
 
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        MoveLookup<?> that = (MoveLookup<?>) object;
+        return Objects.equals(moves, that.moves) && Objects.equals(moveMap, that.moveMap);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(moves, moveMap);
+    }
+
+    @Override
+    public String toString() {
+        return "MoveCollection{" +
+                "moves=" + moves +
+                ", moveMap=" + moveMap +
+                '}';
+    }
+
     private class MoveIterator implements Iterator<Move<T>> {
         private final Iterator<Move<T>> iterator;
         private Move<T> current;
@@ -314,25 +334,5 @@ public class MoveLookup<T extends PieceType> implements List<Move<T>> {
             listIterator.add(e);
             addToMaps(e);
         }
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (object == null || getClass() != object.getClass()) return false;
-        MoveLookup<?> that = (MoveLookup<?>) object;
-        return Objects.equals(moves, that.moves) && Objects.equals(moveMap, that.moveMap);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(moves, moveMap);
-    }
-
-    @Override
-    public String toString() {
-        return "MoveCollection{" +
-                "moves=" + moves +
-                ", moveMap=" + moveMap +
-                '}';
     }
 }

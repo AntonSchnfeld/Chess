@@ -10,14 +10,15 @@ import de.schoenfeld.chesskit.ui.ChessSquare;
 import de.schoenfeld.chesskit.ui.ChessUIClient;
 
 import javax.swing.*;
-import java.awt.event.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Map;
 
 public class UIPlayer<T extends PieceType> extends Player<T> {
     private final ChessUIClient uiClient;
+    private final Rules<T> rules;
     private Square selectedSquare;
     private MoveLookup<T> legalMoves;
-    private final Rules<T> rules;
     private GameState<T> gameState;
 
     public UIPlayer(PlayerData playerData, EventBus eventBus, ChessUIClient uiClient, Rules<T> rules) {

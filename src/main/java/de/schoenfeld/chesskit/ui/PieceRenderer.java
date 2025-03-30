@@ -6,8 +6,6 @@ import de.schoenfeld.chesskit.model.StandardPieceType;
 
 import java.awt.*;
 
-import static de.schoenfeld.chesskit.model.StandardPieceType.*;
-
 public class PieceRenderer {
     private final Theme theme;
 

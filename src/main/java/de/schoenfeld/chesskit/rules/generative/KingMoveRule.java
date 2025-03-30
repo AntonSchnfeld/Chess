@@ -10,15 +10,14 @@ import java.util.List;
 public class KingMoveRule<T extends PieceType> extends AbstractGenerativeMoveRule<T> {
     private static final KingMoveRule<StandardPieceType> STANDARD =
             new KingMoveRule<>(StandardPieceType.KING);
-
-    public KingMoveRule(T kingType) {
-        super(kingType);
-    }
-
     private static final List<Square> KING_DIRECTIONS = List.of(
             new Square(1, 0), new Square(-1, 0), new Square(0, 1), new Square(0, -1),
             new Square(1, 1), new Square(-1, -1), new Square(1, -1), new Square(-1, 1)
     );
+
+    public KingMoveRule(T kingType) {
+        super(kingType);
+    }
 
     public static KingMoveRule<StandardPieceType> standard() {
         return STANDARD;
