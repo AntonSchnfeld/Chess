@@ -64,20 +64,8 @@ public class Move<T extends PieceType> implements Serializable {
         return false;
     }
 
-    public void executeOn(GameState<T> gameState) {
-        gameState.getMoveHistory().recordMove(this);
-        for (int i = 0; i < components.length; i++)
-            components[i].executeOn(gameState, this);
-        gameState.movePiece(from, to);
-        gameState.switchTurn();
-    }
-
-    public void undoOn(GameState<T> gameState) {
-        gameState.switchTurn();
-        gameState.movePiece(to, from);
-        for (int i = 0; i < components.length; i++)
-            components[i].undoOn(gameState, this);
-        gameState.getMoveHistory().removeLastMove();
+    public MoveComponent<T>[] getComponents() {
+        return components;
     }
 
     @Override

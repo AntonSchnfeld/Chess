@@ -36,7 +36,7 @@ class MoveTest {
     public void givenValidNormalMove_whenExecuteOn_thenExecuteProperly() {
         tested = Move.of(piece, from, to);
 
-        tested.executeOn(gameState);
+        gameState.makeMove(tested);
 
         assertFalse(gameState.isWhiteTurn());
         assertEquals(piece, gameState.getPieceAt(to));
@@ -48,21 +48,21 @@ class MoveTest {
     public void givenValidMoveWithComponent_whenExecuteOn_thenExecuteProperly() {
         tested = Move.of(piece, from, to, mockComponent);
 
-        tested.executeOn(gameState);
+        gameState.makeMove(tested);
 
         assertFalse(gameState.isWhiteTurn());
         assertEquals(piece, gameState.getPieceAt(to));
         assertEquals(1, gameState.getMoveHistory().getMoveCount());
         assertEquals(tested, gameState.getMoveHistory().getLastMove());
-        verify(mockComponent).executeOn(gameState, tested);
+        verify(mockComponent).makeOn(gameState, tested);
     }
 
     @Test
     public void givenValidNormalMove_whenUndoOn_thenUndoesProperly() {
         tested = Move.of(piece, from, to);
 
-        tested.executeOn(gameState);
-        tested.undoOn(gameState);
+        gameState.makeMove(tested);
+        gameState.unmakeLastMove();
 
         assertTrue(gameState.isWhiteTurn());
         assertEquals(piece, gameState.getPieceAt(from));
@@ -73,13 +73,13 @@ class MoveTest {
     public void givenValidMoveWithComponent_whenExecuteOn_thenUndoesProperly() {
         tested = Move.of(piece, from, to, mockComponent);
 
-        tested.executeOn(gameState);
-        tested.undoOn(gameState);
+        gameState.makeMove(tested);
+        gameState.unmakeLastMove();
 
         assertTrue(gameState.isWhiteTurn());
         assertEquals(piece, gameState.getPieceAt(from));
         assertEquals(0, gameState.getMoveHistory().getMoveCount());
-        verify(mockComponent).undoOn(gameState, tested);
+        verify(mockComponent).unmakeOn(gameState, tested);
     }
 
     @Test
@@ -90,23 +90,23 @@ class MoveTest {
         to = Square.of(4, 2);
         tested = Move.of(piece, from, to, mockComponent);
 
-        tested.executeOn(gameState);
+        gameState.makeMove(tested);
 
         assertFalse(gameState.isWhiteTurn());
         assertEquals(piece, gameState.getPieceAt(to));
         assertNull(gameState.getPieceAt(from));
         assertEquals(1, gameState.getMoveHistory().getMoveCount());
         assertEquals(tested, gameState.getMoveHistory().getLastMove());
-        verify(mockComponent).executeOn(gameState, tested);
+        verify(mockComponent).makeOn(gameState, tested);
 
-        tested.undoOn(gameState);
+        gameState.unmakeLastMove();
 
         assertTrue(gameState.isWhiteTurn());
         assertEquals(piece, gameState.getPieceAt(from));
         assertNull(gameState.getPieceAt(to));
         assertEquals(0, gameState.getMoveHistory().getMoveCount());
         assertNull(gameState.getMoveHistory().getLastMove());
-        verify(mockComponent).undoOn(gameState, tested);
+        verify(mockComponent).unmakeOn(gameState, tested);
     }
 
     public void givenAFewMoves_whenExecutingAndUndoing_thenWorksProperly() {

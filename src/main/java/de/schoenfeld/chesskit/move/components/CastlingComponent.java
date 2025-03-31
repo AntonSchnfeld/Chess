@@ -9,12 +9,12 @@ public record CastlingComponent<T extends PieceType>(Square from, Square to)
         implements MoveComponent<T> {
 
     @Override
-    public void executeOn(GameState<T> gameState, Move<T> move) {
+    public void makeOn(GameState<T> gameState, Move<T> move) {
         gameState.movePiece(from, to);
     }
 
     @Override
-    public void undoOn(GameState<T> gameState, Move<T> move) {
+    public void unmakeOn(GameState<T> gameState, Move<T> move) {
         gameState.movePiece(to, from);
     }
 }

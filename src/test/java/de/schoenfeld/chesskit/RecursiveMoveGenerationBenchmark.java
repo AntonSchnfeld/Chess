@@ -44,9 +44,9 @@ public class RecursiveMoveGenerationBenchmark {
         long totalNodes = 0;
 
         for (Move<StandardPieceType> move : moves) {
-            move.executeOn(state);
+            state.makeMove(move);
             totalNodes += generateMovesRecursively(state, depth - 1);
-            move.undoOn(state);
+            state.unmakeLastMove();
         }
 
         return totalNodes;

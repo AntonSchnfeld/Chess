@@ -84,7 +84,7 @@ public class EnPassantRuleTest {
         gameState.setPieceAt(enemyPawnEnd, enemyPawn);
 
         Move<StandardPieceType> enemyPawnDoubleMove = Move.of(enemyPawn, enemyPawnStart, enemyPawnEnd);
-        enemyPawnDoubleMove.executeOn(gameState); // Historie hinzufügen
+        gameState.makeMove(enemyPawnDoubleMove); // Historie hinzufügen
 
         MoveLookup<StandardPieceType> moves = tested.generateMoves(gameState);
 

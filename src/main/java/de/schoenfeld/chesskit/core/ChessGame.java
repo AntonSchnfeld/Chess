@@ -67,7 +67,7 @@ public class ChessGame<T extends PieceType> {
             return;
         }
 
-        event.move().executeOn(gameState);
+        gameState.makeMove(event.move());
         rules.detectGameEndCause(gameState).ifPresentOrElse(
                 gameConclusion -> {
                     eventBus.publish(new GameEndedEvent(gameId, gameConclusion));

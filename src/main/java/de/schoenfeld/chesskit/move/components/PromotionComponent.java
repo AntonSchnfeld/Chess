@@ -8,8 +8,8 @@ import de.schoenfeld.chesskit.move.Move;
 public record PromotionComponent<T extends PieceType>(T promotionTo)
         implements MoveComponent<T> {
     @Override
-    public void executeOn(GameState<T> gameState,
-                          Move<T> move) {
+    public void makeOn(GameState<T> gameState,
+                       Move<T> move) {
         ChessPiece<T> promotedPiece = new ChessPiece<>(promotionTo, move.movedPiece().isWhite());
 
         gameState.removePieceAt(move.from());
@@ -17,8 +17,8 @@ public record PromotionComponent<T extends PieceType>(T promotionTo)
     }
 
     @Override
-    public void undoOn(GameState<T> gameState,
-                       Move<T> move) {
+    public void unmakeOn(GameState<T> gameState,
+                         Move<T> move) {
         gameState.removePieceAt(move.to());
         gameState.setPieceAt(move.from(), move.movedPiece());
     }

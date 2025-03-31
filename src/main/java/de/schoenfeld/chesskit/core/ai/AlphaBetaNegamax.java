@@ -38,7 +38,7 @@ public class AlphaBetaNegamax<T extends PieceType> implements MoveSearchStrategy
         Move<T> bestMove = null;
 
         for (Move<T> move : legalMoves) {
-            move.executeOn(gameState);
+            gameState.makeMove(move);
             try {
                 int moveValue = -negamax(gameState, maxDepth - 1, -beta, -alpha);
                 if (moveValue > alpha) {
@@ -46,7 +46,7 @@ public class AlphaBetaNegamax<T extends PieceType> implements MoveSearchStrategy
                     bestMove = move;
                 }
             } finally {
-                move.undoOn(gameState);
+                gameState.unmakeLastMove();
             }
         }
 
@@ -71,7 +71,7 @@ public class AlphaBetaNegamax<T extends PieceType> implements MoveSearchStrategy
 
         int bestValue = -INF;
         for (Move<T> move : moves) {
-            move.executeOn(state);
+            state.makeMove(move);
             try {
                 int value = -negamax(state, depth - 1, -beta, -alpha);
                 bestValue = Math.max(bestValue, value);
@@ -80,7 +80,7 @@ public class AlphaBetaNegamax<T extends PieceType> implements MoveSearchStrategy
                     break;  // prune branch
                 }
             } finally {
-                move.undoOn(state);
+                state.unmakeLastMove();
             }
         }
 

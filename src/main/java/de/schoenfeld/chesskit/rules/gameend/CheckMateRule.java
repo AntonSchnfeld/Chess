@@ -28,17 +28,17 @@ public class CheckMateRule implements GameConclusionRule<StandardPieceType> {
         // prevent check since checking fewer moves is faster
         for (Move<StandardPieceType> move : moves) {
             // Simulate move
-            move.executeOn(gameState);
+            gameState.makeMove(move);
             gameState.switchTurn();
-            // Use withTurnSwitched to reverse turn change in move.executeOn(GameState)
+            // Use withTurnSwitched to reverse turn change in move.makeOn(GameState)
             if (allKingsSafe(gameState)) {
                 // Found a move that prevents check
                 gameState.switchTurn();
-                move.undoOn(gameState);
+                gameState.unmakeLastMove();
                 return Optional.empty();
             }
             gameState.switchTurn();
-            move.undoOn(gameState);
+            gameState.unmakeLastMove();
         }
         // No safe moves found :(
         return Optional.of(new GameConclusion(

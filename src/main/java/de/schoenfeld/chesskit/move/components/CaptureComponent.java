@@ -19,11 +19,11 @@ public class CaptureComponent<T extends PieceType> implements MoveComponent<T> {
     }
 
     @Override
-    public void executeOn(GameState<T> gameState, Move<T> move) {
+    public void makeOn(GameState<T> gameState, Move<T> move) {
     }
 
     @Override
-    public void undoOn(GameState<T> gameState, Move<T> move) {
+    public void unmakeOn(GameState<T> gameState, Move<T> move) {
         gameState.setPieceAt(move.to(), capturedPiece);
     }
 

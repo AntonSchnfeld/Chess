@@ -2,6 +2,8 @@ package de.schoenfeld.chesskit.model;
 
 import de.schoenfeld.chesskit.board.ChessBoard;
 import de.schoenfeld.chesskit.board.MapChessBoard;
+import de.schoenfeld.chesskit.move.Move;
+import de.schoenfeld.chesskit.move.components.MoveComponent;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -62,6 +64,25 @@ public class GameState<T extends PieceType> implements ChessBoard<T>, Serializab
     @Override
     public boolean isOccupied(Square square) {
         return chessBoard.isOccupied(square);
+    }
+
+    public void makeMove(Move<T> move) {
+        moveHistory.recordMove(move);
+        final MoveComponent<T>[] components = move.getComponents();
+        for (int i = 0; i < components.length; i++)
+            components[i].makeOn(this, move);
+        chessBoard.movePiece(move.from(), move.to());
+        switchTurn();
+    }
+
+    public void unmakeLastMove() {
+        Move<T> lastMove = moveHistory.getLastMove();
+        switchTurn();
+        chessBoard.movePiece(lastMove.to(), lastMove.from());
+        final MoveComponent<T>[] components = lastMove.getComponents();
+        for (int i = 0; i < components.length; i++)
+            components[i].unmakeOn(this, lastMove);
+        moveHistory.removeLastMove();
     }
 
     // State transition methods optimized for performance

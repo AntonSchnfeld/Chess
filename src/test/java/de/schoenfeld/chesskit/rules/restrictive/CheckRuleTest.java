@@ -94,25 +94,25 @@ public class CheckRuleTest {
             when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                     .thenReturn(List.of(Square.e2)); // Move king to a safe square
             return null;
-        }).when(legalMove).executeOn(gameState);
+        }).when(gameState).makeMove(legalMove);
 
         doAnswer(invocation -> {
             when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                     .thenReturn(List.of(Square.e1)); // King stays in check
             return null;
-        }).when(illegalMove).executeOn(gameState);
+        }).when(gameState).makeMove(illegalMove);
 
         doAnswer(invocation -> {
             when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                     .thenReturn(List.of(Square.e1)); // Restore original state
             return null;
-        }).when(legalMove).undoOn(gameState);
+        }).when(gameState).unmakeLastMove();
 
         doAnswer(invocation -> {
             when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                     .thenReturn(List.of(Square.e1));
             return null;
-        }).when(illegalMove).undoOn(gameState);
+        }).when(gameState).unmakeLastMove();
 
         moves.add(legalMove);
         moves.add(illegalMove);
@@ -140,13 +140,13 @@ public class CheckRuleTest {
             when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                     .thenReturn(List.of(Square.e1)); // King remains in danger (pinned piece moves)
             return null;
-        }).when(pinnedMove).executeOn(gameState);
+        }).when(gameState).makeMove(pinnedMove);
 
         doAnswer(invocation -> {
             when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                     .thenReturn(List.of(Square.e1)); // Restore original state
             return null;
-        }).when(pinnedMove).undoOn(gameState);
+        }).when(gameState).unmakeLastMove();
 
         moves.add(pinnedMove);
 
@@ -173,25 +173,25 @@ public class CheckRuleTest {
             when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                     .thenReturn(List.of(Square.e2)); // Move king to e2
             return null;
-        }).when(safeKingMove).executeOn(gameState);
+        }).when(gameState).makeMove(safeKingMove);
 
         doAnswer(invocation -> {
             when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                     .thenReturn(List.of(Square.d1)); // Move king to d1 (unsafe)
             return null;
-        }).when(unsafeKingMove).executeOn(gameState);
+        }).when(gameState).makeMove(unsafeKingMove);
 
         doAnswer(invocation -> {
             when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                     .thenReturn(List.of(Square.e1)); // Restore original state
             return null;
-        }).when(safeKingMove).undoOn(gameState);
+        }).when(gameState).unmakeLastMove();
 
         doAnswer(invocation -> {
             when(gameState.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()))
                     .thenReturn(List.of(Square.e1));
             return null;
-        }).when(unsafeKingMove).undoOn(gameState);
+        }).when(gameState).unmakeLastMove();
 
         moves.add(safeKingMove);
         moves.add(unsafeKingMove);

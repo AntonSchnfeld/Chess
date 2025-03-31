@@ -16,12 +16,12 @@ public class EnPassantComponent extends CaptureComponent<StandardPieceType> {
     }
 
     @Override
-    public void undoOn(GameState<StandardPieceType> gameState, Move<StandardPieceType> move) {
+    public void unmakeOn(GameState<StandardPieceType> gameState, Move<StandardPieceType> move) {
         gameState.setPieceAt(enPassantSquare, capturedPiece);
     }
 
     @Override
-    public void executeOn(GameState<StandardPieceType> gameState, Move<StandardPieceType> move) {
+    public void makeOn(GameState<StandardPieceType> gameState, Move<StandardPieceType> move) {
         gameState.removePieceAt(enPassantSquare);
     }
 

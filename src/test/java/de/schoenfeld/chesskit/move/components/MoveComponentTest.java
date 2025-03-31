@@ -20,19 +20,19 @@ abstract class MoveComponentTest<T extends PieceType> {
     protected abstract void setup();
 
     @Test
-    void givenMove_whenExecuteOn_thenComponentAppliesEffect() {
+    void givenMove_whenMakeOn_thenComponentAppliesEffect() {
         // When
-        move.executeOn(gameState);
+        gameState.makeMove(move);
 
         // Then
         verifyComponentExecuted(gameState, move);
     }
 
     @Test
-    void givenExecutedMove_whenUndoOn_thenComponentReversesEffect() {
+    void givenExecutedMove_whenUnmakeOn_thenComponentReversesEffect() {
         // When
-        move.executeOn(gameState);
-        move.undoOn(gameState);
+        gameState.makeMove(move);
+        gameState.unmakeLastMove();
 
         // Then
         verifyComponentUndone(gameState, move);

@@ -34,7 +34,7 @@ public class CheckRule implements RestrictiveMoveRule<StandardPieceType> {
             Move<StandardPieceType> move = iterator.next();
 
             // Simulate move, gameState now has opponent as turn
-            move.executeOn(gameState);
+            gameState.makeMove(move);
 
             // Get the current player's king in the simulated future state
             List<Square> kingSquares = gameState
@@ -42,7 +42,7 @@ public class CheckRule implements RestrictiveMoveRule<StandardPieceType> {
 
             if (kingSquares.isEmpty()) {
                 // This should never happen in a normal game, but we guard against it
-                move.undoOn(gameState);
+                gameState.unmakeLastMove();
                 continue;
             }
 
@@ -55,7 +55,7 @@ public class CheckRule implements RestrictiveMoveRule<StandardPieceType> {
                 }
             }
 
-            move.undoOn(gameState);
+            gameState.unmakeLastMove();
         }
     }
 }

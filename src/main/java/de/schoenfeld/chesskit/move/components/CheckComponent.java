@@ -6,12 +6,12 @@ import de.schoenfeld.chesskit.move.Move;
 
 public record CheckComponent<T extends PieceType>() implements MoveComponent<T> {
     @Override
-    public void executeOn(GameState<T> gameState, Move<T> move) {
+    public void makeOn(GameState<T> gameState, Move<T> move) {
 
     }
 
     @Override
-    public void undoOn(GameState<T> gameState, Move<T> move) {
+    public void unmakeOn(GameState<T> gameState, Move<T> move) {
 
     }
 }
