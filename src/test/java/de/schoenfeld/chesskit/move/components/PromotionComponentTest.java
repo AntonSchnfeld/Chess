@@ -5,6 +5,7 @@ import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.Square;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.Move;
+import de.schoenfeld.chesskit.rules.Rules;
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,7 +17,7 @@ class PromotionComponentTest extends MoveComponentTest<StandardPieceType> {
     @Override
     @BeforeEach
     protected void setup() {
-        gameState = new GameState<>(); // Use a real GameState
+        gameState = new GameState<>(Rules.standard()); // Use a real GameState
 
         // Create actual chess pieces
         piece = new ChessPiece<>(StandardPieceType.PAWN, true);  // Assume the player is white
@@ -31,7 +32,7 @@ class PromotionComponentTest extends MoveComponentTest<StandardPieceType> {
 
         // Create the promotion component with the desired promoted piece
         moveComponent = new PromotionComponent(StandardPieceType.QUEEN);  // Promote to Queen
-        move = Move.of(piece, from, to, moveComponent);
+        move = Move.claim(piece, from, to, moveComponent);
     }
 
     @Override
@@ -40,7 +41,7 @@ class PromotionComponentTest extends MoveComponentTest<StandardPieceType> {
         assertEquals(promotedPiece, gameState.getPieceAt(to), "Pawn should be promoted to Queen at the target position.");
 
         // Ensure the original square is now empty
-        assertNull(gameState.getPieceAt(from), "Original square of the pawn should be empty.");
+        assertNull(gameState.getPieceAt(from), "Original square claim the pawn should be empty.");
     }
 
     @Override

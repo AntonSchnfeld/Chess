@@ -6,6 +6,7 @@ import de.schoenfeld.chesskit.model.Square;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.Move;
 import de.schoenfeld.chesskit.move.MoveLookup;
+import de.schoenfeld.chesskit.rules.Rules;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +24,7 @@ public class PawnMoveRuleTest {
     @BeforeEach
     public void setup() {
         pawnMoveRule = PawnMoveRule.standard();
-        gameState = new GameState<>(); // White's turn
+        gameState = new GameState<>(Rules.standard()); // White's turn
     }
 
     @Test

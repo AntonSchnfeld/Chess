@@ -6,6 +6,7 @@ import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.Square;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.components.MoveComponent;
+import de.schoenfeld.chesskit.rules.Rules;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +25,7 @@ class MoveTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
-        gameState = new GameState<>();
+        gameState = new GameState<>(Rules.standard());
         piece = new ChessPiece<>(StandardPieceType.PAWN, true);
         from = Square.a1;
         to = Square.b1;
@@ -34,7 +35,7 @@ class MoveTest {
 
     @Test
     public void givenValidNormalMove_whenExecuteOn_thenExecuteProperly() {
-        tested = Move.of(piece, from, to);
+        tested = Move.claim(piece, from, to);
 
         gameState.makeMove(tested);
 
@@ -46,7 +47,7 @@ class MoveTest {
 
     @Test
     public void givenValidMoveWithComponent_whenExecuteOn_thenExecuteProperly() {
-        tested = Move.of(piece, from, to, mockComponent);
+        tested = Move.claim(piece, from, to, mockComponent);
 
         gameState.makeMove(tested);
 
@@ -59,7 +60,7 @@ class MoveTest {
 
     @Test
     public void givenValidNormalMove_whenUndoOn_thenUndoesProperly() {
-        tested = Move.of(piece, from, to);
+        tested = Move.claim(piece, from, to);
 
         gameState.makeMove(tested);
         gameState.unmakeLastMove();
@@ -71,7 +72,7 @@ class MoveTest {
 
     @Test
     public void givenValidMoveWithComponent_whenExecuteOn_thenUndoesProperly() {
-        tested = Move.of(piece, from, to, mockComponent);
+        tested = Move.claim(piece, from, to, mockComponent);
 
         gameState.makeMove(tested);
         gameState.unmakeLastMove();
@@ -84,11 +85,11 @@ class MoveTest {
 
     @Test
     public void givenValidMoveWithComponent_whenUndoOn_thenUndoesProperly() {
-        gameState = new GameState<>(BoardUtility.getDefaultBoard());
+        gameState = new GameState<>(BoardUtility.getDefaultBoard(), Rules.standard());
         piece = new ChessPiece<>(StandardPieceType.PAWN, true);
         from = Square.of(4, 1);
         to = Square.of(4, 2);
-        tested = Move.of(piece, from, to, mockComponent);
+        tested = Move.claim(piece, from, to, mockComponent);
 
         gameState.makeMove(tested);
 

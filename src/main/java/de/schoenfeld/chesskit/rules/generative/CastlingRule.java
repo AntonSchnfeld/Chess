@@ -40,7 +40,7 @@ public class CastlingRule implements GenerativeMoveRule<StandardPieceType> {
         ChessPiece<StandardPieceType> rook = gameState.getPieceAt(rookPosition);
         if (rook == null || rook.pieceType() != StandardPieceType.ROOK
                 || rook.isWhite() != gameState.isWhiteTurn()) return;
-        // The rook is of the correct color, is a rook and is at the correct position
+        // The rook is claim the correct color, is a rook and is at the correct position
         // Now we just check all squares between king and rook
         int xDirection = Integer.compare(rookPosition.x(), kingPosition.x());
         int y = kingPosition.y();
@@ -51,7 +51,7 @@ public class CastlingRule implements GenerativeMoveRule<StandardPieceType> {
         }
 
         Square targetKingPosition = Square.of(kingPosition.x() + (2 * xDirection), y);
-        Move<StandardPieceType> castlingMove = Move.of(
+        Move<StandardPieceType> castlingMove = Move.claim(
                 gameState.getPieceAt(kingPosition),
                 kingPosition,
                 targetKingPosition,

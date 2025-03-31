@@ -26,7 +26,7 @@ public class RecursiveMoveGenerationBenchmark {
     @Setup(Level.Trial)  // Setup only once per benchmark trial
     public void setup() {
         moveGenerator = Rules.standard();
-        initialGameState = new GameState<>(BoardUtility.getDefaultBoard());
+        initialGameState = new GameState<>(BoardUtility.getDefaultBoard(), Rules.standard());
     }
 
     @Benchmark

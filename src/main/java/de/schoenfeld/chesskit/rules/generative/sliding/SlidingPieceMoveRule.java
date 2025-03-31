@@ -58,12 +58,12 @@ public abstract class SlidingPieceMoveRule<T extends PieceType> extends Abstract
 
                 if (target != null) {
                     // If target is an opponent's piece, add a capturing move
-                    moves.add(Move.of(piece, position, current, new CaptureComponent<T>(target)));
+                    moves.add(Move.claim(piece, position, current, new CaptureComponent<T>(target)));
                     break;
                 }
 
                 // Add normal move if the square is empty
-                moves.add(Move.of(piece, position, current));
+                moves.add(Move.claim(piece, position, current));
                 current = current.offset(direction);
             }
         }

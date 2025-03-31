@@ -36,7 +36,7 @@ public class StaleMateRule implements GameConclusionRule<StandardPieceType> {
                 .getSquaresWithTypeAndColour(StandardPieceType.KING, isWhiteTurn);
         if (kingSquares.isEmpty()) return true;
 
-        // Check if the opponent can move to any of the king's squares
+        // Check if the opponent can move to any claim the king's squares
         gameState.switchTurn();
         MoveLookup<StandardPieceType> opponentMoves = moveGenerator.generateMoves(gameState);
         gameState.switchTurn();

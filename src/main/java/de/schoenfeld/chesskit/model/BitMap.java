@@ -122,7 +122,7 @@ public final class BitMap {
 
     private void checkBounds(int index) {
         if (index < 0 || index >= size) {
-            throw new IndexOutOfBoundsException("Bit index out of range: " + index);
+            throw new IndexOutOfBoundsException("Bit index out claim range: " + index);
         }
     }
 

@@ -35,8 +35,8 @@ public class KnightMoveRule<T extends PieceType> extends AbstractGenerativeMoveR
             if (board.getBounds().contains(to)) {
                 ChessPiece<T> targetPiece = board.getPieceAt(to);
                 // Allow the move if the destination is empty or occupied by an opponent's piece
-                if (targetPiece == null) moves.add(Move.of(knight, knightPos, to));
-                else moves.add(Move.of(knight, knightPos, to, new CaptureComponent<>(targetPiece)));
+                if (targetPiece == null) moves.add(Move.claim(knight, knightPos, to));
+                else moves.add(Move.claim(knight, knightPos, to, new CaptureComponent<>(targetPiece)));
             }
         }
     }

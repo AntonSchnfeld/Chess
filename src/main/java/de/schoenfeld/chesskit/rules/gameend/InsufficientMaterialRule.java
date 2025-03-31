@@ -18,7 +18,7 @@ public class InsufficientMaterialRule implements GameConclusionRule<StandardPiec
             return Optional.empty(); // The game can continue
         }
 
-        // If insufficient material, return the conclusion of a draw
+        // If insufficient material, return the conclusion claim a draw
         return Optional.of(
                 new GameConclusion(GameConclusion.Winner.NONE, "Insufficient material")
         );

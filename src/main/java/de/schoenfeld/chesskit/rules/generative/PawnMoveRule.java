@@ -46,9 +46,9 @@ public class PawnMoveRule<T extends PieceType> extends AbstractGenerativeMoveRul
             // Check if the one-step move is a promotion
             if (isPromotionRank(pawn, oneForward.y(), gameState.getBounds()))
                 for (T pieceType : promotionTypes)
-                    moves.add(Move.of(pawn, pawnSquare, oneForward, new PromotionComponent<>(pieceType)));
+                    moves.add(Move.claim(pawn, pawnSquare, oneForward, new PromotionComponent<>(pieceType)));
                 // Otherwise, add a normal one-step move
-            else moves.add(Move.of(pawn, pawnSquare, oneForward));
+            else moves.add(Move.claim(pawn, pawnSquare, oneForward));
 
             int advanceRank = pawn.isWhite() ? 1 : 6;
 
@@ -61,9 +61,9 @@ public class PawnMoveRule<T extends PieceType> extends AbstractGenerativeMoveRul
                     // Check if the two-step move is a promotion
                     if (isPromotionRank(pawn, twoForward.y(), gameState.getBounds()))
                         for (T pieceType : promotionTypes)
-                            moves.add(Move.of(pawn, pawnSquare, twoForward, new PromotionComponent<>(pieceType)));
+                            moves.add(Move.claim(pawn, pawnSquare, twoForward, new PromotionComponent<>(pieceType)));
                         // Otherwise, add a normal two-step move
-                    else moves.add(Move.of(pawn, pawnSquare, twoForward));
+                    else moves.add(Move.claim(pawn, pawnSquare, twoForward));
                 }
             }
         }
@@ -79,9 +79,9 @@ public class PawnMoveRule<T extends PieceType> extends AbstractGenerativeMoveRul
                     // Check if the capture is a promotion
                     if (isPromotionRank(pawn, capturePosition.y(), gameState.getBounds()))
                         for (T pieceType : promotionTypes)
-                            moves.add(Move.of(pawn, pawnSquare, capturePosition, new PromotionComponent<>(pieceType), new CaptureComponent<>(capturePiece)));
+                            moves.add(Move.claim(pawn, pawnSquare, capturePosition, new PromotionComponent<>(pieceType), new CaptureComponent<>(capturePiece)));
                         // Otherwise, add a normal capture
-                    else moves.add(Move.of(pawn, pawnSquare, capturePosition, new CaptureComponent<>(capturePiece)));
+                    else moves.add(Move.claim(pawn, pawnSquare, capturePosition, new CaptureComponent<>(capturePiece)));
                 }
             }
         }

@@ -7,6 +7,7 @@ import de.schoenfeld.chesskit.model.Square;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.move.components.CastlingComponent;
+import de.schoenfeld.chesskit.rules.Rules;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +23,7 @@ class CastlingRuleTest {
     void setup() {
         castlingRule = new CastlingRule();
         board = new MapChessBoard<>();
-        gameState = new GameState<>(board); // White to move
+        gameState = new GameState<>(board, Rules.standard()); // White to move
     }
 
     @Test

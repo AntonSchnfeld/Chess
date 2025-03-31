@@ -40,14 +40,12 @@ public class MoveLookup<T extends PieceType> implements List<Move<T>> {
         List<Move<T>> movesToRemove = moveMap.get(from);
         moves.removeAll(movesToRemove);
         moveMap.remove(from);
+        for (Move<T> move : movesToRemove) Move.release(move);
     }
 
     public void replaceAllMovesFrom(Square from, List<Move<T>> replacement) {
         if (!moveMap.containsKey(from)) return;
-        List<Move<T>> movesToRemove = moveMap.get(from);
-        moves.removeAll(movesToRemove);
-        moveMap.remove(from);
-        moves.addAll(replacement);
+        removeAllMovesFrom(from);
         for (Move<T> move : replacement)
             addToMaps(move);
     }
@@ -148,6 +146,8 @@ public class MoveLookup<T extends PieceType> implements List<Move<T>> {
 
     @Override
     public void clear() {
+        for (int i = 0; i < moves.size(); i++)
+            Move.release(moves.get(i));
         moves.clear();
         moveMap.clear();
     }
@@ -217,6 +217,7 @@ public class MoveLookup<T extends PieceType> implements List<Move<T>> {
         Optional.ofNullable(moveMap.get(move.to()))
                 .ifPresent(list -> {
                     list.remove(move);
+                    Move.release(move);
                     if (list.isEmpty()) moveMap.remove(move.to());
                 });
     }
@@ -230,6 +231,7 @@ public class MoveLookup<T extends PieceType> implements List<Move<T>> {
             Move<T> move = it.next();
             if (operationSet.contains(move) == remove) {
                 it.remove();
+                Move.release(move);
                 modified = true;
             }
         }

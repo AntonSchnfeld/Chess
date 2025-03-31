@@ -3,7 +3,9 @@ package de.schoenfeld.chesskit.model;
 import de.schoenfeld.chesskit.board.ChessBoard;
 import de.schoenfeld.chesskit.board.MapChessBoard;
 import de.schoenfeld.chesskit.move.Move;
+import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.move.components.MoveComponent;
+import de.schoenfeld.chesskit.rules.MoveGenerator;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -17,28 +19,35 @@ public class GameState<T extends PieceType> implements ChessBoard<T>, Serializab
 
     private ChessBoard<T> chessBoard;
     private MoveHistory<T> moveHistory;
+    private MoveLookup<T> validMoves;
+    private MoveGenerator<T> moveGenerator;
     private boolean isWhiteTurn;
 
-    public GameState(ChessBoard<T> chessBoard, MoveHistory<T> moveHistory, boolean isWhiteTurn) {
+    public GameState(ChessBoard<T> chessBoard, MoveHistory<T> moveHistory,
+                     MoveGenerator<T> moveGenerator, boolean isWhiteTurn) {
         if (chessBoard == null)
             throw new NullPointerException("chessBoard");
         if (moveHistory == null)
             throw new NullPointerException("moveHistory");
+        if (moveGenerator == null)
+            throw new NullPointerException("moveGenerator");
         this.chessBoard = chessBoard;
         this.moveHistory = moveHistory;
         this.isWhiteTurn = isWhiteTurn;
+        this.moveGenerator = moveGenerator;
+        this.validMoves = moveGenerator.generateMoves(this);
     }
 
-    public GameState(ChessBoard<T> chessBoard) {
-        this(chessBoard, new MoveHistory<>(), true);
+    public GameState(ChessBoard<T> chessBoard, MoveHistory<T> moveHistory, MoveGenerator<T> moveGenerator) {
+        this(chessBoard, moveHistory, moveGenerator, true);
     }
 
-    public GameState() {
-        this(new MapChessBoard<>(new ChessBoardBounds(8, 8)), new MoveHistory<>());
+    public GameState(ChessBoard<T> chessBoard, MoveGenerator<T> moveGenerator) {
+        this(chessBoard, new MoveHistory<>(), moveGenerator, true);
     }
 
-    public GameState(ChessBoard<T> chessBoard, MoveHistory<T> moveHistory) {
-        this(chessBoard, moveHistory, true);
+    public GameState(MoveGenerator<T> moveGenerator) {
+        this(new MapChessBoard<>(), new MoveHistory<>(), moveGenerator, true);
     }
 
     public ChessBoard<T> getChessBoard() {
@@ -47,6 +56,14 @@ public class GameState<T extends PieceType> implements ChessBoard<T>, Serializab
 
     public void setChessBoard(ChessBoard<T> newBoard) {
         this.chessBoard = newBoard;
+    }
+
+    public MoveGenerator<T> getMoveGenerator() {
+        return moveGenerator;
+    }
+
+    public void setMoveGenerator(MoveGenerator<T> newGenerator) {
+        this.moveGenerator = newGenerator;
     }
 
     public MoveHistory<T> getMoveHistory() {
@@ -68,21 +85,31 @@ public class GameState<T extends PieceType> implements ChessBoard<T>, Serializab
 
     public void makeMove(Move<T> move) {
         moveHistory.recordMove(move);
-        final MoveComponent<T>[] components = move.getComponents();
-        for (int i = 0; i < components.length; i++)
-            components[i].makeOn(this, move);
+        List<MoveComponent<T>> components = move.getComponents();
+        for (MoveComponent<T> component : components)
+            component.makeOn(this, move);
         chessBoard.movePiece(move.from(), move.to());
         switchTurn();
+        updateValidMoves();
     }
 
     public void unmakeLastMove() {
         Move<T> lastMove = moveHistory.getLastMove();
         switchTurn();
         chessBoard.movePiece(lastMove.to(), lastMove.from());
-        final MoveComponent<T>[] components = lastMove.getComponents();
-        for (int i = 0; i < components.length; i++)
-            components[i].unmakeOn(this, lastMove);
+        List<MoveComponent<T>> components = lastMove.getComponents();
+        for (MoveComponent<T> component : components)
+            component.unmakeOn(this, lastMove);
         moveHistory.removeLastMove();
+        updateValidMoves();
+    }
+
+    public MoveLookup<T> getValidMoves() {
+        return validMoves;
+    }
+
+    public void updateValidMoves() {
+        this.validMoves = moveGenerator.generateMoves(this);
     }
 
     // State transition methods optimized for performance

@@ -7,6 +7,7 @@ import de.schoenfeld.chesskit.model.*;
 import de.schoenfeld.chesskit.move.Move;
 import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.rules.MoveGenerator;
+import de.schoenfeld.chesskit.rules.Rules;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +30,7 @@ public class CheckMateRuleTest {
         tested = new CheckMateRule(moveGenerator);
 
         ChessBoard<StandardPieceType> board = new MapChessBoard<>(new ChessBoardBounds(8, 8));
-        gameState = new GameState<>(board);
+        gameState = new GameState<>(board, Rules.standard());
         king = new ChessPiece<>(StandardPieceType.KING, true);
     }
 
@@ -41,7 +42,7 @@ public class CheckMateRuleTest {
 
         // Mock opponent's move attacking the king
         MoveLookup<StandardPieceType> opponentMoves = new MoveLookup<>();
-        opponentMoves.add(Move.of(mock(ChessPiece.class), Square.a1, Square.h5));
+        opponentMoves.add(Move.claim(mock(ChessPiece.class), Square.a1, Square.h5));
         when(moveGenerator.generateMoves(any())).then(invocation -> {
             GameState<StandardPieceType> state = invocation.getArgument(0);
             if (state.isWhiteTurn()) return new MoveLookup<>();
@@ -74,7 +75,7 @@ public class CheckMateRuleTest {
     @Test
     public void givenLegalMoves_whenDetectGameEndCause_thenReturnEmpty() {
         when(moveGenerator.generateMoves(gameState))
-                .thenReturn(MoveLookup.of(Move.of(king, Square.h5, Square.g5)));
+                .thenReturn(MoveLookup.of(Move.claim(king, Square.h5, Square.g5)));
 
         Optional<GameConclusion> result = tested.detectGameEndCause(gameState);
 
@@ -97,8 +98,8 @@ public class CheckMateRuleTest {
         gameState.getChessBoard().setPieceAt(Square.a1, checkingPiece);
 
         MoveLookup<StandardPieceType> enemyMoves = MoveLookup.of(
-                Move.of(checkingPiece, Square.a1, Square.a8),
-                Move.of(checkingPiece, Square.a1, Square.a7)
+                Move.claim(checkingPiece, Square.a1, Square.a8),
+                Move.claim(checkingPiece, Square.a1, Square.a7)
         );
 
         when(moveGenerator.generateMoves(gameState)).then(invocation -> {
@@ -117,7 +118,7 @@ public class CheckMateRuleTest {
     @Test
     public void givenKingEscapesCheck_whenDetectGameEndCause_thenReturnEmpty() {
         gameState.getChessBoard().setPieceAt(Square.e1, king);
-        Move<StandardPieceType> escapingMove = Move.of(king, Square.e1, Square.d1);
+        Move<StandardPieceType> escapingMove = Move.claim(king, Square.e1, Square.d1);
 
         when(moveGenerator.generateMoves(gameState)).thenReturn(MoveLookup.of(escapingMove));
 
@@ -134,7 +135,7 @@ public class CheckMateRuleTest {
         gameState.getChessBoard().setPieceAt(Square.e8, checkingPiece);
         gameState.getChessBoard().setPieceAt(Square.e4, blockingPiece);
 
-        Move<StandardPieceType> blockMove = Move.of(blockingPiece, Square.e4, Square.e5);
+        Move<StandardPieceType> blockMove = Move.claim(blockingPiece, Square.e4, Square.e5);
         when(moveGenerator.generateMoves(gameState)).thenReturn(MoveLookup.of(blockMove));
 
         Optional<GameConclusion> result = tested.detectGameEndCause(gameState);

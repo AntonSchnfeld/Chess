@@ -23,7 +23,7 @@ import java.util.UUID;
 public class Main {
     public static void main(String[] args) {
         Rules<StandardPieceType> rules = Rules.standard();
-        GameState<StandardPieceType> gameState = new GameState<>(BoardUtility.getDefaultBoard());
+        GameState<StandardPieceType> gameState = new GameState<>(BoardUtility.getDefaultBoard(), rules);
 
         EventBus eventBus = new EventBus();
         PlayerData black = new PlayerData(UUID.randomUUID(), "Schwarz", false);

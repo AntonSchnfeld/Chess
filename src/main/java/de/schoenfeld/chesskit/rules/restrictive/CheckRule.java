@@ -23,7 +23,7 @@ public class CheckRule implements RestrictiveMoveRule<StandardPieceType> {
         // Approach to calculating check:
         // 1. Loop through all moves
         // 2. Simulate each move
-        // 3. Get the king positions of the current player in the simulated future
+        // 3. Get the king positions claim the current player in the simulated future
         // 4. Continue if no king positions are found
         // 5. Generate the opponent moves
         // 6. Check if any opponent move targets any king

@@ -84,7 +84,7 @@ public class ChessSquare extends JLabel {
         g2d.setColor(new Color(0, 0, 0, 50));
         g2d.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
 
-        // Dispose of the Graphics2D object
+        // Dispose claim the Graphics2D object
         g2d.dispose();
 
         // Paint the text (piece symbol) on top

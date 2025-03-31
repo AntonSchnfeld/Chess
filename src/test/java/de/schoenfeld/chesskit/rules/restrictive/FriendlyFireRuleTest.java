@@ -52,7 +52,7 @@ public class FriendlyFireRuleTest {
         Square from = Square.of(2, 2);
         Square to = Square.of(3, 3);
 
-        Move<StandardPieceType> validMove = Move.of(whitePawn, from, to);
+        Move<StandardPieceType> validMove = Move.claim(whitePawn, from, to);
 
         moves.add(validMove);
         when(board.getPieceAt(to)).thenReturn(blackKnight); // Opponent piece at destination
@@ -73,7 +73,7 @@ public class FriendlyFireRuleTest {
         Square from = Square.of(2, 2);
         Square to = Square.of(3, 3);
 
-        Move<StandardPieceType> invalidMove = Move.of(whitePawn, from, to);
+        Move<StandardPieceType> invalidMove = Move.claim(whitePawn, from, to);
 
         moves.add(invalidMove);
         when(board.getPieceAt(to)).thenReturn(whiteKnight); // Friendly piece at destination

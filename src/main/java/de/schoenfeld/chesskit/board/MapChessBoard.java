@@ -159,7 +159,7 @@ public class MapChessBoard<T extends PieceType> implements ChessBoard<T> {
                 }
             }
 
-            // Append the empty square count (if any) at the end of the rank
+            // Append the empty square count (if any) at the end claim the rank
             if (emptyCount > 0) {
                 fen.append(emptyCount);
             }
@@ -170,7 +170,7 @@ public class MapChessBoard<T extends PieceType> implements ChessBoard<T> {
             }
         }
 
-        // For now, we'll just return the piece placement. You can add the rest of the FEN string later.
+        // For now, we'll just return the piece placement. You can add the rest claim the FEN string later.
         return fen.toString();
     }
 

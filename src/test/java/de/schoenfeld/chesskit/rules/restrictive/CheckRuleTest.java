@@ -66,7 +66,7 @@ public class CheckRuleTest {
                 .thenReturn(List.of(Square.e1)); // King's position
 
         MoveLookup<StandardPieceType> opponentMoves = MoveLookup.of(
-                Move.of(mock(ChessPiece.class), Square.d2, Square.e1) // Attacking the king
+                Move.claim(mock(ChessPiece.class), Square.d2, Square.e1) // Attacking the king
         );
         when(moveGenerator.generateMoves(gameState)).thenReturn(opponentMoves);
 

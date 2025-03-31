@@ -59,7 +59,7 @@ public class EnPassantRule implements GenerativeMoveRule<StandardPieceType> {
         if (adjacentPawn != null
                 && adjacentPawn.isWhite() == currentTurnIsWhite // The capturing pawn must be owned by the current player
                 && adjacentPawn.pieceType().equals(StandardPieceType.PAWN)) {
-            moves.add(Move.of(
+            moves.add(Move.claim(
                     adjacentPawn,
                     adjacentPawnPos,
                     enPassantTarget,

@@ -61,7 +61,7 @@ public class ListChessBoard<T extends PieceType> implements ChessBoard<T> {
 
     private int calculateIndex(Square square) {
         if (!bounds.contains(square)) {
-            throw new IndexOutOfBoundsException("Position out of bounds: " + square);
+            throw new IndexOutOfBoundsException("Position out claim bounds: " + square);
         }
         return square.x() + square.y() * bounds.columns();
     }

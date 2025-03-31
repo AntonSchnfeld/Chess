@@ -7,6 +7,7 @@ import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.Move;
 import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.move.components.EnPassantComponent;
+import de.schoenfeld.chesskit.rules.Rules;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +23,7 @@ public class EnPassantRuleTest {
     @BeforeEach
     public void setup() {
         tested = new EnPassantRule();
-        gameState = new GameState<>();
+        gameState = new GameState<>(Rules.standard());
 
         pawn = new ChessPiece<>(StandardPieceType.PAWN, true);
         pawnPos = Square.of(3, 3);
@@ -39,7 +40,7 @@ public class EnPassantRuleTest {
 
     @Test
     public void givenLastMoveNotPawn_whenGenerateMoves_thenNoEnPassant() {
-        Move<StandardPieceType> nonPawnMove = Move.of(
+        Move<StandardPieceType> nonPawnMove = Move.claim(
                 new ChessPiece<>(StandardPieceType.ROOK, false),
                 Square.of(2, 1),
                 Square.of(2, 3)
@@ -55,7 +56,7 @@ public class EnPassantRuleTest {
 
     @Test
     public void givenLastMoveNotDoublePawnMove_whenGenerateMoves_thenNoEnPassant() {
-        Move<StandardPieceType> pawnMove = Move.of(
+        Move<StandardPieceType> pawnMove = Move.claim(
                 new ChessPiece<>(StandardPieceType.PAWN, false),
                 Square.of(2, 2),
                 Square.of(2, 3)
@@ -83,7 +84,7 @@ public class EnPassantRuleTest {
         ChessPiece<StandardPieceType> enemyPawn = new ChessPiece<>(StandardPieceType.PAWN, false);
         gameState.setPieceAt(enemyPawnEnd, enemyPawn);
 
-        Move<StandardPieceType> enemyPawnDoubleMove = Move.of(enemyPawn, enemyPawnStart, enemyPawnEnd);
+        Move<StandardPieceType> enemyPawnDoubleMove = Move.claim(enemyPawn, enemyPawnStart, enemyPawnEnd);
         gameState.makeMove(enemyPawnDoubleMove); // Historie hinzufügen
 
         MoveLookup<StandardPieceType> moves = tested.generateMoves(gameState);
@@ -98,7 +99,7 @@ public class EnPassantRuleTest {
     @Test
     public void givenValidEnPassantForBlack_whenGenerateMoves_thenMoveIsGenerated() {
         // Set up move history to indicate a white pawn double move.
-        Move<StandardPieceType> doubleAdvancePawnMove = Move.of(
+        Move<StandardPieceType> doubleAdvancePawnMove = Move.claim(
                 pawn,
                 Square.of(2, 6),
                 Square.of(2, 4)
@@ -116,7 +117,7 @@ public class EnPassantRuleTest {
 
         // Expect one en passant move, with target square (3,6).
         assertEquals(1, moves.size(), "There should be one en passant move for White.");
-        Move<StandardPieceType> enPassantMove = Move.of(
+        Move<StandardPieceType> enPassantMove = Move.claim(
                 blackPawn,
                 blackPawnPos,
                 Square.of(2, 5),
@@ -128,7 +129,7 @@ public class EnPassantRuleTest {
 
     @Test
     public void givenNoAdjacentPawns_whenGenerateMoves_thenNoEnPassant() {
-        Move<StandardPieceType> randomMove = Move.of(
+        Move<StandardPieceType> randomMove = Move.claim(
                 new ChessPiece<>(StandardPieceType.KING, false),
                 Square.of(0, 0),
                 Square.of(1, 0)

@@ -34,7 +34,7 @@ public class MoveHistoryTest {
 
     @Test
     public void givenMoveHistory_when_thenNewMoveHist() {
-        tested.recordMove(Move.of(null, null, null));
+        tested.recordMove(Move.claim(null, null, null));
         assertEquals(1, tested.getMoveCount());
     }
 

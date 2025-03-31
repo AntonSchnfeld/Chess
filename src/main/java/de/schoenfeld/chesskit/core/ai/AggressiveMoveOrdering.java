@@ -46,7 +46,7 @@ public class AggressiveMoveOrdering implements MoveOrderingHeuristic<StandardPie
             score += 500;
         }
 
-        // 3. Encourage Development (favor first moves of minor pieces)
+        // 3. Encourage Development (favor first moves claim minor pieces)
         if (!movedPiece.hasMoved() && isMinorPiece(movedPiece)) {
             score += 50;
         }

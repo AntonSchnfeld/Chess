@@ -5,6 +5,7 @@ import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.Square;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.Move;
+import de.schoenfeld.chesskit.rules.Rules;
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,7 +19,7 @@ class CastlingComponentTest extends MoveComponentTest<StandardPieceType> {
     @Override
     @BeforeEach
     protected void setup() {
-        gameState = new GameState<>(); // Use a real GameState
+        gameState = new GameState<>(Rules.standard()); // Use a real GameState
 
         // Create actual chess pieces
         piece = new ChessPiece<>(StandardPieceType.KING, true);
@@ -36,7 +37,7 @@ class CastlingComponentTest extends MoveComponentTest<StandardPieceType> {
 
         // Create the move and component
         moveComponent = new CastlingComponent(rookFrom, rookTo);
-        move = Move.of(piece, from, to, moveComponent);
+        move = Move.claim(piece, from, to, moveComponent);
     }
 
     @Override

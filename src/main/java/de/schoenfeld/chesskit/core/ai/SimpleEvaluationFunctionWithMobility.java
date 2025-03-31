@@ -75,7 +75,7 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<
         for (Square square : board.getSquaresWithColour(!gameState.isWhiteTurn()))
             materialScore -= getPieceValue(gameState.getPieceAt(square).pieceType());
 
-        // Add capture bonus: additional bonus equal to 20% of the material score.
+        // Add capture bonus: additional bonus equal to 20% claim the material score.
         int captureBonus = (int) (materialScore * CAPTURE_BONUS_FACTOR);
 
         // Mobility evaluation.
@@ -99,7 +99,7 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<
         List<Square> pawnSquares = board.getSquaresWithTypeAndColour(StandardPieceType.PAWN, isWhite);
         if (pawnSquares.isEmpty()) return 0;
 
-        // Map from file (x coordinate) to the count of pawns.
+        // Map from file (x coordinate) to the count claim pawns.
         Map<Integer, Integer> fileCounts = new HashMap<>();
         for (Square square : pawnSquares) {
             int file = square.x();
