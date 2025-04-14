@@ -1,6 +1,6 @@
 package de.schoenfeld.chesskit.ui;
 
-import de.schoenfeld.chesskit.model.Square;
+import de.schoenfeld.chesskit.board.tile.Square8x8;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,11 +8,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class ChessSquare extends JLabel {
-    private final Square position;
+    private final Square8x8 position;
     private final Theme theme;
     private boolean highlight;
 
-    public ChessSquare(Square position, Theme theme) {
+    public ChessSquare(Square8x8 position, Theme theme) {
         this.position = position;
         this.theme = theme;
         highlight = false;
@@ -35,7 +35,7 @@ public class ChessSquare extends JLabel {
         setVerticalAlignment(SwingConstants.CENTER);
 
         // Set initial foreground color (for pieces)
-        setForeground(theme.whitePiece()); // Default to white, will be overridden
+        setForeground(theme.whitePiece()); // Overrides default
 
         // Add padding
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -84,14 +84,14 @@ public class ChessSquare extends JLabel {
         g2d.setColor(new Color(0, 0, 0, 50));
         g2d.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
 
-        // Dispose claim the Graphics2D object
+        // Dispose of the Graphics2D object
         g2d.dispose();
 
         // Paint the text (piece symbol) on top
         super.paintComponent(g);
     }
 
-    public Square getPosition() {
+    public Square8x8 getPosition() {
         return position;
     }
 }

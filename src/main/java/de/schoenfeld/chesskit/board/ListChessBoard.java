@@ -1,22 +1,23 @@
 package de.schoenfeld.chesskit.board;
 
-import de.schoenfeld.chesskit.model.ChessBoardBounds;
+import de.schoenfeld.chesskit.board.tile.Square;
+import de.schoenfeld.chesskit.board.tile.Tile;
 import de.schoenfeld.chesskit.model.ChessPiece;
+import de.schoenfeld.chesskit.model.Color;
 import de.schoenfeld.chesskit.model.PieceType;
-import de.schoenfeld.chesskit.model.Square;
 
 import java.io.Serial;
 import java.util.*;
 import java.util.stream.IntStream;
 
-public class ListChessBoard<T extends PieceType> implements ChessBoard<T> {
+public class ListChessBoard<T extends PieceType> implements ChessBoard<Square, T> {
     @Serial
     private static final long serialVersionUID = -6453375693718269360L;
 
     private List<ChessPiece<T>> pieces;
-    private ChessBoardBounds bounds;
+    private SquareChessBoardBounds bounds;
 
-    public ListChessBoard(List<ChessPiece<T>> pieces, ChessBoardBounds bounds) {
+    public ListChessBoard(List<ChessPiece<T>> pieces, SquareChessBoardBounds bounds) {
         if (pieces == null)
             throw new NullPointerException("pieces");
         if (bounds == null)
@@ -28,31 +29,23 @@ public class ListChessBoard<T extends PieceType> implements ChessBoard<T> {
         this.bounds = bounds;
     }
 
-    public ListChessBoard(ChessBoardBounds bounds) {
-        this(ListChessBoard.createEmptyList(bounds), bounds);
+    public ListChessBoard(SquareChessBoardBounds bounds) {
+        this(createEmptyList(bounds), bounds);
     }
 
-    private static <T extends PieceType> List<ChessPiece<T>> createEmptyList(ChessBoardBounds bounds) {
-        return new ArrayList<>(Collections.nCopies(
-                bounds.rows() * bounds.columns(),
-                null
-        ));
+    private static <P extends PieceType> List<ChessPiece<P>> createEmptyList(ChessBoardBounds<Square> bounds) {
+        return new ArrayList<>(bounds.getTileCount());
     }
 
-    private static <T extends PieceType> void validateBoardSize(ChessBoardBounds bounds,
-                                                                List<ChessPiece<T>> pieces) {
-        int expectedSize = bounds.rows() * bounds.columns();
+    private static <P extends PieceType, T extends Tile> void validateBoardSize(ChessBoardBounds<T> bounds,
+                                                                                List<ChessPiece<P>> pieces) {
+        int expectedSize = bounds.getTileCount();
         if (pieces.size() != expectedSize) {
             throw new IllegalArgumentException(
                     "Invalid pieces list size. Expected: " + expectedSize +
                             ", Actual: " + pieces.size()
             );
         }
-    }
-
-    private static <T extends PieceType> String pieceToFenChar(ChessPiece<T> piece) {
-        String base = piece.pieceType().symbol();
-        return piece.isWhite() ? base.toUpperCase() : base;
     }
 
     public boolean isOccupied(Square square) {
@@ -72,35 +65,38 @@ public class ListChessBoard<T extends PieceType> implements ChessBoard<T> {
     }
 
     @Override
-    public ChessBoardBounds getBounds() {
+    public ChessBoardBounds<Square> getBounds() {
         return bounds;
     }
 
     @Override
-    public void setBounds(ChessBoardBounds newBounds) {
+    public void setBounds(ChessBoardBounds<Square> chessBoardBounds) {
+        if (!(chessBoardBounds instanceof SquareChessBoardBounds(int rows, int columns)))
+            throw new IllegalArgumentException();
+
         List<ChessPiece<T>> newPieces = new ArrayList<>(
-                Collections.nCopies(newBounds.rows() * newBounds.columns(), null)
+                Collections.nCopies(rows * columns, null)
         );
 
-        IntStream.range(0, Math.min(bounds.rows(), newBounds.rows()))
-                .forEach(y -> IntStream.range(0, Math.min(bounds.columns(), newBounds.columns()))
+        IntStream.range(0, Math.min(bounds.rows(), rows))
+                .forEach(y -> IntStream.range(0, Math.min(bounds.columns(), columns))
                         .forEach(x -> {
-                            Square pos = new Square(x, y);
-                            if (newBounds.contains(pos)) {
-                                newPieces.set(pos.x() + pos.y() * newBounds.columns(), getPieceAt(pos));
+                            Square pos = Square.of(x, y);
+                            if (chessBoardBounds.contains(pos)) {
+                                newPieces.set(pos.x() + pos.y() * columns, getPieceAt(pos));
                             }
                         }));
         pieces = newPieces;
-        this.bounds = newBounds;
+        this.bounds = (SquareChessBoardBounds) chessBoardBounds;
     }
 
     @Override
-    public List<Square> getSquaresWithColour(boolean isWhite) {
+    public List<Square> getTilesWithColour(Color color) {
         List<Square> squares = new ArrayList<>();
 
         for (int i = 0; i < pieces.size(); i++) {
             ChessPiece<T> piece = pieces.get(i);
-            if (piece != null && piece.isWhite() == isWhite) {
+            if (piece != null && piece.color() == color) {
                 squares.add(indexToSquare(i));
             }
         }
@@ -109,12 +105,12 @@ public class ListChessBoard<T extends PieceType> implements ChessBoard<T> {
     }
 
     @Override
-    public List<Square> getSquaresWithTypeAndColour(T pieceType, boolean isWhite) {
+    public List<Square> getTilesWithTypeAndColour(T pieceType, Color color) {
         List<Square> squares = new ArrayList<>();
 
         for (int i = 0; i < pieces.size(); i++) {
             ChessPiece<T> piece = pieces.get(i);
-            if (piece != null && piece.isWhite() == isWhite && piece.pieceType().equals(pieceType)) {
+            if (piece != null && piece.color() == color && piece.pieceType().equals(pieceType)) {
                 squares.add(indexToSquare(i));
             }
         }
@@ -123,7 +119,7 @@ public class ListChessBoard<T extends PieceType> implements ChessBoard<T> {
     }
 
     @Override
-    public List<Square> getSquaresWithType(T pieceType) {
+    public List<Square> getTilesWithType(T pieceType) {
         List<Square> squares = new ArrayList<>();
 
         for (int i = 0; i < pieces.size(); i++) {
@@ -137,7 +133,7 @@ public class ListChessBoard<T extends PieceType> implements ChessBoard<T> {
     }
 
     @Override
-    public List<Square> getOccupiedSquares() {
+    public List<Square> getOccupiedTiles() {
         List<Square> squares = new ArrayList<>();
 
         for (int i = 0; i < pieces.size(); i++) {
@@ -194,40 +190,6 @@ public class ListChessBoard<T extends PieceType> implements ChessBoard<T> {
     }
 
     @Override
-    public String toFen() {
-        StringBuilder fen = new StringBuilder();
-
-        for (int y = bounds.rows() - 1; y >= 0; y--) {
-            int emptyCounter = 0;
-
-            for (int x = 0; x < bounds.columns(); x++) {
-                ChessPiece<T> piece = getPieceAt(Square.of(x, y));
-
-                if (piece == null) {
-                    emptyCounter++;
-                } else {
-                    if (emptyCounter > 0) {
-                        fen.append(emptyCounter);
-                        emptyCounter = 0;
-                    }
-                    fen.append(pieceToFenChar(piece));
-                }
-            }
-
-            if (emptyCounter > 0) {
-                fen.append(emptyCounter);
-            }
-
-            if (y > 0) {
-                fen.append('/');
-            }
-        }
-
-        return fen.toString();
-    }
-
-
-    @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;
         ListChessBoard<?> that = (ListChessBoard<?>) object;
@@ -242,7 +204,8 @@ public class ListChessBoard<T extends PieceType> implements ChessBoard<T> {
     @Override
     public String toString() {
         return "ListChessBoard{" +
-                toFen() +
+                "pieces=" + pieces +
+                ", bounds=" + bounds +
                 '}';
     }
 }

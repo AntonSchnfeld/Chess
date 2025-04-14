@@ -5,6 +5,6 @@ import java.util.UUID;
 public record PlayerData(
         UUID playerId,
         String name,
-        boolean isWhite
+        Color color
 ) {
 }

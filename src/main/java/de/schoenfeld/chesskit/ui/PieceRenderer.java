@@ -27,6 +27,6 @@ public class PieceRenderer {
     }
 
     public Color getPieceColor(ChessPiece<?> piece) {
-        return piece.isWhite() ? theme.whitePiece() : theme.blackPiece();
+        return piece.color() == de.schoenfeld.chesskit.model.Color.WHITE ? theme.whitePiece() : theme.blackPiece();
     }
 }

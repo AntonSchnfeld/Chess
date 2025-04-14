@@ -1,8 +1,11 @@
 package de.schoenfeld.chesskit.move.components;
 
+import de.schoenfeld.chesskit.board.MapChessBoard;
+import de.schoenfeld.chesskit.board.Square8x8ChessBoardBounds;
 import de.schoenfeld.chesskit.model.ChessPiece;
+import de.schoenfeld.chesskit.model.Color;
 import de.schoenfeld.chesskit.model.GameState;
-import de.schoenfeld.chesskit.model.Square;
+import de.schoenfeld.chesskit.board.tile.Square8x8;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.Move;
 import de.schoenfeld.chesskit.rules.Rules;
@@ -11,37 +14,39 @@ import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-class CastlingComponentTest extends MoveComponentTest<StandardPieceType> {
+class CastlingComponentTest extends MoveComponentTest<Square8x8, StandardPieceType> {
     private ChessPiece<StandardPieceType> rook;
-    private Square rookFrom;
-    private Square rookTo;
+    private Square8x8 rookFrom;
+    private Square8x8 rookTo;
 
     @Override
     @BeforeEach
     protected void setup() {
-        gameState = new GameState<>(Rules.standard()); // Use a real GameState
+        gameState = new GameState<>(new MapChessBoard<>(new Square8x8ChessBoardBounds()), Rules.standard());
+        // Use a real GameState
 
         // Create actual chess pieces
-        piece = new ChessPiece<>(StandardPieceType.KING, true);
-        rook = new ChessPiece<>(StandardPieceType.ROOK, true);
+        piece = new ChessPiece<>(StandardPieceType.KING, Color.WHITE);
+        rook = new ChessPiece<>(StandardPieceType.ROOK, Color.WHITE);
 
         // Define squares
-        from = Square.of(4, 0); // King's starting position
-        to = Square.of(6, 0);   // King's destination after castling
-        rookFrom = Square.of(7, 0); // Rook's starting position
-        rookTo = Square.of(5, 0);   // Rook's destination after castling
+        from = Square8x8.of(4, 0); // King's starting position
+        to = Square8x8.of(6, 0);   // King's destination after castling
+        rookFrom = Square8x8.of(7, 0); // Rook's starting position
+        rookTo = Square8x8.of(5, 0);   // Rook's destination after castling
 
         // Place pieces on board
         gameState.setPieceAt(from, piece);
         gameState.setPieceAt(rookFrom, rook);
 
         // Create the move and component
-        moveComponent = new CastlingComponent(rookFrom, rookTo);
-        move = Move.claim(piece, from, to, moveComponent);
+        moveComponent = new CastlingComponent<>(rookFrom, rookTo);
+        move = Move.of(piece, from, to, moveComponent);
     }
 
     @Override
-    protected void verifyComponentExecuted(GameState<StandardPieceType> gameState, Move<StandardPieceType> move) {
+    protected void verifyComponentExecuted(GameState<Square8x8, StandardPieceType> gameState,
+                                           Move<Square8x8, StandardPieceType> move) {
         // Check if both king and rook have moved
         assertEquals(piece, gameState.getPieceAt(to), "King should be at the target position.");
         assertEquals(rook, gameState.getPieceAt(rookTo), "Rook should have moved to its castling position.");
@@ -52,7 +57,8 @@ class CastlingComponentTest extends MoveComponentTest<StandardPieceType> {
     }
 
     @Override
-    protected void verifyComponentUndone(GameState<StandardPieceType> gameState, Move<StandardPieceType> move) {
+    protected void verifyComponentUndone(GameState<Square8x8, StandardPieceType> gameState,
+                                         Move<Square8x8, StandardPieceType> move) {
         // Check if both king and rook returned correctly
         assertEquals(piece, gameState.getPieceAt(from), "King should be back at its original position.");
         assertEquals(rook, gameState.getPieceAt(rookFrom), "Rook should be back at its original position.");

@@ -3,60 +3,59 @@ package de.schoenfeld.chesskit.rules.gameend;
 import de.schoenfeld.chesskit.board.ChessBoard;
 import de.schoenfeld.chesskit.events.GameConclusion;
 import de.schoenfeld.chesskit.model.GameState;
-import de.schoenfeld.chesskit.model.Square;
+import de.schoenfeld.chesskit.board.tile.Square8x8;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class InsufficientMaterialRuleTest {
+class InsufficientMaterialDetectorTest {
 
-    private void setupBoardMock(ChessBoard<StandardPieceType> board,
+    private void setupBoardMock(ChessBoard<Square8x8, StandardPieceType> board,
                                 StandardPieceType... pieceTypes) {
         // Assume kings at default positions
-        when(board.getSquaresWithType(StandardPieceType.KING))
-                .thenReturn(List.of(Square.of(4, 0), Square.of(4, 7)));
+        when(board.getTilesWithType(StandardPieceType.KING))
+                .thenReturn(List.of(Square8x8.of(4, 0), Square8x8.of(4, 7)));
 
         for (StandardPieceType pieceType : pieceTypes) {
-            List<Square> squares = board.getSquaresWithType(pieceType);
-            if (squares == null) squares = new ArrayList<>();
-            squares.add(Square.a1);
-            when(board.getSquaresWithType(pieceType)).thenReturn(squares);
+            List<Square8x8> square8x8s = board.getTilesWithType(pieceType);
+            if (square8x8s == null) square8x8s = new ArrayList<>();
+            square8x8s.add(Square8x8.of(0, 0));
+            when(board.getTilesWithType(pieceType)).thenReturn(square8x8s);
         }
     }
 
     @SuppressWarnings("unchecked")
     private void testInsufficientMaterial(StandardPieceType... pieceTypes) {
-        ChessBoard<StandardPieceType> board = mock(ChessBoard.class);
-        GameState<StandardPieceType> gameState = mock(GameState.class);
+        ChessBoard<Square8x8, StandardPieceType> board = mock(ChessBoard.class);
+        GameState<Square8x8, StandardPieceType> gameState = mock(GameState.class);
         when(gameState.getChessBoard()).thenReturn(board);
         setupBoardMock(board, pieceTypes);
 
-        InsufficientMaterialRule rule = new InsufficientMaterialRule();
-        Optional<GameConclusion> conclusion = rule.detectGameEndCause(gameState);
+        InsufficientMaterialDetector<Square8x8> rule = new InsufficientMaterialDetector<>();
+        GameConclusion conclusion = rule.detectConclusion(gameState);
 
-        assertTrue(conclusion.isPresent());
-        assertEquals("Insufficient material", conclusion.get().description());
-        assertEquals(GameConclusion.Winner.NONE, conclusion.get().winner());
+        assertNotNull(conclusion);
+        assertEquals("Insufficient material", conclusion.description());
+        assertEquals(GameConclusion.Winner.NONE, conclusion.winner());
     }
 
     @SuppressWarnings("unchecked")
     private void testSufficientMaterial(StandardPieceType... pieceTypes) {
-        ChessBoard<StandardPieceType> board = mock(ChessBoard.class);
-        GameState<StandardPieceType> gameState = mock(GameState.class);
+        ChessBoard<Square8x8, StandardPieceType> board = mock(ChessBoard.class);
+        GameState<Square8x8, StandardPieceType> gameState = mock(GameState.class);
         when(gameState.getChessBoard()).thenReturn(board);
         setupBoardMock(board, pieceTypes);
 
-        InsufficientMaterialRule rule = new InsufficientMaterialRule();
-        Optional<GameConclusion> conclusion = rule.detectGameEndCause(gameState);
+        InsufficientMaterialDetector<Square8x8> rule = new InsufficientMaterialDetector<>();
+        GameConclusion conclusion = rule.detectConclusion(gameState);
 
-        assertFalse(conclusion.isPresent());
+        assertNull(conclusion);
     }
 
     @Test

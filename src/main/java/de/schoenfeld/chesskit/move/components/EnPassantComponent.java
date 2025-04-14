@@ -1,35 +1,38 @@
 package de.schoenfeld.chesskit.move.components;
 
+import de.schoenfeld.chesskit.board.tile.Tile;
 import de.schoenfeld.chesskit.model.ChessPiece;
 import de.schoenfeld.chesskit.model.GameState;
-import de.schoenfeld.chesskit.model.Square;
-import de.schoenfeld.chesskit.model.StandardPieceType;
+import de.schoenfeld.chesskit.model.PieceType;
 import de.schoenfeld.chesskit.move.Move;
 
-public class EnPassantComponent extends CaptureComponent<StandardPieceType> {
+import java.io.Serial;
 
-    private final Square enPassantSquare;
+public class EnPassantComponent<T extends Tile, P extends PieceType> extends CaptureComponent<T, P> {
+    @Serial
+    private static final long serialVersionUID = -6540828058731930581L;
+    private final T enPassantSquare8x8;
 
-    public EnPassantComponent(ChessPiece<StandardPieceType> capturedPiece, Square enPassantSquare) {
+    public EnPassantComponent(ChessPiece<P> capturedPiece, T enPassantSquare8x8) {
         super(capturedPiece);
-        this.enPassantSquare = enPassantSquare;
+        this.enPassantSquare8x8 = enPassantSquare8x8;
     }
 
     @Override
-    public void unmakeOn(GameState<StandardPieceType> gameState, Move<StandardPieceType> move) {
-        gameState.setPieceAt(enPassantSquare, capturedPiece);
+    public void unmakeOn(GameState<T, P> gameState, Move<T, P> move) {
+        gameState.setPieceAt(enPassantSquare8x8, capturedPiece);
     }
 
     @Override
-    public void makeOn(GameState<StandardPieceType> gameState, Move<StandardPieceType> move) {
-        gameState.removePieceAt(enPassantSquare);
+    public void makeOn(GameState<T, P> gameState, Move<T, P> move) {
+        gameState.removePieceAt(enPassantSquare8x8);
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || !o.getClass().equals(getClass())) return false;
 
-        EnPassantComponent other = (EnPassantComponent) o;
+        EnPassantComponent<?, ?> other = (EnPassantComponent<?, ?>) o;
 
         return this.capturedPiece.equals(other.capturedPiece);
     }

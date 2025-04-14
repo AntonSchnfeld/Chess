@@ -1,8 +1,8 @@
 package de.schoenfeld.chesskit.move;
 
+import de.schoenfeld.chesskit.board.tile.Tile;
 import de.schoenfeld.chesskit.model.ChessPiece;
 import de.schoenfeld.chesskit.model.PieceType;
-import de.schoenfeld.chesskit.model.Square;
 import de.schoenfeld.chesskit.model.pool.Pool;
 import de.schoenfeld.chesskit.model.pool.Poolable;
 import de.schoenfeld.chesskit.move.components.MoveComponent;
@@ -14,26 +14,32 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class Move<T extends PieceType> implements Serializable, Poolable {
-    @Serial
-    private static final long serialVersionUID = 1921632465085309764L;
-    public static final Pool<Move<?>> POOL = new Pool<>() {
+public class Move<T extends Tile, P extends PieceType> implements Serializable, Poolable {
+    public static final Pool<Move<?, ?>> POOL = new Pool<>() {
         @Override
-        public Move<?> create() {
+        public Move<?, ?> create() {
             return new Move<>();
         }
     };
-
+    @Serial
+    private static final long serialVersionUID = 1921632465085309764L;
     // Store components in an array for space efficiency.
-    private final ArrayList<MoveComponent<T>> components;
-    private ChessPiece<T> movedPiece;
-    private Square from, to;
+    private final ArrayList<MoveComponent<T, P>> components;
+    private ChessPiece<P> movedPiece;
+    private T from, to;
 
     private Move() {
         components = new ArrayList<>();
     }
 
-    private Move(ChessPiece<T> movedPiece, Square from, Square to, MoveComponent<T>[] components) {
+    public Move(Move<T, P> move) {
+        this.components = new ArrayList<>(move.components);
+        this.movedPiece = move.movedPiece;
+        this.from = move.from;
+        this.to = move.to;
+    }
+
+    private Move(ChessPiece<P> movedPiece, T from, T to, MoveComponent<T, P>[] components) {
         this.components = new ArrayList<>(components.length);
         this.components.addAll(Arrays.asList(components));
         this.movedPiece = movedPiece;
@@ -43,49 +49,56 @@ public class Move<T extends PieceType> implements Serializable, Poolable {
 
     @SafeVarargs
     @SuppressWarnings("unchecked")
-    public static <T extends PieceType> Move<T> claim(ChessPiece<T> movedPiece, Square from, Square to,
-                                                      MoveComponent<T>... components) {
-        Move<T> move = (Move<T>) POOL.claim();
+    public static <T extends Tile, P extends PieceType> Move<T, P> of(ChessPiece<P> movedPiece,
+                                                                      T from,
+                                                                      T to,
+                                                                      MoveComponent<T, P>... components) {
+        Move<T, P> move = (Move<T, P>) POOL.claim();
         move.movedPiece = movedPiece;
         move.from = from;
         move.to = to;
-        for (int i = 0; i < components.length; i++) move.components.add(components[i]);
+        move.components.addAll(Arrays.asList(components));
         return move;
     }
 
-    public static void release(Move<?> move) {
-        move.reset();
-        POOL.release(move);
+    @SuppressWarnings("unchecked")
+    public static <T extends Tile, P extends PieceType> Move<T, P> of(Move<T, P> other) {
+        Move<T, P> move = (Move<T, P>) POOL.claim();
+        move.movedPiece = other.movedPiece;
+        move.from = other.from;
+        move.to = other.to;
+        move.components.addAll(other.components);
+        return move;
     }
 
-    public ChessPiece<T> movedPiece() {
+    public ChessPiece<P> movedPiece() {
         return movedPiece;
     }
 
-    public Square from() {
+    public T from() {
         return from;
     }
 
-    public Square to() {
+    public T to() {
         return to;
     }
 
-    public <C extends MoveComponent<T>> C getComponent(Class<C> clazz) {
+    public <C extends MoveComponent<T, P>> C getComponent(Class<C> clazz) {
         for (int i = 0; i < components.size(); i++) {
-            MoveComponent<T> comp = components.get(i);
+            MoveComponent<T, P> comp = components.get(i);
             if (clazz.isInstance(comp)) {
-                // The cast is safe because of the check above.
+                // The cast is safe because of the preceding check.
                 return clazz.cast(comp);
             }
         }
         return null;
     }
 
-    public void addComponent(MoveComponent<T> component) {
+    public void addComponent(MoveComponent<T, P> component) {
         components.add(component);
     }
 
-    public void removeComponent(MoveComponent<T> component) {
+    public void removeComponent(MoveComponent<T, P> component) {
         components.remove(component);
     }
 
@@ -96,6 +109,7 @@ public class Move<T extends PieceType> implements Serializable, Poolable {
         components.clear();
     }
 
+    @SuppressWarnings("all")
     public boolean hasComponent(Class<? extends MoveComponent> clazz) {
         for (int i = 0; i < components.size(); i++)
             if (clazz.isInstance(components.get(i)))
@@ -103,7 +117,7 @@ public class Move<T extends PieceType> implements Serializable, Poolable {
         return false;
     }
 
-    public List<MoveComponent<T>> getComponents() {
+    public List<MoveComponent<T, P>> getComponents() {
         return components;
     }
 
@@ -111,7 +125,7 @@ public class Move<T extends PieceType> implements Serializable, Poolable {
     public boolean equals(Object object) {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
-        Move<?> move = (Move<?>) object;
+        Move<?, ?> move = (Move<?, ?>) object;
         return Objects.equals(movedPiece, move.movedPiece) &&
                 Objects.equals(from, move.from) &&
                 Objects.equals(to, move.to) &&

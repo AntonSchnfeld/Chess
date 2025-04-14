@@ -1,12 +1,13 @@
 package de.schoenfeld.chesskit.core;
 
+import de.schoenfeld.chesskit.board.tile.Tile;
 import de.schoenfeld.chesskit.events.*;
 import de.schoenfeld.chesskit.model.PieceType;
 import de.schoenfeld.chesskit.model.PlayerData;
 
 import java.util.UUID;
 
-public abstract class Player<T extends PieceType> {
+public abstract class Player<T extends Tile, P extends PieceType> {
     protected final EventBus eventBus;
     protected final PlayerData playerData;
     protected UUID gameId;
@@ -27,7 +28,7 @@ public abstract class Player<T extends PieceType> {
 
     protected abstract void onGameEnded(GameEndedEvent event);
 
-    protected abstract void onGameStateChanged(GameStateChangedEvent<T> event);
+    protected abstract void onGameStateChanged(GameStateChangedEvent<T, P> event);
 
     protected abstract void onError(ErrorEvent event);
 }

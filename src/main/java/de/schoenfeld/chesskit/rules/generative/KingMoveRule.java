@@ -1,5 +1,6 @@
 package de.schoenfeld.chesskit.rules.generative;
 
+import de.schoenfeld.chesskit.board.tile.Square8x8;
 import de.schoenfeld.chesskit.model.*;
 import de.schoenfeld.chesskit.move.Move;
 import de.schoenfeld.chesskit.move.MoveLookup;
@@ -7,15 +8,15 @@ import de.schoenfeld.chesskit.move.components.CaptureComponent;
 
 import java.util.List;
 
-public class KingMoveRule<T extends PieceType> extends AbstractGenerativeMoveRule<T> {
+public class KingMoveRule<P extends PieceType> extends AbstractGenerativeMoveRule<Square8x8, P> {
     private static final KingMoveRule<StandardPieceType> STANDARD =
             new KingMoveRule<>(StandardPieceType.KING);
-    private static final List<Square> KING_DIRECTIONS = List.of(
-            new Square(1, 0), new Square(-1, 0), new Square(0, 1), new Square(0, -1),
-            new Square(1, 1), new Square(-1, -1), new Square(1, -1), new Square(-1, 1)
+    private static final List<Square8x8> KING_DIRECTIONS = List.of(
+            Square8x8.of(1, 0), Square8x8.of(-1, 0), Square8x8.of(0, 1), Square8x8.of(0, -1),
+            Square8x8.of(1, 1), Square8x8.of(-1, -1), Square8x8.of(1, -1), Square8x8.of(-1, 1)
     );
 
-    public KingMoveRule(T kingType) {
+    public KingMoveRule(P kingType) {
         super(kingType);
     }
 
@@ -24,19 +25,19 @@ public class KingMoveRule<T extends PieceType> extends AbstractGenerativeMoveRul
     }
 
     @Override
-    protected void generatePieceMoves(GameState<T> gameState,
-                                      Square kingPos,
-                                      MoveLookup<T> moves) {
-        ChessPiece<T> king = gameState.getPieceAt(kingPos);
+    protected void generatePieceMoves(GameState<Square8x8, P> gameState,
+                                      Square8x8 kingPos,
+                                      MoveLookup<Square8x8, P> moves) {
+        ChessPiece<P> king = gameState.getPieceAt(kingPos);
         // Generate moves in all directions
-        for (Square direction : KING_DIRECTIONS) {
-            Square to = kingPos.offset(direction);
+        for (Square8x8 direction : KING_DIRECTIONS) {
+            Square8x8 to = kingPos.offset(direction);
             // Check if the target position is on the board
             if (gameState.getBounds().contains(to)) {
-                ChessPiece<T> targetPiece = gameState.getPieceAt(to);
+                ChessPiece<P> targetPiece = gameState.getPieceAt(to);
                 // Check if the target position is empty or contains an enemy piece
-                if (targetPiece == null) moves.add(Move.claim(king, kingPos, to));
-                else moves.add(Move.claim(king, kingPos, to, new CaptureComponent<>(targetPiece)));
+                if (targetPiece == null) moves.add(Move.of(king, kingPos, to));
+                else moves.add(Move.of(king, kingPos, to, new CaptureComponent<>(targetPiece)));
             }
         }
     }

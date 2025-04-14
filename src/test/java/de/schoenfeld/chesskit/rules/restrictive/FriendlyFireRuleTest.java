@@ -2,8 +2,9 @@ package de.schoenfeld.chesskit.rules.restrictive;
 
 import de.schoenfeld.chesskit.board.ChessBoard;
 import de.schoenfeld.chesskit.model.ChessPiece;
+import de.schoenfeld.chesskit.model.Color;
 import de.schoenfeld.chesskit.model.GameState;
-import de.schoenfeld.chesskit.model.Square;
+import de.schoenfeld.chesskit.board.tile.Square8x8;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.Move;
 import de.schoenfeld.chesskit.move.MoveLookup;
@@ -16,10 +17,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class FriendlyFireRuleTest {
-    private FriendlyFireRule<StandardPieceType> tested;
-    private MoveLookup<StandardPieceType> moves;
-    private GameState<StandardPieceType> state;
-    private ChessBoard<StandardPieceType> board;
+    private FriendlyFireRule<Square8x8, StandardPieceType> tested;
+    private MoveLookup<Square8x8, StandardPieceType> moves;
+    private GameState<Square8x8, StandardPieceType> state;
+    private ChessBoard<Square8x8, StandardPieceType> board;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
@@ -46,13 +47,13 @@ public class FriendlyFireRuleTest {
     @Test
     public void givenMovesWithoutFriendlyFire_whenFilterMoves_thenDontRemoveAnything() {
         // Given
-        ChessPiece<StandardPieceType> whitePawn = new ChessPiece<>(StandardPieceType.PAWN, true);
-        ChessPiece<StandardPieceType> blackKnight = new ChessPiece<>(StandardPieceType.KNIGHT, false);
+        ChessPiece<StandardPieceType> whitePawn = new ChessPiece<>(StandardPieceType.PAWN, Color.WHITE);
+        ChessPiece<StandardPieceType> blackKnight = new ChessPiece<>(StandardPieceType.KNIGHT, Color.BLACK);
 
-        Square from = Square.of(2, 2);
-        Square to = Square.of(3, 3);
+        Square8x8 from = Square8x8.of(2, 2);
+        Square8x8 to = Square8x8.of(3, 3);
 
-        Move<StandardPieceType> validMove = Move.claim(whitePawn, from, to);
+        Move<Square8x8, StandardPieceType> validMove = Move.of(whitePawn, from, to);
 
         moves.add(validMove);
         when(board.getPieceAt(to)).thenReturn(blackKnight); // Opponent piece at destination
@@ -67,13 +68,13 @@ public class FriendlyFireRuleTest {
     @Test
     public void givenMovesWithFriendlyFire_whenFilterMoves_thenRemoveFriendlyMoves() {
         // Given
-        ChessPiece<StandardPieceType> whitePawn = new ChessPiece<>(StandardPieceType.PAWN, true);
-        ChessPiece<StandardPieceType> whiteKnight = new ChessPiece<>(StandardPieceType.KNIGHT, true);
+        ChessPiece<StandardPieceType> whitePawn = new ChessPiece<>(StandardPieceType.PAWN, Color.WHITE);
+        ChessPiece<StandardPieceType> whiteKnight = new ChessPiece<>(StandardPieceType.KNIGHT, Color.BLACK);
 
-        Square from = Square.of(2, 2);
-        Square to = Square.of(3, 3);
+        Square8x8 from = Square8x8.of(2, 2);
+        Square8x8 to = Square8x8.of(3, 3);
 
-        Move<StandardPieceType> invalidMove = Move.claim(whitePawn, from, to);
+        Move<Square8x8, StandardPieceType> invalidMove = Move.of(whitePawn, from, to);
 
         moves.add(invalidMove);
         when(board.getPieceAt(to)).thenReturn(whiteKnight); // Friendly piece at destination

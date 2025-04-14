@@ -1,79 +1,76 @@
 package de.schoenfeld.chesskit.board;
 
-import de.schoenfeld.chesskit.model.ChessBoardBounds;
+import de.schoenfeld.chesskit.board.tile.Tile;
 import de.schoenfeld.chesskit.model.ChessPiece;
+import de.schoenfeld.chesskit.model.Color;
 import de.schoenfeld.chesskit.model.PieceType;
-import de.schoenfeld.chesskit.model.Square;
 
 import java.io.Serial;
 import java.util.*;
 
-public class MapChessBoard<T extends PieceType> implements ChessBoard<T> {
+public class MapChessBoard<T extends Tile, P extends PieceType> implements ChessBoard<T, P> {
     @Serial
     private static final long serialVersionUID = -3408361097786300767L;
 
-    private Map<Square, ChessPiece<T>> positionMap;
-    private ChessBoardBounds bounds;
+    private Map<T, ChessPiece<P>> positionMap;
+    private ChessBoardBounds<T> bounds;
 
-    public MapChessBoard(Map<Square, ChessPiece<T>> positionMap, ChessBoardBounds bounds) {
+    public MapChessBoard(Map<T, ChessPiece<P>> positionMap, ChessBoardBounds<T> bounds) {
         this.positionMap = new HashMap<>(positionMap);
         this.bounds = bounds;
     }
 
-    public MapChessBoard(ChessBoardBounds bounds) {
+    public MapChessBoard(ChessBoardBounds<T> bounds) {
         this(Map.of(), bounds);
     }
 
-    public MapChessBoard() {
-        this(new ChessBoardBounds(8, 8));
-    }
-
-    public boolean isOccupied(Square square) {
-        return getPieceAt(square) != null;
+    @Override
+    public boolean isOccupied(T square8x8) {
+        return getPieceAt(square8x8) != null;
     }
 
     @Override
-    public ChessPiece<T> getPieceAt(Square square) {
-        return positionMap.get(square);
+    public ChessPiece<P> getPieceAt(T square8x8) {
+        return positionMap.get(square8x8);
     }
 
     @Override
-    public ChessBoardBounds getBounds() {
+    public ChessBoardBounds<T> getBounds() {
         return bounds;
     }
 
-    public void setBounds(ChessBoardBounds newBounds) {
+    public void setBounds(ChessBoardBounds<T> newBounds) {
         if (newBounds.equals(bounds)) return;
         bounds = newBounds;
     }
 
     @Override
-    public List<Square> getSquaresWithColour(boolean isWhite) {
-        List<Square> pieces = new ArrayList<>(positionMap.size() / 2);
+    public List<T> getTilesWithColour(Color color) {
+        List<T> pieces = new ArrayList<>(positionMap.size() / 2);
 
-        for (Map.Entry<Square, ChessPiece<T>> entry : positionMap.entrySet())
-            if (entry.getValue().isWhite() == isWhite)
+        for (Map.Entry<T, ChessPiece<P>> entry : positionMap.entrySet())
+            if (entry.getValue().color() == color)
                 pieces.add(entry.getKey());
 
         return pieces;
     }
 
     @Override
-    public List<Square> getOccupiedSquares() {
-        List<Square> squares = new ArrayList<>(positionMap.size());
+    public List<T> getOccupiedTiles() {
+        List<T> square8x8s = new ArrayList<>(positionMap.size());
 
-        for (Map.Entry<Square, ChessPiece<T>> entry : positionMap.entrySet())
-            squares.add(entry.getKey());
+        for (Map.Entry<T, ChessPiece<P>> entry : positionMap.entrySet())
+            square8x8s.add(entry.getKey());
 
-        return squares;
+        return square8x8s;
     }
 
     @Override
-    public List<Square> getSquaresWithTypeAndColour(T pieceType, boolean isWhite) {
-        List<Square> pieces = new ArrayList<>((positionMap.size() / 2) / 8);
+    public List<T> getTilesWithTypeAndColour(P pieceType, Color color) {
+        List<T> pieces = new ArrayList<>((positionMap.size() / 2) / 8);
 
-        for (Map.Entry<Square, ChessPiece<T>> entry : positionMap.entrySet())
-            if (entry.getValue().isWhite() == isWhite &&
+        for (Map.Entry<T, ChessPiece<P>> entry : positionMap.entrySet())
+            if (entry.getValue().color() == color &&
                     entry.getValue().pieceType().equals(pieceType))
                 pieces.add(entry.getKey());
 
@@ -81,49 +78,49 @@ public class MapChessBoard<T extends PieceType> implements ChessBoard<T> {
     }
 
     @Override
-    public List<Square> getSquaresWithType(T pieceType) {
-        List<Square> pieces = new ArrayList<>(positionMap.size() / 8);
+    public List<T> getTilesWithType(P pieceType) {
+        List<T> pieces = new ArrayList<>(positionMap.size() / 8);
 
-        for (Map.Entry<Square, ChessPiece<T>> entry : positionMap.entrySet())
+        for (Map.Entry<T, ChessPiece<P>> entry : positionMap.entrySet())
             if (entry.getValue().pieceType().equals(pieceType))
                 pieces.add(entry.getKey());
 
         return pieces;
     }
 
-    public void setPieceAt(Square square, ChessPiece<T> piece) {
-        if (!bounds.contains(square))
+    public void setPieceAt(T tile, ChessPiece<P> piece) {
+        if (!bounds.contains(tile))
             throw new IllegalArgumentException("position must be in bounds");
 
-        if (piece.equals(positionMap.get(square))) return;
+        if (piece.equals(positionMap.get(tile))) return;
 
-        positionMap.put(square, piece);
+        positionMap.put(tile, piece);
     }
 
-    public void removePieceAt(Square square) {
-        if (!bounds.contains(square))
+    public void removePieceAt(T tile) {
+        if (!bounds.contains(tile))
             throw new IllegalArgumentException("position must be in bounds");
-        if (!positionMap.containsKey(square)) return;
+        if (!positionMap.containsKey(tile)) return;
 
-        positionMap.remove(square);
+        positionMap.remove(tile);
     }
 
-    public void movePiece(Square from, Square to) {
+    public void movePiece(T from, T to) {
         if (!bounds.contains(from))
-            throw new IllegalArgumentException("from must be in bounds");
+            throw new IllegalArgumentException("The 'from' square " + from + " is outside the bounds " + bounds);
         if (!bounds.contains(to))
-            throw new IllegalArgumentException("to must be in bounds");
+            throw new IllegalArgumentException("The 'to' square " + to + " is outside the bounds " + bounds);
 
         if (from.equals(to)) return;
 
-        ChessPiece<T> piece = positionMap.get(from);
+        ChessPiece<P> piece = positionMap.get(from);
         if (piece == null) return;
 
         positionMap.remove(from);
         positionMap.put(to, piece);
     }
 
-    public void setAllPieces(Map<Square, ChessPiece<T>> newPieces) {
+    public void setAllPieces(Map<T, ChessPiece<P>> newPieces) {
         positionMap = new HashMap<>(newPieces);
     }
 
@@ -132,52 +129,9 @@ public class MapChessBoard<T extends PieceType> implements ChessBoard<T> {
     }
 
     @Override
-    public String toFen() {
-        StringBuilder fen = new StringBuilder();
-
-        // For each rank (8 to 1 in standard chess boards)
-        for (int rank = bounds.rows() - 1; rank >= 0; rank--) {
-            int emptyCount = 0;
-
-            // Iterate over each file (0 to 7 in standard chess boards)
-            for (int file = 0; file < bounds.columns(); file++) {
-                Square square = Square.of(file, rank);
-                ChessPiece<T> piece = positionMap.get(square);
-
-                if (piece == null) {
-                    // Increment empty square counter if the square is empty
-                    emptyCount++;
-                } else {
-                    // If we were counting empty squares, add that number to the FEN string
-                    if (emptyCount > 0) {
-                        fen.append(emptyCount);
-                        emptyCount = 0;
-                    }
-
-                    // Append the piece to the FEN string (capitalize for white, lowercase for black)
-                    fen.append(piece.isWhite() ? piece.pieceType().symbol() : piece.pieceType().symbol().toLowerCase());
-                }
-            }
-
-            // Append the empty square count (if any) at the end claim the rank
-            if (emptyCount > 0) {
-                fen.append(emptyCount);
-            }
-
-            // If it's not the last rank, add a separator
-            if (rank > 0) {
-                fen.append('/');
-            }
-        }
-
-        // For now, we'll just return the piece placement. You can add the rest claim the FEN string later.
-        return fen.toString();
-    }
-
-    @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;
-        MapChessBoard<?> that = (MapChessBoard<?>) object;
+        MapChessBoard<?, ?> that = (MapChessBoard<?, ?>) object;
         return Objects.equals(positionMap, that.positionMap) && Objects.equals(bounds, that.bounds);
     }
 
@@ -189,7 +143,8 @@ public class MapChessBoard<T extends PieceType> implements ChessBoard<T> {
     @Override
     public String toString() {
         return "MapChessBoard{" +
-                toFen() +
+                "positionMap=" + positionMap +
+                ", bounds=" + bounds +
                 '}';
     }
 }

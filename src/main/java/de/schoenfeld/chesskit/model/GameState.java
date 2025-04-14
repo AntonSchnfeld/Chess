@@ -1,30 +1,32 @@
 package de.schoenfeld.chesskit.model;
 
 import de.schoenfeld.chesskit.board.ChessBoard;
-import de.schoenfeld.chesskit.board.MapChessBoard;
+import de.schoenfeld.chesskit.board.ChessBoardBounds;
+import de.schoenfeld.chesskit.board.tile.Tile;
 import de.schoenfeld.chesskit.move.Move;
 import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.move.components.MoveComponent;
 import de.schoenfeld.chesskit.rules.MoveGenerator;
 
 import java.io.Serial;
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class GameState<T extends PieceType> implements ChessBoard<T>, Serializable {
+public class GameState<T extends Tile, P extends PieceType> implements ChessBoard<T, P> {
     @Serial
     private static final long serialVersionUID = 4583658841385236346L;
 
-    private ChessBoard<T> chessBoard;
-    private MoveHistory<T> moveHistory;
-    private MoveLookup<T> validMoves;
-    private MoveGenerator<T> moveGenerator;
-    private boolean isWhiteTurn;
+    private ChessBoard<T, P> chessBoard;
+    private MoveHistory<T, P> moveHistory;
+    private MoveLookup<T, P> moves;
+    private MoveLookup<T, P> pseudoLegalMoves;
+    private MoveGenerator<T, P> moveGenerator;
+    private Color turnColor;
+    private boolean pseudoLegalMovesDirty, movesDirty;
 
-    public GameState(ChessBoard<T> chessBoard, MoveHistory<T> moveHistory,
-                     MoveGenerator<T> moveGenerator, boolean isWhiteTurn) {
+    public GameState(ChessBoard<T, P> chessBoard, MoveHistory<T, P> moveHistory,
+                     MoveGenerator<T, P> moveGenerator, Color turnColor) {
         if (chessBoard == null)
             throw new NullPointerException("chessBoard");
         if (moveHistory == null)
@@ -33,169 +35,212 @@ public class GameState<T extends PieceType> implements ChessBoard<T>, Serializab
             throw new NullPointerException("moveGenerator");
         this.chessBoard = chessBoard;
         this.moveHistory = moveHistory;
-        this.isWhiteTurn = isWhiteTurn;
+        this.turnColor = turnColor;
         this.moveGenerator = moveGenerator;
-        this.validMoves = moveGenerator.generateMoves(this);
+        this.pseudoLegalMoves = new MoveLookup<>();
+        moveGenerator.generatePseudoLegalMoves(this, pseudoLegalMoves);
+        this.moves = new MoveLookup<>();
+        moveGenerator.generateMoves(this, moves);
+        this.pseudoLegalMovesDirty = false;
+        this.movesDirty = false;
     }
 
-    public GameState(ChessBoard<T> chessBoard, MoveHistory<T> moveHistory, MoveGenerator<T> moveGenerator) {
-        this(chessBoard, moveHistory, moveGenerator, true);
+    public GameState(ChessBoard<T, P> chessBoard, MoveHistory<T, P> moveHistory, MoveGenerator<T, P> moveGenerator) {
+        this(chessBoard, moveHistory, moveGenerator, Color.WHITE);
     }
 
-    public GameState(ChessBoard<T> chessBoard, MoveGenerator<T> moveGenerator) {
-        this(chessBoard, new MoveHistory<>(), moveGenerator, true);
+    public GameState(ChessBoard<T, P> chessBoard, MoveGenerator<T, P> moveGenerator) {
+        this(chessBoard, new MoveHistory<>(), moveGenerator, Color.WHITE);
     }
 
-    public GameState(MoveGenerator<T> moveGenerator) {
-        this(new MapChessBoard<>(), new MoveHistory<>(), moveGenerator, true);
-    }
-
-    public ChessBoard<T> getChessBoard() {
+    public ChessBoard<T, P> getChessBoard() {
         return chessBoard;
     }
 
-    public void setChessBoard(ChessBoard<T> newBoard) {
+    public void setChessBoard(ChessBoard<T, P> newBoard) {
         this.chessBoard = newBoard;
+        invalidateMoves();
     }
 
-    public MoveGenerator<T> getMoveGenerator() {
+    private void invalidateMoves() {
+        pseudoLegalMovesDirty = true;
+        movesDirty = true;
+    }
+
+    public MoveGenerator<T, P> getMoveGenerator() {
         return moveGenerator;
     }
 
-    public void setMoveGenerator(MoveGenerator<T> newGenerator) {
+    public void setMoveGenerator(MoveGenerator<T, P> newGenerator) {
         this.moveGenerator = newGenerator;
+        invalidateMoves();
     }
 
-    public MoveHistory<T> getMoveHistory() {
+    public MoveHistory<T, P> getMoveHistory() {
         return moveHistory;
     }
 
-    public void setMoveHistory(MoveHistory<T> newHistory) {
+    public void setMoveHistory(MoveHistory<T, P> newHistory) {
         this.moveHistory = newHistory;
+        invalidateMoves();
     }
 
-    public boolean isWhiteTurn() {
-        return isWhiteTurn;
+    public Color getColor() {
+        return turnColor;
     }
 
-    @Override
-    public boolean isOccupied(Square square) {
-        return chessBoard.isOccupied(square);
-    }
-
-    public void makeMove(Move<T> move) {
+    public void makeMove(Move<T, P> move) {
         moveHistory.recordMove(move);
-        List<MoveComponent<T>> components = move.getComponents();
-        for (MoveComponent<T> component : components)
+        List<MoveComponent<T, P>> components = move.getComponents();
+        for (MoveComponent<T, P> component : components)
             component.makeOn(this, move);
         chessBoard.movePiece(move.from(), move.to());
         switchTurn();
-        updateValidMoves();
+        invalidateMoves();
     }
 
     public void unmakeLastMove() {
-        Move<T> lastMove = moveHistory.getLastMove();
+        Move<T, P> lastMove = moveHistory.getLastMove();
         switchTurn();
         chessBoard.movePiece(lastMove.to(), lastMove.from());
-        List<MoveComponent<T>> components = lastMove.getComponents();
-        for (MoveComponent<T> component : components)
+        List<MoveComponent<T, P>> components = lastMove.getComponents();
+        for (MoveComponent<T, P> component : components)
             component.unmakeOn(this, lastMove);
         moveHistory.removeLastMove();
-        updateValidMoves();
+        invalidateMoves();
     }
 
-    public MoveLookup<T> getValidMoves() {
-        return validMoves;
+    public MoveLookup<T, P> getMoves() {
+        updateMovesIfNecessary();
+        return moves;
     }
 
-    public void updateValidMoves() {
-        this.validMoves = moveGenerator.generateMoves(this);
+    public MoveLookup<T, P> getPseudoLegalMoves() {
+        updateMovesIfNecessary();
+        return pseudoLegalMoves;
+    }
+
+    private void updateMovesIfNecessary() {
+        if (pseudoLegalMovesDirty) {
+            pseudoLegalMoves = new MoveLookup<>();
+            moveGenerator.generatePseudoLegalMoves(this, pseudoLegalMoves);
+            pseudoLegalMovesDirty = false;
+        }
+        if (movesDirty) {
+            moves = new MoveLookup<>();
+            moveGenerator.generateMoves(this, moves);
+            movesDirty = false;
+        }
     }
 
     // State transition methods optimized for performance
-    public void setIsWhiteTurn(boolean newTurn) {
-        this.isWhiteTurn = newTurn;
+    public void setIsWhiteTurn(Color color) {
+        this.turnColor = color;
+        invalidateMoves();
     }
 
     public void switchTurn() {
-        isWhiteTurn = !isWhiteTurn;
+        turnColor = turnColor.opposite();
+        invalidateMoves();
     }
 
     @Override
-    public ChessPiece<T> getPieceAt(Square square) {
-        return chessBoard.getPieceAt(square);
+    public ChessPiece<P> getPieceAt(T tile) {
+        return chessBoard.getPieceAt(tile);
     }
 
     @Override
-    public ChessBoardBounds getBounds() {
+    public ChessBoardBounds<T> getBounds() {
         return chessBoard.getBounds();
     }
 
     @Override
-    public void setBounds(ChessBoardBounds bounds) {
+    public void setBounds(ChessBoardBounds<T> bounds) {
         chessBoard.setBounds(bounds);
+        invalidateMoves();
     }
 
     @Override
-    public List<Square> getSquaresWithColour(boolean isWhite) {
-        return chessBoard.getSquaresWithColour(isWhite);
+    public List<T> getTilesWithColour(Color color) {
+        return chessBoard.getTilesWithColour(color);
     }
 
     @Override
-    public List<Square> getOccupiedSquares() {
-        return chessBoard.getOccupiedSquares();
+    public List<T> getOccupiedTiles() {
+        return chessBoard.getOccupiedTiles();
     }
 
     @Override
-    public List<Square> getSquaresWithTypeAndColour(T pieceType, boolean isWhite) {
-        return chessBoard.getSquaresWithTypeAndColour(pieceType, isWhite);
+    public List<T> getTilesWithTypeAndColour(P pieceType, Color color) {
+        return chessBoard.getTilesWithTypeAndColour(pieceType, color);
     }
 
     @Override
-    public List<Square> getSquaresWithType(T pieceType) {
-        return chessBoard.getSquaresWithType(pieceType);
+    public List<T> getTilesWithType(P pieceType) {
+        return chessBoard.getTilesWithType(pieceType);
     }
 
     @Override
-    public String toFen() {
-        return chessBoard.toFen();
+    public boolean isOccupied(T tile) {
+        return chessBoard.isOccupied(tile);
     }
 
     @Override
-    public void setPieceAt(Square square, ChessPiece<T> piece) {
-        chessBoard.setPieceAt(square, piece);
+    public void setPieceAt(T tile, ChessPiece<P> piece) {
+        chessBoard.setPieceAt(tile, piece);
+        invalidateMoves();
     }
 
     @Override
-    public void removePieceAt(Square square) {
-        chessBoard.removePieceAt(square);
+    public void removePieceAt(T tile) {
+        chessBoard.removePieceAt(tile);
+        invalidateMoves();
     }
 
     @Override
-    public void movePiece(Square from, Square to) {
+    public void movePiece(T from, T to) {
         chessBoard.movePiece(from, to);
+        invalidateMoves();
     }
 
     @Override
-    public void setAllPieces(Map<Square, ChessPiece<T>> pieces) {
+    public void setAllPieces(Map<T, ChessPiece<P>> pieces) {
         chessBoard.setAllPieces(pieces);
+        invalidateMoves();
     }
 
     @Override
     public void removePieces() {
         chessBoard.removePieces();
+        invalidateMoves();
     }
 
     @Override
-    public boolean equals(Object object) {
-        if (object == null || getClass() != object.getClass()) return false;
-        GameState<?> gameState = (GameState<?>) object;
-        return isWhiteTurn == gameState.isWhiteTurn && Objects.equals(chessBoard, gameState.chessBoard) && Objects.equals(moveHistory, gameState.moveHistory);
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+
+        GameState<?, ?> gameState = (GameState<?, ?>) o;
+        return pseudoLegalMovesDirty == gameState.pseudoLegalMovesDirty
+                && movesDirty == gameState.movesDirty
+                && Objects.equals(chessBoard, gameState.chessBoard)
+                && Objects.equals(moveHistory, gameState.moveHistory)
+                && Objects.equals(moves, gameState.moves)
+                && Objects.equals(pseudoLegalMoves, gameState.pseudoLegalMoves)
+                && Objects.equals(moveGenerator, gameState.moveGenerator)
+                && turnColor == gameState.turnColor;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(chessBoard, moveHistory, isWhiteTurn);
+        int result = Objects.hashCode(chessBoard);
+        result = 31 * result + Objects.hashCode(moveHistory);
+        result = 31 * result + Objects.hashCode(moves);
+        result = 31 * result + Objects.hashCode(pseudoLegalMoves);
+        result = 31 * result + Objects.hashCode(moveGenerator);
+        result = 31 * result + Objects.hashCode(turnColor);
+        result = 31 * result + Boolean.hashCode(pseudoLegalMovesDirty);
+        result = 31 * result + Boolean.hashCode(movesDirty);
+        return result;
     }
 
     @Override
@@ -203,7 +248,12 @@ public class GameState<T extends PieceType> implements ChessBoard<T>, Serializab
         return "GameState{" +
                 "chessBoard=" + chessBoard +
                 ", moveHistory=" + moveHistory +
-                ", isWhiteTurn=" + isWhiteTurn +
+                ", moves=" + moves +
+                ", pseudoLegalMoves=" + pseudoLegalMoves +
+                ", moveGenerator=" + moveGenerator +
+                ", turnColor=" + turnColor +
+                ", pseudoLegalMovesDirty=" + pseudoLegalMovesDirty +
+                ", movesDirty=" + movesDirty +
                 '}';
     }
 }

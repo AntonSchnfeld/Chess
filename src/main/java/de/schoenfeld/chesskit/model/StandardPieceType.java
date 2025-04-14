@@ -23,8 +23,4 @@ public enum StandardPieceType implements PieceType {
     public int value() {
         return value;
     }
-
-    public boolean isKing() {
-        return this == KING;
-    }
 }

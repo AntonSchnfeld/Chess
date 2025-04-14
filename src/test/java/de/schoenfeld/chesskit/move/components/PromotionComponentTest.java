@@ -1,8 +1,11 @@
 package de.schoenfeld.chesskit.move.components;
 
+import de.schoenfeld.chesskit.board.MapChessBoard;
+import de.schoenfeld.chesskit.board.Square8x8ChessBoardBounds;
 import de.schoenfeld.chesskit.model.ChessPiece;
+import de.schoenfeld.chesskit.model.Color;
 import de.schoenfeld.chesskit.model.GameState;
-import de.schoenfeld.chesskit.model.Square;
+import de.schoenfeld.chesskit.board.tile.Square8x8;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.Move;
 import de.schoenfeld.chesskit.rules.Rules;
@@ -11,45 +14,39 @@ import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-class PromotionComponentTest extends MoveComponentTest<StandardPieceType> {
+class PromotionComponentTest extends MoveComponentTest<Square8x8, StandardPieceType> {
     private ChessPiece<StandardPieceType> promotedPiece;
 
     @Override
     @BeforeEach
     protected void setup() {
-        gameState = new GameState<>(Rules.standard()); // Use a real GameState
+        gameState = new GameState<>(new MapChessBoard<>(new Square8x8ChessBoardBounds()), Rules.standard());
 
-        // Create actual chess pieces
-        piece = new ChessPiece<>(StandardPieceType.PAWN, true);  // Assume the player is white
-        promotedPiece = new ChessPiece<>(StandardPieceType.QUEEN, true);  // Assume promotion to Queen
+        piece = new ChessPiece<>(StandardPieceType.PAWN, Color.WHITE);
+        promotedPiece = new ChessPiece<>(StandardPieceType.QUEEN, Color.WHITE);
 
-        // Define squares
-        from = Square.of(1, 6); // Pawn's starting position (e.g., 2nd rank for white)
-        to = Square.of(1, 7);   // Pawn's destination (promoting to the 8th rank)
+        from = Square8x8.of(1, 6);
+        to = Square8x8.of(1, 7);
 
-        // Place pieces on board
         gameState.setPieceAt(from, piece);
 
-        // Create the promotion component with the desired promoted piece
-        moveComponent = new PromotionComponent(StandardPieceType.QUEEN);  // Promote to Queen
-        move = Move.claim(piece, from, to, moveComponent);
+        moveComponent = new PromotionComponent<>(StandardPieceType.QUEEN);
+        move = Move.of(piece, from, to, moveComponent);
     }
 
     @Override
-    protected void verifyComponentExecuted(GameState<StandardPieceType> gameState, Move<StandardPieceType> move) {
-        // Check if the pawn was promoted to the new piece (Queen)
+    protected void verifyComponentExecuted(GameState<Square8x8, StandardPieceType> gameState,
+                                           Move<Square8x8, StandardPieceType> move) {
         assertEquals(promotedPiece, gameState.getPieceAt(to), "Pawn should be promoted to Queen at the target position.");
 
-        // Ensure the original square is now empty
-        assertNull(gameState.getPieceAt(from), "Original square claim the pawn should be empty.");
+        assertNull(gameState.getPieceAt(from), "Original square of the pawn should be empty.");
     }
 
     @Override
-    protected void verifyComponentUndone(GameState<StandardPieceType> gameState, Move<StandardPieceType> move) {
-        // Check if the pawn is back at its original position
+    protected void verifyComponentUndone(GameState<Square8x8, StandardPieceType> gameState,
+                                         Move<Square8x8, StandardPieceType> move) {
         assertEquals(piece, gameState.getPieceAt(from), "Pawn should be back at its original position.");
 
-        // Ensure the promoted piece's square is now empty
         assertNull(gameState.getPieceAt(to), "Promoted piece's position should be empty after undo.");
     }
 }

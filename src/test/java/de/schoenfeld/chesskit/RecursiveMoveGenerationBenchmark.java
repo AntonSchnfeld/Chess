@@ -1,6 +1,7 @@
 package de.schoenfeld.chesskit;
 
 import de.schoenfeld.chesskit.board.BoardUtility;
+import de.schoenfeld.chesskit.board.tile.Square8x8;
 import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.Move;
@@ -20,8 +21,8 @@ import java.util.concurrent.TimeUnit;
 @Fork(1)  // Run in the same JVM
 public class RecursiveMoveGenerationBenchmark {
 
-    private MoveGenerator<StandardPieceType> moveGenerator;
-    private GameState<StandardPieceType> initialGameState;
+    private MoveGenerator<Square8x8, StandardPieceType> moveGenerator;
+    private GameState<Square8x8, StandardPieceType> initialGameState;
 
     @Setup(Level.Trial)  // Setup only once per benchmark trial
     public void setup() {
@@ -32,18 +33,18 @@ public class RecursiveMoveGenerationBenchmark {
     @Benchmark
     public void recursiveMoveGeneration(Blackhole blackhole) {
         long nodes = generateMovesRecursively(initialGameState, 4);
-        System.out.println(nodes);
+        blackhole.consume(nodes);
     }
 
-    private long generateMovesRecursively(GameState<StandardPieceType> state, int depth) {
+    private long generateMovesRecursively(GameState<Square8x8, StandardPieceType> state, int depth) {
         if (depth == 0) {
             return 1; // Leaf node
         }
 
-        List<Move<StandardPieceType>> moves = moveGenerator.generateMoves(state);
+        List<Move<Square8x8, StandardPieceType>> moves = moveGenerator.generateMoves(state);
         long totalNodes = 0;
 
-        for (Move<StandardPieceType> move : moves) {
+        for (Move<Square8x8, StandardPieceType> move : moves) {
             state.makeMove(move);
             totalNodes += generateMovesRecursively(state, depth - 1);
             state.unmakeLastMove();

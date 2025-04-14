@@ -1,40 +1,38 @@
 package de.schoenfeld.chesskit.board;
 
-import de.schoenfeld.chesskit.model.ChessBoardBounds;
+import de.schoenfeld.chesskit.board.tile.Tile;
 import de.schoenfeld.chesskit.model.ChessPiece;
+import de.schoenfeld.chesskit.model.Color;
 import de.schoenfeld.chesskit.model.PieceType;
-import de.schoenfeld.chesskit.model.Square;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-public interface ChessBoard<T extends PieceType> extends Serializable {
-    ChessPiece<T> getPieceAt(Square square);
+public interface ChessBoard<T extends Tile, P extends PieceType> extends Serializable {
+    ChessPiece<P> getPieceAt(T square);
 
-    ChessBoardBounds getBounds();
+    ChessBoardBounds<T> getBounds();
 
-    void setBounds(ChessBoardBounds bounds);
+    void setBounds(ChessBoardBounds<T> bounds);
 
-    List<Square> getSquaresWithColour(boolean isWhite);
+    List<T> getTilesWithColour(Color color);
 
-    List<Square> getOccupiedSquares();
+    List<T> getOccupiedTiles();
 
-    List<Square> getSquaresWithTypeAndColour(T pieceType, boolean isWhite);
+    List<T> getTilesWithTypeAndColour(P pieceType, Color color);
 
-    List<Square> getSquaresWithType(T pieceType);
+    List<T> getTilesWithType(P pieceType);
 
-    boolean isOccupied(Square square);
+    boolean isOccupied(T tile);
 
-    String toFen();
+    void setPieceAt(T tile, ChessPiece<P> piece);
 
-    void setPieceAt(Square square, ChessPiece<T> piece);
+    void removePieceAt(T tile);
 
-    void removePieceAt(Square square);
+    void movePiece(T from, T to);
 
-    void movePiece(Square from, Square to);
-
-    void setAllPieces(Map<Square, ChessPiece<T>> pieces);
+    void setAllPieces(Map<T, ChessPiece<P>> pieces);
 
     void removePieces();
 }

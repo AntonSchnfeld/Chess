@@ -1,5 +1,6 @@
 package de.schoenfeld.chesskit;
 
+import de.schoenfeld.chesskit.board.tile.Tile;
 import de.schoenfeld.chesskit.core.Player;
 import de.schoenfeld.chesskit.events.*;
 import de.schoenfeld.chesskit.model.PieceType;
@@ -10,12 +11,12 @@ import de.schoenfeld.chesskit.rules.MoveGenerator;
 
 import java.util.Random;
 
-public class RandomMovePlayer<T extends PieceType> extends Player<T> {
+public class RandomMovePlayer<T extends Tile, P extends PieceType> extends Player<T, P> {
 
     private final Random random;
-    private final MoveGenerator<T> rules;
+    private final MoveGenerator<T, P> rules;
 
-    public RandomMovePlayer(PlayerData data, EventBus eventBus, MoveGenerator<T> rules) {
+    public RandomMovePlayer(PlayerData data, EventBus eventBus, MoveGenerator<T, P> rules) {
         super(data, eventBus);
         random = new Random(System.nanoTime());
         this.rules = rules;
@@ -27,14 +28,14 @@ public class RandomMovePlayer<T extends PieceType> extends Player<T> {
     }
 
     @Override
-    protected void onGameStateChanged(GameStateChangedEvent<T> event) {
-        if (event.newState().isWhiteTurn() == playerData.isWhite()) {
-            MoveLookup<T> moves = rules.generateMoves(event.newState());
+    protected void onGameStateChanged(GameStateChangedEvent<T, P> event) {
+        if (event.newState().getColor() == playerData.color()) {
+            MoveLookup<T, P> moves = rules.generateMoves(event.newState());
 
             int randomMoveIdx = random.nextInt(moves.size());
-            Move<T> randomMove = null;
+            Move<T, P> randomMove = null;
             int i = 0;
-            for (Move<T> move : moves) {
+            for (Move<T, P> move : moves) {
                 if (i == randomMoveIdx) randomMove = move;
                 i++;
             }

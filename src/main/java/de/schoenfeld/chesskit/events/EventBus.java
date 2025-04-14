@@ -39,7 +39,6 @@ public class EventBus {
             if (eventListeners == null || eventListeners.isEmpty()) {
                 continue;
             }
-
             for (Consumer<? extends GameEvent> rawListener : eventListeners) {
                 @SuppressWarnings("unchecked")
                 Consumer<GameEvent> listener = (Consumer<GameEvent>) rawListener;

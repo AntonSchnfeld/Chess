@@ -1,9 +1,11 @@
 package de.schoenfeld.chesskit.rules.generative;
 
 import de.schoenfeld.chesskit.board.MapChessBoard;
+import de.schoenfeld.chesskit.board.Square8x8ChessBoardBounds;
 import de.schoenfeld.chesskit.model.ChessPiece;
+import de.schoenfeld.chesskit.model.Color;
 import de.schoenfeld.chesskit.model.GameState;
-import de.schoenfeld.chesskit.model.Square;
+import de.schoenfeld.chesskit.board.tile.Square8x8;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.move.components.CastlingComponent;
@@ -15,61 +17,67 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CastlingRuleTest {
-    private CastlingRule castlingRule;
-    private GameState<StandardPieceType> gameState;
-    private MapChessBoard<StandardPieceType> board;
+    private CastlingRule<StandardPieceType> castlingRule;
+    private GameState<Square8x8, StandardPieceType> gameState;
+    private MapChessBoard<Square8x8, StandardPieceType> board;
 
     @BeforeEach
     void setup() {
-        castlingRule = new CastlingRule();
-        board = new MapChessBoard<>();
+        castlingRule = CastlingRule.standard();
+        board = new MapChessBoard<>(new Square8x8ChessBoardBounds());
         gameState = new GameState<>(board, Rules.standard()); // White to move
     }
 
     @Test
     void generateMoves_kingAndRookUnmoved_squaresEmpty_shouldAllowCastling() {
-        Square kingPos = Square.of(4, 0);
-        Square kingSideRookPos = Square.of(7, 0);
-        Square queenSideRookPos = Square.of(0, 0);
+        Square8x8 kingPos = Square8x8.of(4, 0);
+        Square8x8 kingSideRookPos = Square8x8.of(7, 0);
+        Square8x8 queenSideRookPos = Square8x8.of(0, 0);
 
         // Place pieces on the board
-        board.setPieceAt(kingPos, new ChessPiece<>(StandardPieceType.KING, true));
-        board.setPieceAt(kingSideRookPos, new ChessPiece<>(StandardPieceType.ROOK, true));
-        board.setPieceAt(queenSideRookPos, new ChessPiece<>(StandardPieceType.ROOK, true));
+        board.setPieceAt(kingPos, new ChessPiece<>(StandardPieceType.KING, Color.WHITE));
+        board.setPieceAt(kingSideRookPos, new ChessPiece<>(StandardPieceType.ROOK, Color.WHITE));
+        board.setPieceAt(queenSideRookPos, new ChessPiece<>(StandardPieceType.ROOK, Color.WHITE));
 
-        MoveLookup<StandardPieceType> moves = castlingRule.generateMoves(gameState);
+        MoveLookup<Square8x8, StandardPieceType> moves = new MoveLookup<>();
+        castlingRule.generateMoves(gameState, moves);
 
         assertEquals(2, moves.size()); // Both king-side and queen-side castling should be possible
-        assertTrue(moves.stream().anyMatch(m -> m.hasComponent(CastlingComponent.class)));
+        assertTrue(moves
+                .stream()
+                .anyMatch(m -> m.hasComponent(CastlingComponent.class))
+        );
     }
 
     @Test
     void generateMoves_kingOrRookMoved_shouldNotAllowCastling() {
-        Square kingPos = Square.of(4, 0);
-        Square rookPos = Square.of(7, 0);
+        Square8x8 kingPos = Square8x8.of(4, 0);
+        Square8x8 rookPos = Square8x8.of(7, 0);
 
         // Place pieces with 'hasMoved' set to true
-        board.setPieceAt(kingPos, new ChessPiece<>(StandardPieceType.KING, true)); // King has moved
-        board.setPieceAt(rookPos, new ChessPiece<>(StandardPieceType.ROOK, false));
+        board.setPieceAt(kingPos, new ChessPiece<>(StandardPieceType.KING, Color.WHITE)); // King has moved
+        board.setPieceAt(rookPos, new ChessPiece<>(StandardPieceType.ROOK, Color.BLACK));
 
-        MoveLookup<StandardPieceType> moves = castlingRule.generateMoves(gameState);
+        MoveLookup<Square8x8, StandardPieceType> moves = new MoveLookup<>();
+        castlingRule.generateMoves(gameState, moves);
 
         assertTrue(moves.isEmpty()); // Castling should be blocked
     }
 
     @Test
     void generateMoves_squaresBetweenOccupied_shouldNotAllowCastling() {
-        Square kingPos = Square.of(4, 0);
-        Square rookPos = Square.of(7, 0);
-        Square blockingPiecePos = Square.of(5, 0);
+        Square8x8 kingPos = Square8x8.of(4, 0);
+        Square8x8 rookPos = Square8x8.of(7, 0);
+        Square8x8 blockingPiecePos = Square8x8.of(5, 0);
 
         // Place pieces on the board
-        board.setPieceAt(kingPos, new ChessPiece<>(StandardPieceType.KING, false));
-        board.setPieceAt(rookPos, new ChessPiece<>(StandardPieceType.ROOK, false));
-        board.setPieceAt(blockingPiecePos, new ChessPiece<>(StandardPieceType.PAWN, false)); // Blocked path
+        board.setPieceAt(kingPos, new ChessPiece<>(StandardPieceType.KING, Color.BLACK));
+        board.setPieceAt(rookPos, new ChessPiece<>(StandardPieceType.ROOK, Color.BLACK));
+        board.setPieceAt(blockingPiecePos, new ChessPiece<>(StandardPieceType.PAWN, Color.BLACK));
 
-        MoveLookup<StandardPieceType> moves = castlingRule.generateMoves(gameState);
+        MoveLookup<Square8x8, StandardPieceType> moves = new MoveLookup<>();
+        castlingRule.generateMoves(gameState, moves);
 
-        assertTrue(moves.isEmpty()); // Castling should not be allowed
+        assertTrue(moves.isEmpty()); // Castling shouldn't be allowed
     }
 }

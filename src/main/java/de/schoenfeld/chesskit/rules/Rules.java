@@ -1,5 +1,7 @@
 package de.schoenfeld.chesskit.rules;
 
+import de.schoenfeld.chesskit.board.tile.Square8x8;
+import de.schoenfeld.chesskit.board.tile.Tile;
 import de.schoenfeld.chesskit.events.GameConclusion;
 import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.PieceType;
@@ -16,79 +18,89 @@ import de.schoenfeld.chesskit.rules.restrictive.NoCastlingThroughCheckRule;
 import de.schoenfeld.chesskit.rules.restrictive.RestrictiveMoveRule;
 
 import java.util.List;
-import java.util.Optional;
 
-public record Rules<T extends PieceType>(List<GenerativeMoveRule<T>> generativeMoveRules,
-                                         List<RestrictiveMoveRule<T>> restrictiveMoveRules,
-                                         List<GameConclusionRule<T>> gameConclusionRules)
-        implements MoveGenerator<T> {
-    private static final Rules<StandardPieceType> STANDARD = createStandard();
+public record Rules<T extends Tile, P extends PieceType>(List<GenerativeMoveRule<T, P>> generativeMoveRules,
+                                                         List<RestrictiveMoveRule<T, P>> restrictiveMoveRules,
+                                                         List<GameConclusionDetector<T, P>> gameConclusionDetectors)
+        implements MoveGenerator<T, P> {
+    private static final Rules<Square8x8, StandardPieceType> STANDARD = createStandard();
 
-    public Rules(List<GenerativeMoveRule<T>> generativeMoveRules,
-                 List<RestrictiveMoveRule<T>> restrictiveMoveRules,
-                 List<GameConclusionRule<T>> gameConclusionRules) {
+    public Rules(List<GenerativeMoveRule<T, P>> generativeMoveRules,
+                 List<RestrictiveMoveRule<T, P>> restrictiveMoveRules,
+                 List<GameConclusionDetector<T, P>> gameConclusionDetectors) {
         if (generativeMoveRules == null) throw new NullPointerException("generativeMoveRules");
         if (restrictiveMoveRules == null) throw new NullPointerException("restrictiveMoveRules");
-        if (gameConclusionRules == null) throw new NullPointerException("gameEndRules");
+        if (gameConclusionDetectors == null) throw new NullPointerException("gameEndRules");
 
         this.generativeMoveRules = List.copyOf(generativeMoveRules);
         this.restrictiveMoveRules = List.copyOf(restrictiveMoveRules);
-        this.gameConclusionRules = List.copyOf(gameConclusionRules);
+        this.gameConclusionDetectors = List.copyOf(gameConclusionDetectors);
     }
 
-    public static Rules<StandardPieceType> standard() {
+    public static Rules<Square8x8, StandardPieceType> standard() {
         return STANDARD;
     }
 
-    private static Rules<StandardPieceType> createStandard() {
-        List<GenerativeMoveRule<StandardPieceType>> generativeMoveRules = List.of(
+    private static Rules<Square8x8, StandardPieceType> createStandard() {
+        List<GenerativeMoveRule<Square8x8, StandardPieceType>> generativeMoveRules = List.of(
                 PawnMoveRule.standard(),
                 KnightMoveRule.standard(),
                 BishopMoveRule.standard(),
                 RookMoveRule.standard(),
                 QueenMoveRule.standard(),
                 KingMoveRule.standard(),
-                new CastlingRule(),
-                new EnPassantRule()
+                CastlingRule.standard(),
+                EnPassantRule.standard()
         );
-        MoveGenerator<StandardPieceType> moveGenerator = new SimpleMoveGenerator<>(generativeMoveRules);
-        List<RestrictiveMoveRule<StandardPieceType>> restrictiveMoveRules = List.of(
-                new FriendlyFireRule<>(),
-                new NoCastlingThroughCheckRule(moveGenerator),
-                new CheckRule(moveGenerator)
+        List<RestrictiveMoveRule<Square8x8, StandardPieceType>> restrictiveMoveRules = List.of(
+                FriendlyFireRule.standard(),
+                NoCastlingThroughCheckRule.standard(),
+                CheckRule.standard()
         );
-        MoveGenerator<StandardPieceType> gameEndMoveGenerator =
-                new RestrictiveMoveGenerator<>(generativeMoveRules, restrictiveMoveRules);
-        List<GameConclusionRule<StandardPieceType>> gameEndRules = List.of(
-                new NoPiecesRule<>(),
-                new InsufficientMaterialRule(),
-                new StaleMateRule(gameEndMoveGenerator),
-                new CheckMateRule(gameEndMoveGenerator)
+        List<GameConclusionDetector<Square8x8, StandardPieceType>> gameEndRules = List.of(
+                NoPiecesDetector.standard(),
+                InsufficientMaterialDetector.standard(),
+                StaleMateDetector.standard(),
+                CheckMateDetector.standard()
         );
-        return new Rules<>(generativeMoveRules, restrictiveMoveRules, gameEndRules);
+        return new Rules<>(generativeMoveRules,
+                restrictiveMoveRules,
+                gameEndRules);
     }
 
-    public Optional<GameConclusion> detectGameEndCause(GameState<T> gameState) {
-        for (var rule : gameConclusionRules) {
-            var cause = rule.detectGameEndCause(gameState);
-            if (cause.isPresent()) return cause;
+    public GameConclusion detectConclusion(GameState<T, P> gameState) {
+        for (GameConclusionDetector<T, P> rule : gameConclusionDetectors) {
+            GameConclusion cause = rule.detectConclusion(gameState);
+            if (cause != null) return cause;
         }
-        return Optional.empty();
+        return null;
     }
 
-    public MoveLookup<T> generateMoves(GameState<T> gameState) {
-        MoveLookup<T> moves = new MoveLookup<>();
-        // Check if the game has ended
-        if (detectGameEndCause(gameState).isPresent()) return moves;
-
-        // Generate moves
-        for (var rule : generativeMoveRules)
-            moves.addAll(rule.generateMoves(gameState));
-
-        // Filter moves
-        for (var rule : restrictiveMoveRules)
-            rule.filterMoves(moves, gameState);
-
+    public MoveLookup<T, P> generateMoves(GameState<T, P> gameState) {
+        MoveLookup<T, P> moves = new MoveLookup<>();
+        generateMoves(gameState, moves);
         return moves;
+    }
+
+    public MoveLookup<T, P> generatePseudoLegalMoves(GameState<T, P> gameState) {
+        MoveLookup<T, P> moves = new MoveLookup<>();
+        generatePseudoLegalMoves(gameState, moves);
+        return moves;
+    }
+
+    public void generatePseudoLegalMoves(GameState<T, P> gameState, MoveLookup<T, P> moves) {
+        if (!moves.isEmpty()) moves.clear();
+        for (GenerativeMoveRule<T, P> rule : generativeMoveRules)
+            rule.generateMoves(gameState, moves);
+    }
+
+    public void generateMoves(GameState<T, P> gameState, MoveLookup<T, P> moves) {
+        generatePseudoLegalMoves(gameState, moves);
+        filterPseudoLegalMoves(moves, gameState);
+    }
+
+    public void filterPseudoLegalMoves(MoveLookup<T, P> moves, GameState<T, P> gameState) {
+        for (RestrictiveMoveRule<T, P> rule : restrictiveMoveRules)
+            rule.filterMoves(moves, gameState);
     }
 }

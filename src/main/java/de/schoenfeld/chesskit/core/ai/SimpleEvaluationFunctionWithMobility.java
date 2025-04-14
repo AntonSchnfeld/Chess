@@ -1,9 +1,10 @@
 package de.schoenfeld.chesskit.core.ai;
 
 import de.schoenfeld.chesskit.board.ChessBoard;
+import de.schoenfeld.chesskit.model.Color;
 import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.PieceType;
-import de.schoenfeld.chesskit.model.Square;
+import de.schoenfeld.chesskit.board.tile.Square8x8;
 import de.schoenfeld.chesskit.model.StandardPieceType;
 import de.schoenfeld.chesskit.move.MoveLookup;
 import de.schoenfeld.chesskit.rules.MoveGenerator;
@@ -12,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<StandardPieceType> {
+public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<Square8x8, StandardPieceType> {
 
     // Bonus per legal move.
     private static final int MOBILITY_BONUS = 5;
@@ -23,13 +24,13 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<
     private static final int WIN_BONUS = 100000;
     // Capture bonus factor (20% extra bonus on the material difference).
     private static final double CAPTURE_BONUS_FACTOR = 0.20;
-    private final MoveGenerator<StandardPieceType> moveGenerator;
+    private final MoveGenerator<Square8x8, StandardPieceType> moveGenerator;
 
-    public SimpleEvaluationFunctionWithMobility(MoveGenerator<StandardPieceType> moveGenerator) {
+    public SimpleEvaluationFunctionWithMobility(MoveGenerator<Square8x8, StandardPieceType> moveGenerator) {
         this.moveGenerator = moveGenerator;
     }
 
-    private static int getPenalty(Map<Integer, Integer> fileCounts, List<Square> pawnSquares) {
+    private static int getPenalty(Map<Integer, Integer> fileCounts, List<Square8x8> pawnSquare8x8s) {
         int penalty = 0;
         // Penalize doubled pawns: for each extra pawn in a file, apply a penalty.
         for (Integer count : fileCounts.values()) {
@@ -39,7 +40,7 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<
         }
 
         // Penalize isolated pawns: if a pawn's file has no adjacent friendly pawn.
-        for (Square pawnPos : pawnSquares) {
+        for (Square8x8 pawnPos : pawnSquare8x8s) {
             int file = pawnPos.x();
             boolean hasLeft = fileCounts.containsKey(file - 1);
             boolean hasRight = fileCounts.containsKey(file + 1);
@@ -51,62 +52,62 @@ public class SimpleEvaluationFunctionWithMobility implements GameStateEvaluator<
     }
 
     @Override
-    public int evaluate(GameState<StandardPieceType> gameState) {
+    public int evaluate(GameState<Square8x8, StandardPieceType> gameState) {
         if (gameState == null) {
             throw new NullPointerException("GameState must not be null");
         }
 
-        ChessBoard<StandardPieceType> board = gameState.getChessBoard();
+        ChessBoard<Square8x8, StandardPieceType> board = gameState.getChessBoard();
 
         // Check for win conditions.
         // If the opponent's king is missing, return a huge win bonus.
-        if (board.getSquaresWithTypeAndColour(StandardPieceType.KING, !gameState.isWhiteTurn()).isEmpty()) {
-            return gameState.isWhiteTurn() ? WIN_BONUS : -WIN_BONUS;
+        if (board.getTilesWithTypeAndColour(StandardPieceType.KING, gameState.getColor().opposite()).isEmpty()) {
+            return gameState.getColor() == Color.WHITE ? WIN_BONUS : -WIN_BONUS;
         }
         // If our king is missing, return a huge loss.
-        if (board.getSquaresWithTypeAndColour(StandardPieceType.KING, gameState.isWhiteTurn()).isEmpty()) {
-            return gameState.isWhiteTurn() ? -WIN_BONUS : WIN_BONUS;
+        if (board.getTilesWithTypeAndColour(StandardPieceType.KING, gameState.getColor()).isEmpty()) {
+            return gameState.getColor() == Color.WHITE ? -WIN_BONUS : WIN_BONUS;
         }
 
         // Material evaluation.
         int materialScore = 0;
-        for (Square square : board.getSquaresWithColour(gameState.isWhiteTurn()))
-            materialScore += getPieceValue(gameState.getPieceAt(square).pieceType());
-        for (Square square : board.getSquaresWithColour(!gameState.isWhiteTurn()))
-            materialScore -= getPieceValue(gameState.getPieceAt(square).pieceType());
+        for (Square8x8 square8x8 : board.getTilesWithColour(gameState.getColor()))
+            materialScore += getPieceValue(gameState.getPieceAt(square8x8).pieceType());
+        for (Square8x8 square8x8 : board.getTilesWithColour(gameState.getColor().opposite()))
+            materialScore -= getPieceValue(gameState.getPieceAt(square8x8).pieceType());
 
-        // Add capture bonus: additional bonus equal to 20% claim the material score.
+        // Add capture bonus: additional bonus equal to 20% of the material score.
         int captureBonus = (int) (materialScore * CAPTURE_BONUS_FACTOR);
 
         // Mobility evaluation.
-        boolean isWhite = gameState.isWhiteTurn();
-        gameState.setIsWhiteTurn(true);
-        MoveLookup<StandardPieceType> whiteMoves = moveGenerator.generateMoves(gameState);
-        gameState.setIsWhiteTurn(false);
-        MoveLookup<StandardPieceType> blackMoves = moveGenerator.generateMoves(gameState);
+        Color isWhite = gameState.getColor();
+        gameState.setIsWhiteTurn(isWhite);
+        MoveLookup<Square8x8, StandardPieceType> whiteMoves = moveGenerator.generateMoves(gameState);
+        gameState.setIsWhiteTurn(isWhite);
+        MoveLookup<Square8x8, StandardPieceType> blackMoves = moveGenerator.generateMoves(gameState);
         gameState.setIsWhiteTurn(isWhite);
         int mobilityScore = MOBILITY_BONUS * (whiteMoves.size() - blackMoves.size());
 
         // Pawn structure evaluation.
-        int whitePawnPenalty = evaluatePawnStructure(board, true);
-        int blackPawnPenalty = evaluatePawnStructure(board, false);
+        int whitePawnPenalty = evaluatePawnStructure(board, Color.WHITE);
+        int blackPawnPenalty = evaluatePawnStructure(board, Color.BLACK);
         int pawnScore = -whitePawnPenalty + blackPawnPenalty;
 
         return materialScore + captureBonus + mobilityScore + pawnScore;
     }
 
-    private int evaluatePawnStructure(ChessBoard<StandardPieceType> board, boolean isWhite) {
-        List<Square> pawnSquares = board.getSquaresWithTypeAndColour(StandardPieceType.PAWN, isWhite);
-        if (pawnSquares.isEmpty()) return 0;
+    private int evaluatePawnStructure(ChessBoard<Square8x8, StandardPieceType> board, Color isWhite) {
+        List<Square8x8> pawnSquare8x8s = board.getTilesWithTypeAndColour(StandardPieceType.PAWN, isWhite);
+        if (pawnSquare8x8s.isEmpty()) return 0;
 
-        // Map from file (x coordinate) to the count claim pawns.
+        // Map from file (x coordinate) to the count of pawns.
         Map<Integer, Integer> fileCounts = new HashMap<>();
-        for (Square square : pawnSquares) {
-            int file = square.x();
+        for (Square8x8 square8x8 : pawnSquare8x8s) {
+            int file = square8x8.x();
             fileCounts.put(file, fileCounts.getOrDefault(file, 0) + 1);
         }
 
-        return getPenalty(fileCounts, pawnSquares);
+        return getPenalty(fileCounts, pawnSquare8x8s);
     }
 
     private int getPieceValue(PieceType type) {

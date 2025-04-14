@@ -1,5 +1,6 @@
 package de.schoenfeld.chesskit.core.ai;
 
+import de.schoenfeld.chesskit.board.tile.Square8x8;
 import de.schoenfeld.chesskit.model.ChessPiece;
 import de.schoenfeld.chesskit.model.PieceType;
 import de.schoenfeld.chesskit.model.StandardPieceType;
@@ -8,7 +9,7 @@ import de.schoenfeld.chesskit.move.components.CaptureComponent;
 
 import java.util.Map;
 
-public class AggressiveMoveOrdering implements MoveOrderingHeuristic<StandardPieceType> {
+public class AggressiveMoveOrdering implements MoveOrderingHeuristic<Square8x8, StandardPieceType> {
 
     // Material values for standard chess pieces (modify if custom pieces exist)
     private static final Map<PieceType, Integer> MATERIAL_VALUES = Map.of(
@@ -21,12 +22,12 @@ public class AggressiveMoveOrdering implements MoveOrderingHeuristic<StandardPie
     );
 
     @Override
-    public int applyAsInt(Move<StandardPieceType> move) {
+    public int applyAsInt(Move<Square8x8, StandardPieceType> move) {
         int score = 0;
 
         ChessPiece<StandardPieceType> movedPiece = move.movedPiece();
 
-        CaptureComponent<StandardPieceType> captureComponent = move.getComponent(CaptureComponent.class);
+        CaptureComponent<Square8x8, StandardPieceType> captureComponent = move.getComponent(CaptureComponent.class);
         ChessPiece<StandardPieceType> capturedPiece = null;
         if (captureComponent != null)
             capturedPiece = captureComponent.capturedPiece();
@@ -39,15 +40,15 @@ public class AggressiveMoveOrdering implements MoveOrderingHeuristic<StandardPie
         }
 
         // 2. Prioritize Moves That Put the Opponent in Check
-        CaptureComponent<StandardPieceType> component = move.getComponent(CaptureComponent.class);
+        CaptureComponent<Square8x8, StandardPieceType> component = move.getComponent(CaptureComponent.class);
         boolean isCheck = component != null
                 && component.capturedPiece().pieceType() == StandardPieceType.KING;
         if (isCheck) {
             score += 500;
         }
 
-        // 3. Encourage Development (favor first moves claim minor pieces)
-        if (!movedPiece.hasMoved() && isMinorPiece(movedPiece)) {
+        // 3. Encourage Development (favor first moves of minor pieces)
+        if (isMinorPiece(movedPiece)) {
             score += 50;
         }
 

@@ -1,5 +1,7 @@
 package de.schoenfeld.chesskit.events;
 
+import de.schoenfeld.chesskit.model.Color;
+
 public record GameConclusion(Winner winner, String description) {
 
     public boolean isDraw() {
@@ -9,8 +11,8 @@ public record GameConclusion(Winner winner, String description) {
     public enum Winner {
         WHITE, BLACK, NONE;
 
-        public static Winner of(boolean isWhite) {
-            return isWhite ? WHITE : BLACK;
+        public static Winner of(Color color) {
+            return color == Color.WHITE ? WHITE : BLACK;
         }
     }
 }

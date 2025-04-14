@@ -3,8 +3,8 @@ package de.schoenfeld.chesskit.ui;
 import de.schoenfeld.chesskit.events.EventBus;
 import de.schoenfeld.chesskit.events.GameStateChangedEvent;
 import de.schoenfeld.chesskit.model.ChessPiece;
-import de.schoenfeld.chesskit.model.PieceType;
-import de.schoenfeld.chesskit.model.Square;
+import de.schoenfeld.chesskit.board.tile.Square8x8;
+import de.schoenfeld.chesskit.model.StandardPieceType;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,8 +31,6 @@ public class ChessUIClient {
     }
 
     private void initializeUI() {
-        //frame.setUndecorated(true);
-        //frame.setShape(new RoundRectangle2D.Double(0, 0, 800, 800, 30, 30));
         frame.setSize(800, 800);
         frame.setLocationRelativeTo(null);
         frame.setLayout(new BorderLayout());
@@ -72,13 +70,12 @@ public class ChessUIClient {
         eventBus.subscribe(GameStateChangedEvent.class, this::handleGameStateChanged);
     }
 
-    private <T extends PieceType> void handleGameStateChanged(GameStateChangedEvent<T> event) {
+    private void handleGameStateChanged(GameStateChangedEvent<Square8x8, StandardPieceType> event) {
         SwingUtilities.invokeLater(() -> {
             try {
-                Map<Square, ChessPiece<T>> squares = new HashMap<>();
-                event.newState().getOccupiedSquares().forEach(square -> {
-                    squares.put(square, event.newState().getPieceAt(square));
-                });
+                Map<Square8x8, ChessPiece<StandardPieceType>> squares = new HashMap<>();
+                event.newState().getOccupiedTiles().forEach(square ->
+                        squares.put(square, event.newState().getPieceAt(square)));
                 boardPanel.updateBoard(squares);
                 frame.revalidate();
                 frame.repaint();
@@ -90,19 +87,5 @@ public class ChessUIClient {
 
     public void show() {
         frame.setVisible(true);
-    }
-
-    public Square getSquareAt(int x, int y) {
-        int boardSize = boardPanel.getWidth(); // Assuming square board
-        int squareSize = boardSize / 8; // Each square's size
-
-        int col = (x - boardPanel.getX()) / squareSize;
-        int row = (y - boardPanel.getY()) / squareSize;
-
-        if (col < 0 || col >= 8 || row < 0 || row >= 8) {
-            return null; // Click is outside the board
-        }
-
-        return Square.of(col, 7 - row); // Convert to chess coordinates
     }
 }

@@ -1,26 +1,26 @@
 package de.schoenfeld.chesskit.core;
 
+import de.schoenfeld.chesskit.board.tile.Tile;
 import de.schoenfeld.chesskit.events.*;
 import de.schoenfeld.chesskit.model.GameState;
 import de.schoenfeld.chesskit.model.PieceType;
 import de.schoenfeld.chesskit.move.MoveLookup;
-import de.schoenfeld.chesskit.move.components.EnPassantComponent;
 import de.schoenfeld.chesskit.rules.Rules;
 
 import java.util.UUID;
 
-public class ChessGame<T extends PieceType> {
+public class ChessGame<T extends Tile, P extends PieceType> {
 
     private final EventBus eventBus;
     private final UUID gameId;
-    private final Rules<T> rules;
-    private final GameState<T> gameState;
+    private final Rules<T, P> rules;
+    private final GameState<T, P> gameState;
 
-    public ChessGame(GameState<T> gameState, Rules<T> rules, EventBus eventBus) {
+    public ChessGame(GameState<T, P> gameState, Rules<T, P> rules, EventBus eventBus) {
         this(UUID.randomUUID(), gameState, rules, eventBus);
     }
 
-    public ChessGame(UUID gameId, GameState<T> gameState, Rules<T> rules, EventBus eventBus) {
+    public ChessGame(UUID gameId, GameState<T, P> gameState, Rules<T, P> rules, EventBus eventBus) {
         this.gameState = gameState;
         this.rules = rules;
         this.eventBus = eventBus;
@@ -32,35 +32,32 @@ public class ChessGame<T extends PieceType> {
     public void start() {
         eventBus.publish(new GameStartedEvent(gameId));
 
-        rules.detectGameEndCause(gameState).ifPresent(gameConclusion -> {
-            eventBus.publish(new GameEndedEvent(gameId, gameConclusion));
+        var cause = rules.detectConclusion(gameState);
+
+        if (cause != null) {
+            eventBus.publish(new GameEndedEvent(gameId, cause));
             eventBus.publish(new GameStateChangedEvent<>(gameId, gameState));
-        });
+        }
 
         eventBus.publish(new GameStateChangedEvent<>(gameId, gameState));
     }
 
-    private void handleMoveProposed(MoveProposedEvent<T> event) {
+    private void handleMoveProposed(MoveProposedEvent<T, P> event) {
         if (!event.gameId().equals(gameId)) {
             return;
         }
 
-        if (event.player().isWhite() != gameState.isWhiteTurn()) {
+        if (event.player().color() != gameState.getColor()) {
             eventBus.publish(new ErrorEvent(gameId, event.player(), "Not your turn"));
             return;
         }
 
-        if (event.move().movedPiece().isWhite() != event.player().isWhite()) {
+        if (event.move().movedPiece().color() != event.player().color()) {
             eventBus.publish(new ErrorEvent(gameId, event.player(), "Not your piece"));
             return;
         }
 
-        MoveLookup<T> currentValidMoves = rules.generateMoves(gameState);
-        for (var move : currentValidMoves) {
-            if (move.hasComponent(EnPassantComponent.class)) {
-                System.out.println(move);
-            }
-        }
+        MoveLookup<T, P> currentValidMoves = rules.generateMoves(gameState);
 
         if (!currentValidMoves.contains(event.move())) {
             eventBus.publish(new ErrorEvent(gameId, event.player(), "Invalid move: " + event.move()));
@@ -68,18 +65,14 @@ public class ChessGame<T extends PieceType> {
         }
 
         gameState.makeMove(event.move());
-        rules.detectGameEndCause(gameState).ifPresentOrElse(
-                gameConclusion -> {
-                    eventBus.publish(new GameEndedEvent(gameId, gameConclusion));
-                    eventBus.publish(new GameStateChangedEvent<>(gameId, gameState));
-                },
-                () -> {
-                    eventBus.publish(new GameStateChangedEvent<>(gameId, gameState));
-                }
-        );
+        var cause = rules.detectConclusion(gameState);
+        if (cause != null) {
+            eventBus.publish(new GameEndedEvent(gameId, cause));
+            eventBus.publish(new GameStateChangedEvent<>(gameId, gameState));
+        } else eventBus.publish(new GameStateChangedEvent<>(gameId, gameState));
     }
 
-    public GameState<T> getGameState() {
+    public GameState<T, P> getGameState() {
         return gameState;
     }
 
@@ -87,7 +80,7 @@ public class ChessGame<T extends PieceType> {
         return gameId;
     }
 
-    public Rules<T> getRules() {
+    public Rules<T, P> getRules() {
         return rules;
     }
 }

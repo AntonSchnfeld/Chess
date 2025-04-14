@@ -1,5 +1,6 @@
 package de.schoenfeld.chesskit.core;
 
+import de.schoenfeld.chesskit.board.tile.Square8x8;
 import de.schoenfeld.chesskit.events.*;
 import de.schoenfeld.chesskit.model.*;
 import de.schoenfeld.chesskit.move.Move;
@@ -14,17 +15,20 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Map;
 
-public class UIPlayer<T extends PieceType> extends Player<T> {
+public class UIPlayer extends Player<Square8x8, StandardPieceType> {
     private final ChessUIClient uiClient;
-    private final Rules<T> rules;
-    private Square selectedSquare;
-    private MoveLookup<T> legalMoves;
-    private GameState<T> gameState;
+    private final Rules<Square8x8, StandardPieceType> rules;
+    private Square8x8 selectedSquare8x8;
+    private MoveLookup<Square8x8, StandardPieceType> legalMoves;
+    private GameState<Square8x8, StandardPieceType> gameState;
 
-    public UIPlayer(PlayerData playerData, EventBus eventBus, ChessUIClient uiClient, Rules<T> rules) {
+    public UIPlayer(PlayerData playerData,
+                    EventBus eventBus,
+                    ChessUIClient uiClient,
+                    Rules<Square8x8, StandardPieceType> rules) {
         super(playerData, eventBus);
         this.uiClient = uiClient;
-        this.selectedSquare = null;
+        this.selectedSquare8x8 = null;
         this.legalMoves = MoveLookup.of();
         this.rules = rules;
 
@@ -33,30 +37,30 @@ public class UIPlayer<T extends PieceType> extends Player<T> {
 
     private void registerClickListener() {
         ChessBoardPanel panel = uiClient.getBoardPanel();
-        Map<Square, ChessSquare> squares = panel.getSquares();
+        Map<Square8x8, ChessSquare> squares = panel.getSquares();
 
-        for (Map.Entry<Square, ChessSquare> entry : squares.entrySet()) {
+        for (Map.Entry<Square8x8, ChessSquare> entry : squares.entrySet()) {
             entry.getValue().addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     super.mousePressed(e);
-                    if (gameState.isWhiteTurn() == playerData.isWhite())
+                    if (gameState.getColor() == playerData.color())
                         handleBoardClick(entry.getKey());
                 }
             });
         }
     }
 
-    private void handleBoardClick(Square clickedSquare) {
-        ChessPiece<T> piece = gameState.getPieceAt(clickedSquare);
+    private void handleBoardClick(Square8x8 clickedSquare8x8) {
+        ChessPiece<StandardPieceType> piece = gameState.getPieceAt(clickedSquare8x8);
 
         // No piece selected yet
-        if (selectedSquare == null) {
-            // Select our piece and highlight its moves
-            if (piece != null && piece.isWhite() == playerData.isWhite()) {
-                selectedSquare = clickedSquare;
-                MoveLookup<T> movesForPiece = legalMoves.getMovesFromSquare(clickedSquare);
-                for (Move<T> move : movesForPiece)
+        if (selectedSquare8x8 == null) {
+            // Select the piece and highlight its moves
+            if (piece != null && piece.color() == playerData.color()) {
+                selectedSquare8x8 = clickedSquare8x8;
+                MoveLookup<Square8x8, StandardPieceType> movesForPiece = legalMoves.getMovesFromSquare(clickedSquare8x8);
+                for (Move<Square8x8, StandardPieceType> move : movesForPiece)
                     uiClient.getBoardPanel().setSquareHighlight(move.to(), true);
             } else {
                 // Enemy piece or no piece
@@ -65,11 +69,11 @@ public class UIPlayer<T extends PieceType> extends Player<T> {
             return;
         }
 
-        MoveLookup<T> movesForSelectedPiece = legalMoves.getMovesFromSquare(selectedSquare);
+        MoveLookup<Square8x8, StandardPieceType> movesForSelectedPiece = legalMoves.getMovesFromSquare(selectedSquare8x8);
         // Publish move if legal
-        if (movesForSelectedPiece.containsMoveTo(clickedSquare)) {
-            Move<T> theMove = movesForSelectedPiece.getMovesTo(clickedSquare).getFirst();
-            MoveProposedEvent<T> event = new MoveProposedEvent<>(gameId, playerData, theMove);
+        if (movesForSelectedPiece.containsMoveTo(clickedSquare8x8)) {
+            Move<Square8x8, StandardPieceType> theMove = movesForSelectedPiece.getMovesTo(clickedSquare8x8).getFirst();
+            MoveProposedEvent<Square8x8, StandardPieceType> event = new MoveProposedEvent<>(gameId, playerData, theMove);
             eventBus.publish(event);
         } else clearSelection();
     }
@@ -80,9 +84,9 @@ public class UIPlayer<T extends PieceType> extends Player<T> {
     }
 
     @Override
-    protected void onGameStateChanged(GameStateChangedEvent<T> event) {
+    protected void onGameStateChanged(GameStateChangedEvent<Square8x8, StandardPieceType> event) {
         gameState = event.newState();
-        if (event.newState().isWhiteTurn() == playerData.isWhite()) legalMoves = rules.generateMoves(event.newState());
+        if (event.newState().getColor() == playerData.color()) legalMoves = rules.generateMoves(event.newState());
         clearSelection();
     }
 
@@ -95,7 +99,7 @@ public class UIPlayer<T extends PieceType> extends Player<T> {
     }
 
     private void clearSelection() {
-        selectedSquare = null;
+        selectedSquare8x8 = null;
         uiClient.getBoardPanel().clearHighlights();
     }
 }

@@ -26,6 +26,7 @@ public abstract class Pool<T extends Poolable> {
     }
 
     public void release(T object) {
+        object.reset();
         pool.add(object);
         size++;
     }

@@ -1,5 +1,6 @@
 package de.schoenfeld.chesskit.model;
 
+import de.schoenfeld.chesskit.board.tile.Square8x8;
 import de.schoenfeld.chesskit.move.Move;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 public class MoveHistoryTest {
-    private MoveHistory<StandardPieceType> tested;
+    private MoveHistory<Square8x8, StandardPieceType> tested;
 
     @BeforeEach
     public void setup() {
@@ -25,7 +26,7 @@ public class MoveHistoryTest {
     @Test
     @SuppressWarnings("unchecked")
     public void givenMoveHistory_whenMoveRecorded_thenNewHistoryHasMove() {
-        Move<StandardPieceType> move = mock(Move.class);
+        Move<Square8x8, StandardPieceType> move = mock(Move.class);
         tested.recordMove(move);
 
         assertEquals(1, tested.getMoveCount());
@@ -34,16 +35,16 @@ public class MoveHistoryTest {
 
     @Test
     public void givenMoveHistory_when_thenNewMoveHist() {
-        tested.recordMove(Move.claim(null, null, null));
+        tested.recordMove(Move.of(null, null, null));
         assertEquals(1, tested.getMoveCount());
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void givenMoveHistoryWithMoves_whenLastMoveRemoved_thenNewHistoryHasOneLessMove() {
-        Move<StandardPieceType> move1 = mock(Move.class);
-        Move<StandardPieceType> move2 = mock(Move.class);
-        MoveHistory<StandardPieceType> history = new MoveHistory<>();
+        Move<Square8x8, StandardPieceType> move1 = mock(Move.class);
+        Move<Square8x8, StandardPieceType> move2 = mock(Move.class);
+        MoveHistory<Square8x8, StandardPieceType> history = new MoveHistory<>();
         history.recordMove(move1);
         history.recordMove(move2);
         history.removeLastMove();
